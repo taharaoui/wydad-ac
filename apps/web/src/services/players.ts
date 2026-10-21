@@ -1,38 +1,74 @@
-import { PlayerSchema } from '@/types';
 import type { Player, Position } from '@/types';
 import { mockPlayers } from '@/lib/mock-data';
+import {
+  IS_MOCK,
+  fetchSquad as apiFetchSquad,
+  fetchPlayer as apiFetchPlayer,
+  fetchPlayerStats,
+  type MappedPlayer,
+  type MappedPlayerStats,
+} from '@/lib/stats-api';
 
-const API_KEY = process.env.STATS_API_KEY;
-const API_BASE = process.env.STATS_API_BASE_URL || 'https://api.thestatsapi.com/v1';
-const IS_MOCK = !API_KEY;
+// ── Mappers ──
+
+function toPlayer(p: MappedPlayer, stats?: MappedPlayerStats | null): Player {
+  return {
+    id: p.id,
+    name: p.name,
+    short_name: p.short_name,
+    number: p.number,
+    position: p.position,
+    nationality: p.nationality,
+    date_of_birth: p.date_of_birth,
+    height_cm: p.height_cm,
+    photo_url: p.photo_url,
+    stats: stats
+      ? {
+          appearances: stats.appearances,
+          goals: stats.goals,
+          assists: stats.assists,
+          yellow_cards: stats.yellow_cards,
+          red_cards: stats.red_cards,
+          minutes_played: stats.minutes_played,
+          clean_sheets: stats.clean_sheets,
+        }
+      : undefined,
+  };
+}
+
+/** Log a warning and return mock data when the API is unreachable (e.g. during build). */
+function warnFallback(label: string, err: unknown): void {
+  console.warn(`[players] ${label} failed, using mock data:`, err instanceof Error ? err.message : err);
+}
 
 // ── Public API ──
 
 export async function getSquad(): Promise<Player[]> {
   if (IS_MOCK) return mockPlayers;
 
-  const res = await fetch(`${API_BASE}/teams/wydad/players`, {
-    headers: { Authorization: `Bearer ${API_KEY}` },
-    next: { revalidate: 3600 }, // squad changes rarely
-  });
-
-  if (!res.ok) throw new Error(`Stats API ${res.status}`);
-  const json = await res.json();
-  return (json as unknown[]).map((p) => PlayerSchema.parse(p));
+  try {
+    const squad = await apiFetchSquad();
+    return squad.map((p) => toPlayer(p));
+  } catch (err) {
+    warnFallback('getSquad', err);
+    return mockPlayers;
+  }
 }
 
 export async function getPlayerById(id: string): Promise<Player | null> {
   if (IS_MOCK) return mockPlayers.find((p) => p.id === id) ?? null;
 
   try {
-    const res = await fetch(`${API_BASE}/players/${id}`, {
-      headers: { Authorization: `Bearer ${API_KEY}` },
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return null;
-    return PlayerSchema.parse(await res.json());
-  } catch {
-    return null;
+    const player = await apiFetchPlayer(id);
+    if (!player) return null;
+
+    // Fetch season stats alongside the profile
+    const stats = await fetchPlayerStats(id);
+
+    return toPlayer(player, stats);
+  } catch (err) {
+    warnFallback('getPlayerById', err);
+    return mockPlayers.find((p) => p.id === id) ?? null;
   }
 }
 
