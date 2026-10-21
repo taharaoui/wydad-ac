@@ -128,7 +128,56 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-white/[0.06] pt-6 text-center text-xs text-white/30">
+        {/* Sponsors */}
+        <div className="mt-12 border-t border-white/[0.06] pt-8">
+          <h3 className="mb-6 text-center text-label-lg font-semibold uppercase tracking-wider text-white/30">
+            {t('sponsors')}
+          </h3>
+          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
+            {/* Wydad Crest */}
+            <div className="flex items-center justify-center">
+              <Image
+                src="/images/crest-stars.png"
+                alt="Wydad AC"
+                width={40}
+                height={48}
+                className="h-12 w-auto opacity-60 grayscale transition-all hover:opacity-100 hover:grayscale-0"
+              />
+            </div>
+            {/* Ingelec - Main Sponsor */}
+            <div className="flex items-center justify-center">
+              <Image
+                src="/images/sponsors/ingelec.svg"
+                alt="Ingelec"
+                width={100}
+                height={100}
+                className="h-10 w-auto brightness-0 invert opacity-50 transition-all hover:opacity-100"
+              />
+            </div>
+            {/* Kappa - Equipment */}
+            <div className="flex items-center justify-center">
+              <Image
+                src="/images/sponsors/kappa.svg"
+                alt="Kappa"
+                width={100}
+                height={100}
+                className="h-10 w-auto brightness-0 invert opacity-50 transition-all hover:opacity-100"
+              />
+            </div>
+            {/* Coca-Cola */}
+            <div className="flex items-center justify-center">
+              <Image
+                src="/images/sponsors/coca-cola.webp"
+                alt="Coca-Cola"
+                width={120}
+                height={40}
+                className="h-8 w-auto brightness-0 invert opacity-50 transition-all hover:opacity-100"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-8 border-t border-white/[0.06] pt-6 text-center text-xs text-white/30">
           <p>
             © {new Date().getFullYear()} {t('club_name')}. {t('rights')}
           </p>
