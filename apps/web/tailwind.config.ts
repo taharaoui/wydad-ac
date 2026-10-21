@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import plugin from 'tailwindcss/plugin';
 
 const config: Config = {
   content: ['./src/**/*.{ts,tsx}'],
@@ -7,39 +8,36 @@ const config: Config = {
     extend: {
       colors: {
         wydad: {
-          red: '#EA332F',
+          red: 'rgb(var(--color-wydad-red) / <alpha-value>)',
           'red-hover': '#D42B27',
-          'red-soft': '#FEF0F0',
+          'red-soft': 'rgb(var(--color-wydad-red) / 0.08)',
           'red-dark': '#C41E1A',
           white: '#FFFFFF',
         },
         surface: {
-          DEFAULT: '#FFFFFF',
-          secondary: '#F8F8F6',
-          dark: '#1A1A18',
-          'dark-secondary': '#242422',
+          DEFAULT: 'rgb(var(--color-surface) / <alpha-value>)',
+          secondary: 'rgb(var(--color-surface-secondary) / <alpha-value>)',
+          elevated: 'rgb(var(--color-surface-elevated) / <alpha-value>)',
+          dark: 'rgb(var(--color-surface-dark) / <alpha-value>)',
+          'dark-secondary': 'rgb(var(--color-surface-dark-secondary) / <alpha-value>)',
         },
         border: {
-          DEFAULT: '#E8E8E4',
-          dark: '#2E2E2A',
+          DEFAULT: 'rgb(var(--color-border) / <alpha-value>)',
+          hover: 'rgb(var(--color-border-hover) / <alpha-value>)',
         },
         fg: {
-          DEFAULT: '#1A1A18',
-          secondary: '#5C5C56',
-          muted: '#9A9A92',
-          inverse: '#FAFAF8',
-          dim: '#9A9A92',
-          'dark-DEFAULT': '#EAEAE6',
-          'dark-secondary': '#9A9A94',
-          'dark-dim': '#666660',
+          DEFAULT: 'rgb(var(--color-fg) / <alpha-value>)',
+          secondary: 'rgb(var(--color-fg-secondary) / <alpha-value>)',
+          muted: 'rgb(var(--color-fg-muted) / <alpha-value>)',
+          inverse: 'rgb(var(--color-fg-inverse) / <alpha-value>)',
         },
         accent: {
-          green: '#2D8A56',
-          'green-bg': '#EDF7F1',
-          gold: '#D4A843',
-          'gold-bg': '#FBF7EE',
-          blue: '#2D6FBF',
-          'blue-bg': '#EDF3FB',
+          green: 'rgb(var(--color-accent-green) / <alpha-value>)',
+          'green-bg': 'rgb(var(--color-accent-green) / 0.1)',
+          gold: 'rgb(var(--color-accent-gold) / <alpha-value>)',
+          'gold-bg': 'rgb(var(--color-accent-gold) / 0.1)',
+          blue: 'rgb(var(--color-accent-blue) / <alpha-value>)',
+          'blue-bg': 'rgb(var(--color-accent-blue) / 0.1)',
         },
       },
       fontFamily: {
@@ -48,7 +46,7 @@ const config: Config = {
         mono: ['SF Mono', 'Fira Code', 'monospace'],
       },
       fontSize: {
-        // Type scale — mobile-first, use clamp for responsive headings in components
+        'display-2xl': ['3.5rem', { lineHeight: '1.05', letterSpacing: '-0.03em' }],
         'display-xl': ['2.5rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
         'display-lg': ['2rem', { lineHeight: '1.15', letterSpacing: '-0.015em' }],
         'display-md': ['1.5rem', { lineHeight: '1.2', letterSpacing: '-0.01em' }],
@@ -60,8 +58,8 @@ const config: Config = {
         'label-sm': ['0.6875rem', { lineHeight: '1', letterSpacing: '0.08em' }],
       },
       borderRadius: {
-        card: '12px',
-        button: '8px',
+        card: '16px',
+        button: '10px',
         badge: '20px',
       },
       spacing: {
@@ -74,23 +72,61 @@ const config: Config = {
         content: '860px',
         wide: '1120px',
       },
+      boxShadow: {
+        card: 'var(--shadow-card)',
+        'card-hover': 'var(--shadow-card-hover)',
+        header: 'var(--shadow-header)',
+      },
       keyframes: {
         'pulse-live': {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.4' },
         },
         'slide-up': {
-          from: { opacity: '0', transform: 'translateY(8px)' },
+          from: { opacity: '0', transform: 'translateY(12px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'slide-down': {
+          from: { opacity: '0', transform: 'translateY(-8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'fade-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        'scale-in': {
+          from: { opacity: '0', transform: 'scale(0.95)' },
+          to: { opacity: '1', transform: 'scale(1)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        'count-up': {
+          from: { opacity: '0', transform: 'translateY(10px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
       },
       animation: {
         'pulse-live': 'pulse-live 2s ease-in-out infinite',
-        'slide-up': 'slide-up 0.3s ease-out',
+        'slide-up': 'slide-up 0.4s ease-out',
+        'slide-down': 'slide-down 0.3s ease-out',
+        'fade-in': 'fade-in 0.5s ease-out',
+        'scale-in': 'scale-in 0.3s ease-out',
+        shimmer: 'shimmer 2s linear infinite',
+        'count-up': 'count-up 0.5s ease-out',
       },
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(function ({ addUtilities }) {
+      addUtilities({
+        '.text-balance': {
+          'text-wrap': 'balance',
+        },
+      });
+    }),
+  ],
 };
 
 export default config;

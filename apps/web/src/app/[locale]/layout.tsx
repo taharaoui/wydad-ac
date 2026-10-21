@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { locales, rtlLocales, type Locale } from '@/i18n/config';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import '@/app/globals.css';
 
 export async function generateMetadata({
@@ -54,15 +55,23 @@ export default async function LocaleLayout({
           href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
+        {/* Prevent flash of wrong theme */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('wydad-theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()`,
+          }}
+        />
       </head>
-      <body className="font-body bg-surface text-fg antialiased">
-        <NextIntlClientProvider messages={messages}>
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-        </NextIntlClientProvider>
+      <body className="font-body bg-surface text-fg antialiased transition-colors duration-200">
+        <ThemeProvider>
+          <NextIntlClientProvider messages={messages}>
+            <div className="flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

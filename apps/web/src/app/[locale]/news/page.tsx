@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getLatestNews } from '@/services/news';
 import { Link } from '@/i18n/navigation';
+import { ScrollReveal } from '@/components/ui/ScrollReveal';
 import type { NewsArticle } from '@/types';
 
 function ArticleCard({ article, locale }: { article: NewsArticle; locale: string }) {
@@ -8,30 +9,31 @@ function ArticleCard({ article, locale }: { article: NewsArticle; locale: string
   const dateLocale = locale === 'ar' ? 'ar-MA' : locale === 'fr' ? 'fr-FR' : 'en-GB';
 
   const categoryColors: Record<string, string> = {
-    match_report: 'bg-wydad-red-soft text-wydad-red',
-    transfer: 'bg-accent-blue-bg text-accent-blue',
-    club: 'bg-accent-gold-bg text-accent-gold',
-    interview: 'bg-accent-green-bg text-accent-green',
+    match_report: 'bg-wydad-red/10 text-wydad-red',
+    transfer: 'bg-accent-blue/10 text-accent-blue',
+    club: 'bg-accent-gold/10 text-accent-gold',
+    interview: 'bg-accent-green/10 text-accent-green',
     youth: 'bg-surface-secondary text-fg-secondary',
   };
 
   return (
     <Link
       href={`/news/${article.slug}`}
-      className="group overflow-hidden rounded-2xl border border-border bg-surface transition-all hover:border-wydad-red/30 hover:shadow-md"
+      className="group overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-all hover:shadow-card-hover hover:border-border-hover"
     >
       {/* Image placeholder */}
-      <div className="aspect-video bg-gradient-to-br from-surface-secondary to-surface-dark/10">
+      <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-surface-secondary to-surface-dark/10">
         <div className="flex h-full items-center justify-center">
-          <svg className="h-10 w-10 text-fg-muted/20" viewBox="0 0 24 24" fill="currentColor">
+          <svg className="h-10 w-10 text-fg-muted/15" viewBox="0 0 24 24" fill="currentColor">
             <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z" />
           </svg>
         </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
       </div>
 
       <div className="p-4 sm:p-5">
         <div className="flex items-center gap-2">
-          <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${categoryColors[article.category] || ''}`}>
+          <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${categoryColors[article.category] || 'bg-surface-secondary text-fg-secondary'}`}>
             {article.category.replace('_', ' ')}
           </span>
           <span className="text-xs text-fg-muted">
@@ -42,17 +44,24 @@ function ArticleCard({ article, locale }: { article: NewsArticle; locale: string
         <h3 className="mt-3 font-display text-base font-bold text-fg transition-colors group-hover:text-wydad-red sm:text-lg">
           {article.title[lang]}
         </h3>
-        <p className="mt-2 line-clamp-2 text-sm text-fg-muted">
+        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-fg-muted">
           {article.excerpt[lang]}
         </p>
 
-        <p className="mt-3 text-xs text-fg-muted">
-          {new Date(article.published_at).toLocaleDateString(dateLocale, {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          })}
-        </p>
+        <div className="mt-3 flex items-center justify-between">
+          <p className="text-xs text-fg-muted">
+            {new Date(article.published_at).toLocaleDateString(dateLocale, {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })}
+          </p>
+          <div className="flex items-center gap-1 text-xs font-medium text-wydad-red opacity-0 transition-opacity group-hover:opacity-100">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="rtl:rotate-180">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+        </div>
       </div>
     </Link>
   );
@@ -75,11 +84,13 @@ export default async function NewsPage({
         {t('latest')}
       </h1>
 
-      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {articles.map(article => (
-          <ArticleCard key={article.id} article={article} locale={locale} />
-        ))}
-      </div>
+      <ScrollReveal stagger>
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {articles.map(article => (
+            <ArticleCard key={article.id} article={article} locale={locale} />
+          ))}
+        </div>
+      </ScrollReveal>
 
       {articles.length === 0 && (
         <p className="mt-8 text-fg-muted">No articles yet.</p>

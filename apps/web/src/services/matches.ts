@@ -57,6 +57,13 @@ export async function getLatestResult(): Promise<Match | null> {
   return [...matches].reverse().find((m) => m.status === 'finished') ?? null;
 }
 
+export async function getRecentMatches(limit = 8): Promise<Match[]> {
+  if (IS_MOCK) return mockMatches.slice(0, limit);
+
+  const matches = await getMatches();
+  return matches.slice(0, limit);
+}
+
 export async function getStandings(): Promise<StandingRow[]> {
   if (IS_MOCK) return mockStandings;
 
