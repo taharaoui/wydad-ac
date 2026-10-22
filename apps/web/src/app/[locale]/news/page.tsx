@@ -54,6 +54,7 @@ function ArticleCard({ article, locale }: { article: NewsArticle; locale: string
               day: 'numeric',
               month: 'long',
               year: 'numeric',
+              timeZone: 'Africa/Casablanca',
             })}
           </p>
           <div className="flex items-center gap-1 text-xs font-medium text-wydad-red opacity-0 transition-opacity group-hover:opacity-100">

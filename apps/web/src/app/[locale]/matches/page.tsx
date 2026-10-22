@@ -1,8 +1,13 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { FootballNav } from '@/components/team/FootballNav';
+import { SeasonSchedule } from '@/components/matches/SeasonSchedule';
+import { formatKickoffLong } from '@/lib/datetime';
 import { getMatches, getStandings } from '@/services/matches';
 import { Link } from '@/i18n/navigation';
 import { StandingsPreview } from '@/components/home/StandingsPreview';
 import type { Match } from '@/types';
+import { isWydad } from '@/lib/clubs';
+import { TeamCrest } from '@/components/ui/TeamCrest';
 
 function MatchRow({ match, locale }: { match: Match; locale: string }) {
   const isFinished = match.status === 'finished';
@@ -10,7 +15,7 @@ function MatchRow({ match, locale }: { match: Match; locale: string }) {
   const dateLocale = locale === 'ar' ? 'ar-MA' : locale === 'fr' ? 'fr-FR' : 'en-GB';
   const dateObj = new Date(match.kickoff);
 
-  const isWydadHome = match.home_team.id === 'wydad';
+  const isWydadHome = isWydad(match.home_team.id);
   const wydadScore = isWydadHome ? match.score_home : match.score_away;
   const opponentScore = isWydadHome ? match.score_away : match.score_home;
   const isWin = wydadScore !== null && opponentScore !== null && wydadScore > opponentScore;
@@ -24,16 +29,16 @@ function MatchRow({ match, locale }: { match: Match; locale: string }) {
       {/* Date column */}
       <div className="w-16 shrink-0 text-center">
         <p className="text-xs text-fg-muted">
-          {dateObj.toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' })}
+          {dateObj.toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', timeZone: 'Africa/Casablanca' })}
         </p>
         {!isFinished && !isLive && (
           <p className="mt-0.5 text-sm font-semibold text-fg">
-            {dateObj.toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
+            {dateObj.toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'Africa/Casablanca' })}
           </p>
         )}
         {isLive && (
           <span className="mt-0.5 inline-flex items-center gap-1 text-xs font-semibold text-wydad-red">
-            <span className="h-1.5 w-1.5 animate-pulse-live rounded-full bg-wydad-red" />
+            <span className="h-1.5 w-1.5 animate-pulse-live rounded-full bg-wydad-logo" />
             {match.minute}&apos;
           </span>
         )}
@@ -51,27 +56,29 @@ function MatchRow({ match, locale }: { match: Match; locale: string }) {
       {/* Teams + score */}
       <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className={`truncate text-sm font-medium ${
-            match.home_team.id === 'wydad' ? 'font-bold text-fg' : 'text-fg-secondary'
+          <p className={`flex items-center gap-2 text-sm font-medium ${
+            isWydad(match.home_team.id) ? 'font-bold text-fg' : 'text-fg-secondary'
           }`}>
-            {match.home_team.name}
+            <TeamCrest team={match.home_team} size={20} fallbackClassName="rounded bg-surface-secondary text-fg-muted" />
+            <span className="truncate">{match.home_team.name}</span>
           </p>
-          <p className={`mt-1 truncate text-sm font-medium ${
-            match.away_team.id === 'wydad' ? 'font-bold text-fg' : 'text-fg-secondary'
+          <p className={`mt-1.5 flex items-center gap-2 text-sm font-medium ${
+            isWydad(match.away_team.id) ? 'font-bold text-fg' : 'text-fg-secondary'
           }`}>
-            {match.away_team.name}
+            <TeamCrest team={match.away_team} size={20} fallbackClassName="rounded bg-surface-secondary text-fg-muted" />
+            <span className="truncate">{match.away_team.name}</span>
           </p>
         </div>
 
         {(isFinished || isLive) && (
           <div className="shrink-0 text-end">
-            <p className={`text-sm font-bold ${
-              match.home_team.id === 'wydad' ? 'text-fg' : 'text-fg-secondary'
+            <p className={`text-sm font-bold leading-5 ${
+              isWydad(match.home_team.id) ? 'text-fg' : 'text-fg-secondary'
             }`}>
               {match.score_home}
             </p>
-            <p className={`mt-1 text-sm font-bold ${
-              match.away_team.id === 'wydad' ? 'text-fg' : 'text-fg-secondary'
+            <p className={`mt-1.5 text-sm font-bold leading-5 ${
+              isWydad(match.away_team.id) ? 'text-fg' : 'text-fg-secondary'
             }`}>
               {match.score_away}
             </p>
@@ -104,6 +111,7 @@ export default async function MatchesPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'matches' });
+  const tFootball = await getTranslations({ locale, namespace: 'football' });
 
   const [matches, standings] = await Promise.all([
     getMatches(),
@@ -118,12 +126,19 @@ export default async function MatchesPage({
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="font-display text-display-lg font-bold text-fg">
-        {t('view_all')}
+    <>
+    <FootballNav active="fixtures" />
+    <div className="mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-6 lg:px-8">
+      <h1 className="font-condensed text-6xl font-extrabold uppercase italic leading-none text-fg rtl:not-italic sm:text-7xl">
+        {tFootball('fixtures')}
       </h1>
+      <p className="mt-3 font-condensed text-2xl font-bold text-fg">{tFootball('season')}</p>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-3">
+      <div className="mt-10">
+        <SeasonSchedule matches={matches} dates={Object.fromEntries(matches.map((m) => [m.id, formatKickoffLong(m.kickoff, locale)]))} />
+      </div>
+
+      <div className="mt-14 grid gap-8 lg:grid-cols-3">
         {/* Main column: fixtures + results */}
         <div className="space-y-8 lg:col-span-2">
           {/* Fixtures */}
@@ -165,5 +180,6 @@ export default async function MatchesPage({
         </aside>
       </div>
     </div>
+    </>
   );
 }

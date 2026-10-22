@@ -1,118 +1,125 @@
 import { useTranslations } from 'next-intl';
 import type { Match } from '@/types';
+import type { SummaryGoal } from '@/lib/match-summary';
+import { TeamCrest } from '@/components/ui/TeamCrest';
 
 interface MatchHeaderProps {
   match: Match;
-  locale: string;
+  /** Long kick-off label, formatted on the server */
+  dateLabel: string;
+  /** Kick-off time only (HH:MM), for upcoming matches */
+  timeLabel: string;
+  goals: SummaryGoal[];
 }
 
-export function MatchHeader({ match, locale }: MatchHeaderProps) {
+function BallIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden className="shrink-0 text-wydad-logo">
+      <circle cx="12" cy="12" r="9.5" />
+      <path d="M12 7.5l4 2.9-1.5 4.7h-5L8 10.4z" fill="currentColor" />
+      <path d="M12 7.5V2.5M16 10.4l4.6-1.5M14.5 15.1l2.9 4M9.5 15.1l-2.9 4M8 10.4 3.4 8.9" />
+    </svg>
+  );
+}
+
+/** One team line, psg.fr style: crest, huge italic name, score, scorers underneath. */
+function TeamRow({ team, score, showScore, goals, penLabel }: { team: Match['home_team']; score: number | null; showScore: boolean; goals: SummaryGoal[]; penLabel: string }) {
+  return (
+    <div>
+      <div className="flex items-center gap-4 sm:gap-6">
+        <TeamCrest team={team} size={72} fallbackClassName="rounded-full bg-white/10 text-white" className="max-sm:!h-12 max-sm:!w-12" />
+        <h2 className="min-w-0 font-condensed text-4xl font-extrabold uppercase italic leading-[0.9] tracking-tight text-white rtl:not-italic sm:text-6xl lg:text-7xl">
+          {team.name}
+        </h2>
+        {showScore && (
+          <span className="shrink-0 font-condensed text-4xl font-extrabold italic leading-none tabular-nums text-white/55 rtl:not-italic sm:text-6xl lg:text-7xl">
+            {score}
+          </span>
+        )}
+      </div>
+      {goals.length > 0 && (
+        <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm font-semibold text-white">
+          {goals.map((g, i) => (
+            <li key={`${g.player}-${i}`} className="flex items-center gap-1.5">
+              <BallIcon />
+              {g.player}
+              {g.minute != null && <span className="tabular-nums">{g.minute}&apos;</span>}
+              {g.penalty && <span className="font-normal text-white/60">({penLabel})</span>}
+              {g.count > 1 && <span className="text-white/60">×{g.count}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+export function MatchHeader({ match, dateLabel, timeLabel, goals }: MatchHeaderProps) {
   const t = useTranslations('matches');
   const isFinished = match.status === 'finished';
   const isLive = match.status === 'live';
-  const isScheduled = match.status === 'scheduled';
-
-  const dateObj = new Date(match.kickoff);
-  const dateLocale = locale === 'ar' ? 'ar-MA' : locale === 'fr' ? 'fr-FR' : 'en-GB';
+  const played = isFinished || isLive;
+  const botola = /botola/i.test(match.competition.name);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-surface-dark to-surface-dark-secondary p-6 sm:p-8">
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 20px, currentColor 20px, currentColor 21px)',
-        }} />
-      </div>
+    <header className="relative overflow-hidden bg-[#141016] text-white">
+      {/* Club-red glow and crest watermark */}
+      <div className="pointer-events-none absolute -end-40 -top-40 h-[520px] w-[520px] rounded-full bg-wydad-red/25 blur-[120px]" aria-hidden />
+      {botola && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src="/competitions/botola-pro-emblem.svg"
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute -bottom-16 -end-10 hidden h-[420px] w-auto opacity-[0.05] brightness-0 invert lg:block"
+        />
+      )}
 
-      <div className="relative">
-        {/* Competition + matchday */}
-        <div className="mb-6 flex items-center justify-center gap-2 text-sm text-white/60">
-          <span>{match.competition.name}</span>
-          {match.matchday && (
-            <>
-              <span>·</span>
-              <span>{t('matchday')} {match.matchday}</span>
-            </>
-          )}
-        </div>
-
-        {/* Score row */}
-        <div className="flex items-center justify-center gap-4 sm:gap-8">
-          {/* Home team */}
-          <div className="flex flex-1 flex-col items-center gap-3">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 text-2xl font-bold text-white sm:h-20 sm:w-20">
-              {match.home_team.short_name}
-            </div>
-            <span className="text-center font-display text-sm font-semibold text-white sm:text-base">
-              {match.home_team.name}
-            </span>
-          </div>
-
-          {/* Score */}
-          <div className="flex flex-col items-center gap-2">
-            {isFinished || isLive ? (
-              <>
-                <div className="flex items-baseline gap-3">
-                  <span className="font-display text-4xl font-bold text-white sm:text-5xl">
-                    {match.score_home}
-                  </span>
-                  <span className="text-xl text-white/40 sm:text-2xl">-</span>
-                  <span className="font-display text-4xl font-bold text-white sm:text-5xl">
-                    {match.score_away}
-                  </span>
-                </div>
-                {isFinished && (
-                  <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/70">
-                    {t('full_time')}
-                  </span>
-                )}
-                {isLive && (
-                  <span className="flex items-center gap-1.5 rounded-full bg-wydad-red/20 px-3 py-1 text-xs font-semibold text-wydad-red">
-                    <span className="h-1.5 w-1.5 animate-pulse-live rounded-full bg-wydad-red" />
-                    {match.minute}&apos;
-                  </span>
-                )}
-              </>
+      <div className="relative mx-auto max-w-6xl px-4 pb-12 pt-10 sm:px-6 sm:pt-14 lg:px-8">
+        {/* Status badge + date + competition path */}
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+          <span
+            className={`px-4 py-2 font-condensed text-2xl font-extrabold uppercase italic leading-none rtl:not-italic sm:text-3xl ${
+              isLive ? 'bg-wydad-logo' : 'bg-white/10'
+            }`}
+          >
+            {isLive ? (
+              <span className="flex items-center gap-2">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
+                {t('live')} {match.minute != null && `${match.minute}'`}
+              </span>
+            ) : isFinished ? (
+              t('ft_badge')
             ) : (
-              <div className="flex flex-col items-center gap-1">
-                <span className="font-display text-2xl font-bold text-white sm:text-3xl">
-                  {dateObj.toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
-                </span>
-                <span className="text-sm text-white/60">
-                  {dateObj.toLocaleDateString(dateLocale, { weekday: 'long', day: 'numeric', month: 'long' })}
-                </span>
-              </div>
+              <span dir="ltr">{timeLabel}</span>
             )}
-          </div>
-
-          {/* Away team */}
-          <div className="flex flex-1 flex-col items-center gap-3">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 text-2xl font-bold text-white sm:h-20 sm:w-20">
-              {match.away_team.short_name}
-            </div>
-            <span className="text-center font-display text-sm font-semibold text-white sm:text-base">
-              {match.away_team.name}
-            </span>
+          </span>
+          <div>
+            <p className="text-base font-bold sm:text-lg">{dateLabel}</p>
+            <p className="mt-0.5 text-sm text-white/75">
+              {botola ? 'Botola Pro' : match.competition.name}
+              {match.matchday && (
+                <>
+                  <span className="mx-2 text-white/40">/</span>
+                  {t('matchday')} {match.matchday}
+                </>
+              )}
+            </p>
           </div>
         </div>
 
-        {/* Venue + date for finished matches */}
+        {/* Teams */}
+        <div className="mt-10 grid gap-8 sm:mt-12 sm:gap-10">
+          <TeamRow team={match.home_team} score={match.score_home} showScore={played} goals={goals.filter((g) => g.side === 'home')} penLabel={t('pen')} />
+          <TeamRow team={match.away_team} score={match.score_away} showScore={played} goals={goals.filter((g) => g.side === 'away')} penLabel={t('pen')} />
+        </div>
+
         {match.venue && (
-          <div className="mt-6 flex items-center justify-center gap-2 text-sm text-white/50">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-            </svg>
-            <span>{match.venue}</span>
-            {(isFinished || isLive) && (
-              <>
-                <span>·</span>
-                <span>{dateObj.toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-              </>
-            )}
-          </div>
+          <p className="mt-8 text-sm font-medium text-white/80 sm:absolute sm:bottom-12 sm:end-8 sm:mt-0 lg:end-8">
+            {match.venue}
+          </p>
         )}
       </div>
-    </div>
+    </header>
   );
 }

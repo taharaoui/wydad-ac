@@ -30,7 +30,7 @@ export default async function ProfilePage({
         </p>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <button className="rounded-xl bg-wydad-red px-8 py-3 text-sm font-bold text-white transition-all hover:bg-wydad-red-dark active:scale-[0.98]">
+          <button className="rounded-xl bg-wydad-logo px-8 py-3 text-sm font-bold text-white transition-all hover:bg-wydad-red-dark active:scale-[0.98]">
             {t('login')}
           </button>
           <button className="rounded-xl border border-border bg-surface px-8 py-3 text-sm font-bold text-fg transition-colors hover:border-wydad-red/30 hover:text-wydad-red">

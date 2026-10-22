@@ -71,7 +71,7 @@ export default async function PlayerDetailPage({
           {/* Info */}
           <div className="p-6 sm:col-span-2 sm:p-8">
             <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-wydad-red text-2xl font-bold text-white">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-wydad-logo text-2xl font-bold text-white">
                 {player.number}
               </div>
               <div className="min-w-0">
@@ -98,6 +98,7 @@ export default async function PlayerDetailPage({
                       day: 'numeric',
                       month: 'long',
                       year: 'numeric',
+                      timeZone: 'UTC', // date-only value: don't shift it by the server's zone
                     })}
                   </p>
                 </div>

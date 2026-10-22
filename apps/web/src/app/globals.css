@@ -19,7 +19,8 @@
     --color-fg-muted: 154 154 146;
     --color-fg-inverse: 250 250 248;
 
-    --color-wydad-red: 234 51 47;
+    /* Official crest red #D9292F */
+    --color-wydad-red: 217 41 47;
 
     --color-accent-green: 45 138 86;
     --color-accent-gold: 212 168 67;
@@ -48,7 +49,8 @@
     --color-fg-muted: 120 120 112;
     --color-fg-inverse: 26 26 24;
 
-    --color-wydad-red: 239 68 64;
+    /* Crest red lifted slightly (#E54045) so red text keeps 4.5:1 contrast on dark surfaces */
+    --color-wydad-red: 229 64 69;
 
     --shadow-card: 0 1px 3px rgb(0 0 0 / 0.2), 0 1px 2px rgb(0 0 0 / 0.15);
     --shadow-card-hover: 0 10px 25px rgb(0 0 0 / 0.3), 0 4px 10px rgb(0 0 0 / 0.2);
@@ -61,6 +63,8 @@
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
+    /* Keep #anchors clear of the fixed header */
+    scroll-padding-top: 6.5rem;
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -138,7 +142,7 @@
 
   /* Gradient text utility */
   .text-gradient-red {
-    background: linear-gradient(135deg, rgb(var(--color-wydad-red)), #FF6B6B);
+    background: linear-gradient(135deg, rgb(var(--color-wydad-red)), #EB5A5F);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -151,4 +155,16 @@
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgb(var(--color-border) / 0.5);
   }
+}
+
+/* Header mega-menu entrance */
+@keyframes megaIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header announcement change */
+@keyframes announceIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }

@@ -1,3 +1,4 @@
+import { clubCrestUrl, isWydad } from '@/lib/clubs';
 /**
  * TheStatsAPI client for Wydad AC website.
  *
@@ -11,6 +12,11 @@ const TEAM_ID = process.env.WYDAD_TEAM_ID || 'tm_805667';
 const COMPETITION_ID = process.env.BOTOLA_COMPETITION_ID || 'comp_30610';
 
 export const IS_MOCK = !API_KEY;
+
+/** True for Wydad's team id (live API id, or the mock-data id). */
+export function isWydadTeam(teamId: string): boolean {
+  return teamId === TEAM_ID || isWydad(teamId);
+}
 
 // ── Generic fetcher ──
 
@@ -83,6 +89,18 @@ interface ApiSeason {
 
 let _currentSeasonId: string | null = null;
 
+/** Botola season ids, most recent first (e.g. 26/27, 25/26, …). */
+export async function getSeasonIds(count: number): Promise<string[]> {
+  const seasons = await apiFetch<ApiListResponse<ApiSeason & { start_year?: number }>>(
+    `/football/competitions/${COMPETITION_ID}/seasons`,
+    { revalidate: 3600 },
+  );
+  return [...seasons.data]
+    .sort((a, b) => (b.start_year ?? 0) - (a.start_year ?? 0))
+    .slice(0, count)
+    .map((s) => s.id);
+}
+
 export async function getCurrentSeasonId(): Promise<string> {
   if (_currentSeasonId) return _currentSeasonId;
 
@@ -129,7 +147,11 @@ interface ApiCompetitionRef {
 
 interface ApiMatch {
   id: string;
-  competition: ApiCompetitionRef;
+  competition?: ApiCompetitionRef;
+  competition_id?: string;
+  score?: { home?: number | null; away?: number | null } | null;
+  home_manager?: { id: string; name: string } | null;
+  away_manager?: { id: string; name: string } | null;
   home_team: ApiTeamRef;
   away_team: ApiTeamRef;
   status: string; // 'scheduled' | 'live' | 'finished' | 'postponed' | 'cancelled'
@@ -155,6 +177,8 @@ export interface MappedMatch {
   score_home: number | null;
   score_away: number | null;
   minute: number | null;
+  home_coach?: string;
+  away_coach?: string;
 }
 
 function mapTeam(t: ApiTeamRef): MappedMatch['home_team'] {
@@ -162,7 +186,7 @@ function mapTeam(t: ApiTeamRef): MappedMatch['home_team'] {
     id: t.id,
     name: t.name,
     short_name: t.short_name || t.name.slice(0, 3).toUpperCase(),
-    logo_url: t.logo_url,
+    logo_url: t.logo_url ?? clubCrestUrl(t.id, t.name),
   };
 }
 
@@ -175,14 +199,35 @@ function mapCompetition(c: ApiCompetitionRef): MappedMatch['competition'] {
   };
 }
 
-function mapMatch(m: ApiMatch): MappedMatch {
-  // TheStatsAPI may put scores in different fields
-  const scoreHome = m.home_score ?? (m as Record<string, unknown>).score_home ?? null;
-  const scoreAway = m.away_score ?? (m as Record<string, unknown>).score_away ?? null;
+const _competitionCache = new Map<string, Promise<ApiCompetitionRef>>();
+
+/** Match payloads only carry `competition_id`, so look the name up (cached per id). */
+function getCompetitionRef(id: string): Promise<ApiCompetitionRef> {
+  let ref = _competitionCache.get(id);
+  if (!ref) {
+    ref = apiFetch<ApiSingleResponse<ApiCompetition>>(`/football/competitions/${id}`, {
+      revalidate: 86400,
+    })
+      .then((res) => res.data)
+      .catch(() => ({ id, name: id === COMPETITION_ID ? 'Botola Pro' : id }));
+    _competitionCache.set(id, ref);
+  }
+  return ref;
+}
+
+async function resolveCompetition(m: ApiMatch): Promise<ApiCompetitionRef> {
+  if (m.competition) return m.competition;
+  return getCompetitionRef(m.competition_id ?? COMPETITION_ID);
+}
+
+function mapMatch(m: ApiMatch, competition: ApiCompetitionRef): MappedMatch {
+  // TheStatsAPI nests scores under `score`; keep flat fields as a fallback
+  const scoreHome = m.score?.home ?? m.home_score ?? null;
+  const scoreAway = m.score?.away ?? m.away_score ?? null;
 
   return {
     id: m.id,
-    competition: mapCompetition(m.competition),
+    competition: mapCompetition(competition),
     home_team: mapTeam(m.home_team),
     away_team: mapTeam(m.away_team),
     status: (['scheduled', 'live', 'finished', 'postponed', 'cancelled'].includes(m.status)
@@ -194,6 +239,8 @@ function mapMatch(m: ApiMatch): MappedMatch {
     score_home: typeof scoreHome === 'number' ? scoreHome : null,
     score_away: typeof scoreAway === 'number' ? scoreAway : null,
     minute: typeof m.minute === 'number' ? m.minute : null,
+    home_coach: m.home_manager?.name ?? undefined,
+    away_coach: m.away_manager?.name ?? undefined,
   };
 }
 
@@ -201,6 +248,8 @@ function mapMatch(m: ApiMatch): MappedMatch {
  * Fetch Wydad matches, newest first by default.
  */
 export async function fetchMatches(options?: {
+  /** Defaults to Wydad */
+  teamId?: string;
   status?: string;
   dateFrom?: string;
   dateTo?: string;
@@ -208,7 +257,7 @@ export async function fetchMatches(options?: {
   sort?: string;
 }): Promise<MappedMatch[]> {
   const params = new URLSearchParams({
-    team_id: TEAM_ID,
+    team_id: options?.teamId ?? TEAM_ID,
     per_page: String(options?.limit ?? 20),
     sort: options?.sort ?? '-utc_date',
   });
@@ -222,7 +271,36 @@ export async function fetchMatches(options?: {
     { revalidate: 60 },
   );
 
-  return res.data.map(mapMatch);
+  return Promise.all(res.data.map(async (m) => mapMatch(m, await resolveCompetition(m))));
+}
+
+/**
+ * Fetch every Wydad match in a season (all pages), in kickoff order.
+ * Only fixtures the league has published are returned.
+ */
+export async function fetchSeasonMatches(seasonId: string, options?: { revalidate?: number }): Promise<MappedMatch[]> {
+  const all: ApiMatch[] = [];
+  let page = 1;
+  let totalPages = 1;
+
+  do {
+    const params = new URLSearchParams({
+      team_id: TEAM_ID,
+      season_id: seasonId,
+      per_page: '100',
+      page: String(page),
+      sort: 'utc_date',
+    });
+    const res = await apiFetch<ApiListResponse<ApiMatch>>(
+      `/football/matches?${params.toString()}`,
+      { revalidate: options?.revalidate ?? 60 },
+    );
+    all.push(...res.data);
+    totalPages = res.meta?.total_pages ?? 1;
+    page++;
+  } while (page <= totalPages);
+
+  return Promise.all(all.map(async (m) => mapMatch(m, await resolveCompetition(m))));
 }
 
 /**
@@ -234,7 +312,7 @@ export async function fetchMatch(matchId: string): Promise<MappedMatch | null> {
       `/football/matches/${matchId}`,
       { revalidate: 60 },
     );
-    return mapMatch(res.data);
+    return mapMatch(res.data, await resolveCompetition(res.data));
   } catch {
     return null;
   }
@@ -277,11 +355,11 @@ function mapEvent(e: ApiMatchEvent): MappedMatchEvent {
 
 export async function fetchMatchTimeline(matchId: string): Promise<MappedMatchEvent[]> {
   try {
-    const res = await apiFetch<ApiListResponse<ApiMatchEvent>>(
+    const res = await apiFetch<ApiSingleResponse<{ events?: ApiMatchEvent[] }>>(
       `/football/matches/${matchId}/timeline`,
       { revalidate: 120 },
     );
-    return res.data.map(mapEvent);
+    return (res.data.events ?? []).map(mapEvent);
   } catch {
     return [];
   }
@@ -289,52 +367,51 @@ export async function fetchMatchTimeline(matchId: string): Promise<MappedMatchEv
 
 // ── Match Stats ──
 
-interface ApiMatchStats {
-  [key: string]: unknown;
+type ApiHomeAway = { home: number | null; away: number | null } | null;
+type ApiStatValue = { all: ApiHomeAway; first_half: ApiHomeAway; second_half: ApiHomeAway };
+
+/** Sections of `/matches/{id}/stats`, each a map of stat name → home/away values. */
+type ApiMatchStats = Record<string, Record<string, ApiStatValue | null> | string | null>;
+
+export interface MappedStatRow {
+  key: string;
+  home: number;
+  away: number;
+  unit: 'count' | 'percent' | 'decimal';
 }
 
 export interface MappedMatchStats {
-  possession_home: number;
-  possession_away: number;
-  shots_home: number;
-  shots_away: number;
-  shots_on_target_home: number;
-  shots_on_target_away: number;
-  corners_home: number;
-  corners_away: number;
-  fouls_home: number;
-  fouls_away: number;
-  offsides_home: number;
-  offsides_away: number;
+  groups: { key: string; rows: MappedStatRow[] }[];
+}
+
+const STAT_GROUPS = ['overview', 'shots', 'attack', 'passes', 'duels', 'defending', 'goalkeeping'];
+
+function statUnit(key: string): MappedStatRow['unit'] {
+  if (key === 'ball_possession' || key.endsWith('_percentage')) return 'percent';
+  if (key.includes('expected_goals')) return 'decimal';
+  return 'count';
 }
 
 export async function fetchMatchStats(matchId: string): Promise<MappedMatchStats | null> {
   try {
     const res = await apiFetch<ApiSingleResponse<ApiMatchStats>>(
       `/football/matches/${matchId}/stats`,
-      { revalidate: 300 },
+      { revalidate: 600 },
     );
-    const d = res.data;
 
-    // TheStatsAPI returns stats keyed by team; we need to extract home/away
-    // The shape may be { home: {...}, away: {...} } or flat
-    const home = (d.home ?? d) as Record<string, unknown>;
-    const away = (d.away ?? d) as Record<string, unknown>;
+    const groups = STAT_GROUPS.map((key) => {
+      const section = res.data[key];
+      if (!section || typeof section !== 'object') return { key, rows: [] };
+      // Skip stats the source doesn't cover for this match (null)
+      const rows = Object.entries(section).flatMap(([statKey, v]) => {
+        const all = v?.all;
+        if (all?.home == null || all?.away == null) return [];
+        return [{ key: statKey, home: all.home, away: all.away, unit: statUnit(statKey) }];
+      });
+      return { key, rows };
+    }).filter((g) => g.rows.length > 0);
 
-    return {
-      possession_home: Number(home.possession ?? 50),
-      possession_away: Number(away.possession ?? 50),
-      shots_home: Number(home.shots ?? home.total_shots ?? 0),
-      shots_away: Number(away.shots ?? away.total_shots ?? 0),
-      shots_on_target_home: Number(home.shots_on_target ?? 0),
-      shots_on_target_away: Number(away.shots_on_target ?? 0),
-      corners_home: Number(home.corners ?? home.corner_kicks ?? 0),
-      corners_away: Number(away.corners ?? away.corner_kicks ?? 0),
-      fouls_home: Number(home.fouls ?? home.fouls_committed ?? 0),
-      fouls_away: Number(away.fouls ?? away.fouls_committed ?? 0),
-      offsides_home: Number(home.offsides ?? 0),
-      offsides_away: Number(away.offsides ?? 0),
-    };
+    return groups.length > 0 ? { groups } : null;
   } catch {
     return null;
   }
@@ -345,18 +422,22 @@ export async function fetchMatchStats(matchId: string): Promise<MappedMatchStats
 interface ApiLineupPlayer {
   id: string;
   name: string;
-  short_name?: string;
-  shirt_number?: number;
-  position?: string;
-  is_starter?: boolean;
-  is_captain?: boolean;
+  position?: string; // 'G' | 'D' | 'M' | 'F'
+  jersey_number?: number | null;
+}
+
+interface ApiLineupSide {
+  id: string;
+  name: string;
+  formation?: string | null;
+  starting_xi?: ApiLineupPlayer[];
+  substitutes?: ApiLineupPlayer[];
 }
 
 interface ApiLineup {
-  formation?: string;
-  players?: ApiLineupPlayer[];
-  home?: { formation?: string; players?: ApiLineupPlayer[] };
-  away?: { formation?: string; players?: ApiLineupPlayer[] };
+  confirmed?: boolean;
+  home?: ApiLineupSide;
+  away?: ApiLineupSide;
 }
 
 export interface MappedLineup {
@@ -382,18 +463,26 @@ function mapPosition(pos?: string): 'goalkeeper' | 'defender' | 'midfielder' | '
   return 'midfielder';
 }
 
-function mapLineupSide(side: { formation?: string; players?: ApiLineupPlayer[] }): MappedLineup {
+function shortName(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return parts.length > 1 ? parts.slice(1).join(' ') : name;
+}
+
+function mapLineupSide(side: ApiLineupSide): MappedLineup {
+  const toPlayer = (p: ApiLineupPlayer, is_starter: boolean) => ({
+    id: p.id,
+    name: p.name,
+    short_name: shortName(p.name),
+    number: p.jersey_number ?? 0,
+    position: mapPosition(p.position),
+    is_starter,
+  });
   return {
-    formation: side.formation ?? '4-3-3',
-    players: (side.players ?? []).map((p) => ({
-      id: p.id,
-      name: p.name,
-      short_name: p.short_name ?? p.name.split(' ').pop() ?? p.name,
-      number: p.shirt_number ?? 0,
-      position: mapPosition(p.position),
-      is_starter: p.is_starter ?? true,
-      is_captain: p.is_captain,
-    })),
+    formation: side.formation ?? '',
+    players: [
+      ...(side.starting_xi ?? []).map((p) => toPlayer(p, true)),
+      ...(side.substitutes ?? []).map((p) => toPlayer(p, false)),
+    ],
   };
 }
 
@@ -403,18 +492,75 @@ export async function fetchMatchLineups(
   try {
     const res = await apiFetch<ApiSingleResponse<ApiLineup>>(
       `/football/matches/${matchId}/lineups`,
-      { revalidate: 300 },
+      { revalidate: 600 },
     );
     const d = res.data;
-
-    if (d.home && d.away) {
-      return { home: mapLineupSide(d.home), away: mapLineupSide(d.away) };
-    }
-
-    // Fallback: single lineup object
-    return null;
+    if (!d.home?.starting_xi?.length || !d.away?.starting_xi?.length) return null;
+    return { home: mapLineupSide(d.home), away: mapLineupSide(d.away) };
   } catch {
     return null;
+  }
+}
+
+// ── Player Match Stats (ratings) ──
+
+interface ApiPlayerMatchStats {
+  player_id: string;
+  player_name: string;
+  team_id: string;
+  rating: number | null;
+  started: boolean;
+  played: boolean;
+  minutes_played: number | null;
+  passing?: Record<string, number | null>;
+  shooting?: Record<string, number | null>;
+  duels?: Record<string, number | null>;
+  defending?: Record<string, number | null>;
+  goalkeeping?: Record<string, number | null>;
+  general?: Record<string, number | string | null>;
+}
+
+export interface MappedPlayerMatchStats {
+  player_id: string;
+  team_id: string;
+  rating: number | null; // null when unrated (source sends 0)
+  minutes: number;
+  /** Id of the player who replaced this starter */
+  replaced_by: string | null;
+  /** Id of the player this substitute replaced */
+  replaced: string | null;
+  stats: Record<string, number>;
+}
+
+function mapPlayerMatchStats(p: ApiPlayerMatchStats): MappedPlayerMatchStats {
+  const stats: Record<string, number> = {};
+  for (const group of [p.passing, p.shooting, p.duels, p.defending, p.goalkeeping, p.general]) {
+    for (const [k, v] of Object.entries(group ?? {})) {
+      if (typeof v === 'number') stats[k] = v;
+    }
+  }
+  const general = p.general ?? {};
+  return {
+    player_id: p.player_id,
+    team_id: p.team_id,
+    rating: p.rating ? p.rating : null,
+    minutes: p.minutes_played ?? 0,
+    replaced_by: typeof general.player_subbed_on === 'string' ? general.player_subbed_on : null,
+    replaced: typeof general.player_subbed_off === 'string' ? general.player_subbed_off : null,
+    stats,
+  };
+}
+
+/** Per-player stats + ratings. Empty when the source has no detailed data for the match. */
+export async function fetchMatchPlayerStats(matchId: string): Promise<MappedPlayerMatchStats[]> {
+  try {
+    const res = await apiFetch<ApiListResponse<ApiPlayerMatchStats>>(
+      `/football/matches/${matchId}/player-stats`,
+      { revalidate: 600 },
+    );
+    return res.data.map(mapPlayerMatchStats);
+  } catch {
+    return [];
   }
 }
 

@@ -1,18 +1,24 @@
 import type { Match, MatchEvent, MatchStats, Lineup, StandingRow } from '@/types';
 import { mockMatches, mockStandings } from '@/lib/mock-data';
+import { isWydad } from '@/lib/clubs';
 import {
   IS_MOCK,
   fetchMatches as apiFetchMatches,
+  fetchSeasonMatches,
+  getSeasonIds,
+  getCurrentSeasonId,
   fetchMatch as apiFetchMatch,
   fetchMatchTimeline,
   fetchMatchStats as apiFetchMatchStats,
   fetchMatchLineups,
+  fetchMatchPlayerStats,
   fetchStandings as apiFetchStandings,
   type MappedMatch,
   type MappedMatchEvent,
   type MappedMatchStats,
   type MappedStandingRow,
   type MappedLineup,
+  type MappedPlayerMatchStats,
 } from '@/lib/stats-api';
 
 /** Log a warning and return mock data when the API is unreachable (e.g. during build). */
@@ -50,6 +56,8 @@ function toMatch(m: MappedMatch): Match {
     score_home: m.score_home,
     score_away: m.score_away,
     minute: m.minute,
+    home_coach: m.home_coach,
+    away_coach: m.away_coach,
   };
 }
 
@@ -66,21 +74,34 @@ function toEvent(e: MappedMatchEvent): MatchEvent {
 }
 
 function toStats(s: MappedMatchStats): MatchStats {
-  return { ...s };
+  return { groups: s.groups.map((g) => ({ key: g.key, rows: g.rows.map((r) => ({ ...r })) })) };
 }
 
-function toLineup(l: MappedLineup): Lineup {
+/** Merge a lineup with per-player ratings/stats, deriving substitution minutes. */
+function toLineup(l: MappedLineup, playerStats: Map<string, MappedPlayerMatchStats>): Lineup {
   return {
     formation: l.formation,
-    players: l.players.map((p) => ({
-      id: p.id,
-      name: p.name,
-      short_name: p.short_name,
-      number: p.number,
-      position: p.position,
-      is_starter: p.is_starter,
-      is_captain: p.is_captain,
-    })),
+    players: l.players.map((p) => {
+      const ps = playerStats.get(p.id);
+      // Source gives who-replaced-whom, not the minute: use the starter's minutes played
+      const outMinute = ps?.replaced_by ? ps.minutes : undefined;
+      const replaced = ps?.replaced ? playerStats.get(ps.replaced) : undefined;
+      return {
+        id: p.id,
+        name: p.name,
+        short_name: p.short_name,
+        number: p.number,
+        position: p.position,
+        is_starter: p.is_starter,
+        is_captain: p.is_captain,
+        substituted_out: outMinute,
+        substituted_in: replaced ? replaced.minutes : undefined,
+        replaced_player_id: ps?.replaced ?? undefined,
+        rating: ps?.rating ?? undefined,
+        minutes: ps ? ps.minutes : undefined,
+        stats: ps?.stats,
+      };
+    }),
   };
 }
 
@@ -107,11 +128,12 @@ function toStandingRow(r: MappedStandingRow): StandingRow {
 
 // ── Public API ──
 
+/** All published Botola matches for the current season (fixtures + results). */
 export async function getMatches(): Promise<Match[]> {
   if (IS_MOCK) return mockMatches;
 
   try {
-    const matches = await apiFetchMatches({ limit: 20 });
+    const matches = await fetchSeasonMatches(await getCurrentSeasonId());
     return matches.map(toMatch);
   } catch (err) {
     warnFallback('getMatches', err);
@@ -129,17 +151,22 @@ export async function getMatchById(id: string): Promise<Match | null> {
     const result = toMatch(match);
 
     // Enrich with timeline, stats, and lineups in parallel
-    const [events, stats, lineups] = await Promise.all([
+    // Upcoming matches have no detail data; skip the calls (API is rate-limited)
+    if (match.status === 'scheduled') return result;
+
+    const [events, stats, lineups, playerStats] = await Promise.all([
       fetchMatchTimeline(id),
       apiFetchMatchStats(id),
       fetchMatchLineups(id),
+      fetchMatchPlayerStats(id),
     ]);
 
     if (events.length > 0) result.events = events.map(toEvent);
     if (stats) result.stats = toStats(stats);
     if (lineups) {
-      result.home_lineup = toLineup(lineups.home);
-      result.away_lineup = toLineup(lineups.away);
+      const byPlayer = new Map(playerStats.map((ps) => [ps.player_id, ps]));
+      result.home_lineup = toLineup(lineups.home, byPlayer);
+      result.away_lineup = toLineup(lineups.away, byPlayer);
     }
 
     return result;
@@ -195,9 +222,11 @@ export async function getRecentMatches(limit = 8): Promise<Match[]> {
       apiFetchMatches({ status: 'scheduled', sort: 'utc_date', limit }),
     ]);
 
-    // Combine: past results (recent first) then upcoming (soonest first)
-    const combined = [...finished.reverse(), ...scheduled].slice(0, limit);
-    return combined.map(toMatch);
+    // Keep up to half the slots for upcoming games, fill the rest with the latest results,
+    // then order oldest → newest so the carousel reads left to right through time
+    const upcoming = scheduled.slice(0, Math.max(Math.ceil(limit / 2), limit - finished.length));
+    const past = finished.slice(0, limit - upcoming.length).reverse();
+    return [...past, ...upcoming].map(toMatch);
   } catch (err) {
     warnFallback('getRecentMatches', err);
     return mockMatches.slice(0, limit);
@@ -213,5 +242,50 @@ export async function getStandings(): Promise<StandingRow[]> {
   } catch (err) {
     warnFallback('getStandings', err);
     return mockStandings;
+  }
+}
+
+// ── Match context: form + head-to-head ──
+
+export interface MatchContext {
+  opponent: Match['home_team'];
+  /** Last 5 finished matches before this one, newest first */
+  wydadForm: Match[];
+  opponentForm: Match[];
+  /** Wydad vs this opponent in Botola over the last two seasons, newest first */
+  h2h: Match[];
+}
+
+/**
+ * TheStatsAPI has no head-to-head or form endpoint, so both are built from match lists:
+ * Wydad's last two Botola seasons (past season cached for a day) plus the opponent's recent results.
+ */
+export async function getMatchContext(match: Match): Promise<MatchContext> {
+  const opponent = isWydad(match.home_team.id) ? match.away_team : match.home_team;
+  const before = (m: Match) => m.status === 'finished' && m.id !== match.id && m.kickoff < match.kickoff;
+  const newestFirst = (a: Match, b: Match) => b.kickoff.localeCompare(a.kickoff);
+  const vsOpponent = (m: Match) => m.home_team.id === opponent.id || m.away_team.id === opponent.id;
+
+  if (IS_MOCK) {
+    const past = mockMatches.filter(before).sort(newestFirst);
+    return { opponent, wydadForm: past.slice(0, 5), opponentForm: [], h2h: past.filter(vsOpponent) };
+  }
+
+  try {
+    const seasonIds = await getSeasonIds(2);
+    const [seasons, opponentRecent] = await Promise.all([
+      Promise.all(seasonIds.map((sid, i) => fetchSeasonMatches(sid, { revalidate: i === 0 ? 60 : 86400 }))),
+      apiFetchMatches({ teamId: opponent.id, status: 'finished', sort: '-utc_date', limit: 10 }),
+    ]);
+    const wydadPast = seasons.flat().map(toMatch).filter(before).sort(newestFirst);
+    return {
+      opponent,
+      wydadForm: wydadPast.slice(0, 5),
+      opponentForm: opponentRecent.map(toMatch).filter(before).sort(newestFirst).slice(0, 5),
+      h2h: wydadPast.filter(vsOpponent),
+    };
+  } catch (err) {
+    warnFallback('getMatchContext', err);
+    return { opponent, wydadForm: [], opponentForm: [], h2h: [] };
   }
 }

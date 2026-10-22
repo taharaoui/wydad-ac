@@ -1,6 +1,8 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { Match } from '@/types';
+import { isWydad } from '@/lib/clubs';
+import { TeamCrest } from '@/components/ui/TeamCrest';
 
 interface LatestResultCardProps {
   match: Match;
@@ -9,7 +11,7 @@ interface LatestResultCardProps {
 export function LatestResultCard({ match }: LatestResultCardProps) {
   const t = useTranslations('matches');
 
-  const isWydadHome = match.home_team.id === 'wydad';
+  const isWydadHome = isWydad(match.home_team.id);
   const wydadScore = isWydadHome ? match.score_home : match.score_away;
   const opponentScore = isWydadHome ? match.score_away : match.score_home;
   const isWin = (wydadScore ?? 0) > (opponentScore ?? 0);
@@ -42,9 +44,7 @@ export function LatestResultCard({ match }: LatestResultCardProps) {
         {/* Home team */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-secondary transition-colors group-hover:bg-surface-elevated">
-              <span className="text-xs font-bold text-fg-secondary">{match.home_team.short_name}</span>
-            </div>
+            <TeamCrest team={match.home_team} size={44} fallbackClassName="rounded-xl bg-surface-secondary text-fg-secondary" />
             <span className="text-sm font-semibold text-fg">{match.home_team.name}</span>
           </div>
           <span className="font-display text-2xl font-bold tabular-nums text-fg">
@@ -58,9 +58,7 @@ export function LatestResultCard({ match }: LatestResultCardProps) {
         {/* Away team */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-secondary transition-colors group-hover:bg-surface-elevated">
-              <span className="text-xs font-bold text-fg-secondary">{match.away_team.short_name}</span>
-            </div>
+            <TeamCrest team={match.away_team} size={44} fallbackClassName="rounded-xl bg-surface-secondary text-fg-secondary" />
             <span className="text-sm font-semibold text-fg">{match.away_team.name}</span>
           </div>
           <span className="font-display text-2xl font-bold tabular-nums text-fg">

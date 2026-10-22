@@ -52,7 +52,7 @@ export default async function LocaleLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,600;1,700;1,800&family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
         {/* Prevent flash of wrong theme */}
@@ -67,7 +67,7 @@ export default async function LocaleLayout({
           <NextIntlClientProvider messages={messages}>
             <div className="flex min-h-screen flex-col">
               <Header />
-              <main className="flex-1">{children}</main>
+              <main id="main" tabIndex={-1} className="flex-1 outline-none">{children}</main>
               <Footer />
             </div>
           </NextIntlClientProvider>

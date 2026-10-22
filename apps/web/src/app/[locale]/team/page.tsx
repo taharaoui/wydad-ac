@@ -1,50 +1,38 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getSquad } from '@/services/players';
-import { PlayerCard } from '@/components/team/PlayerCard';
-import type { Player } from '@/types';
+import { getPlayerPhotos } from '@/lib/player-photos';
+import { FootballNav } from '@/components/team/FootballNav';
+import { SquadGrid } from '@/components/team/SquadGrid';
 
 const POSITION_ORDER = ['goalkeeper', 'defender', 'midfielder', 'forward'] as const;
 
-export default async function TeamPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'football' });
+  return { title: t('squad') };
+}
+
+export default async function TeamPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: 'team' });
+  const t = await getTranslations({ locale, namespace: 'football' });
 
   const squad = await getSquad();
-
-  const grouped = POSITION_ORDER.reduce<Record<string, Player[]>>((acc, pos) => {
-    acc[pos] = squad.filter(p => p.position === pos);
-    return acc;
-  }, {});
+  const photos = getPlayerPhotos(squad.map((p) => p.id));
+  // By line, then shirt number
+  const players = [...squad]
+    .sort((a, b) => POSITION_ORDER.indexOf(a.position) - POSITION_ORDER.indexOf(b.position) || (a.number ?? 999) - (b.number ?? 999))
+    .map((p) => ({ id: p.id, name: p.name, number: p.number, position: p.position, photo: photos[p.id] }));
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="font-display text-display-lg font-bold text-fg">
-        {t('squad')}
-      </h1>
-
-      <div className="mt-8 space-y-10">
-        {POSITION_ORDER.map(position => {
-          const players = grouped[position];
-          if (!players || players.length === 0) return null;
-
-          return (
-            <section key={position}>
-              <h2 className="mb-4 font-display text-lg font-bold text-fg">
-                {t(position)}
-              </h2>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                {players.map(player => (
-                  <PlayerCard key={player.id} player={player} />
-                ))}
-              </div>
-            </section>
-          );
-        })}
+    <div>
+      <FootballNav active="squad" />
+      <div className="mx-auto max-w-7xl px-4 pb-20 pt-12 sm:px-6 sm:pt-16 lg:px-8">
+        <h1 className="font-condensed text-6xl font-extrabold uppercase italic leading-none text-fg rtl:not-italic sm:text-7xl">{t('squad')}</h1>
+        <p className="mt-3 font-condensed text-2xl font-bold text-fg">{t('season')}</p>
+        <div className="mt-12">
+          <SquadGrid players={players} />
+        </div>
       </div>
     </div>
   );

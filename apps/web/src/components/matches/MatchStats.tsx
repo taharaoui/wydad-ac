@@ -1,57 +1,77 @@
 import { useTranslations } from 'next-intl';
-import type { MatchStats as MatchStatsType } from '@/types';
+import type { MatchStats as MatchStatsType, StatRow } from '@/types';
 
 interface MatchStatsProps {
   stats: MatchStatsType;
+  homeColor: string;
+  awayColor: string;
 }
 
-function StatBar({ label, home, away }: { label: string; home: number; away: number }) {
-  const total = home + away || 1;
-  const homePercent = (home / total) * 100;
+type Colors = { home: string; away: string };
+
+function formatValue(row: StatRow, value: number): string {
+  if (row.unit === 'percent') return `${value}%`;
+  if (row.unit === 'decimal') return value.toFixed(2);
+  return String(value);
+}
+
+function StatBar({ row, label, colors }: { row: StatRow; label: string; colors: Colors }) {
+  const total = row.home + row.away;
+  const homePercent = total > 0 ? (row.home / total) * 100 : 50;
+  const homeLeads = row.home > row.away;
+  const awayLeads = row.away > row.home;
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between text-sm">
-        <span className="font-semibold text-fg">{home}</span>
-        <span className="text-fg-muted">{label}</span>
-        <span className="font-semibold text-fg">{away}</span>
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between gap-3 text-sm">
+        <span
+          className={`min-w-[3rem] rounded-md px-1.5 py-0.5 text-start font-semibold tabular-nums ${homeLeads ? 'text-white' : 'text-fg'}`}
+          style={homeLeads ? { backgroundColor: colors.home } : undefined}
+        >
+          {formatValue(row, row.home)}
+        </span>
+        <span className="text-center text-fg-muted">{label}</span>
+        <span
+          className={`min-w-[3rem] rounded-md px-1.5 py-0.5 text-end font-semibold tabular-nums ${awayLeads ? 'text-white' : 'text-fg'}`}
+          style={awayLeads ? { backgroundColor: colors.away } : undefined}
+        >
+          {formatValue(row, row.away)}
+        </span>
       </div>
-      <div className="flex h-1.5 gap-1 overflow-hidden rounded-full">
-        <div
-          className="rounded-full bg-wydad-red transition-all duration-500"
-          style={{ width: `${homePercent}%` }}
-        />
-        <div
-          className="flex-1 rounded-full bg-fg-muted/30"
-        />
+      <div className="flex h-1.5 gap-1">
+        <div className="flex flex-1 justify-end overflow-hidden rounded-full bg-fg-muted/15">
+          <div className="rounded-full transition-all duration-500" style={{ width: `${homePercent}%`, backgroundColor: colors.home }} />
+        </div>
+        <div className="flex flex-1 overflow-hidden rounded-full bg-fg-muted/15">
+          <div className="rounded-full transition-all duration-500" style={{ width: `${100 - homePercent}%`, backgroundColor: colors.away }} />
+        </div>
       </div>
     </div>
   );
 }
 
-function PossessionBar({ home, away }: { home: number; away: number }) {
+function PossessionBar({ home, away, label, colors }: { home: number; away: number; label: string; colors: Colors }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-2xl font-bold text-fg">{home}%</span>
-        <span className="text-sm text-fg-muted">Possession</span>
-        <span className="text-2xl font-bold text-fg">{away}%</span>
+        <span className="text-2xl font-bold tabular-nums text-fg">{home}%</span>
+        <span className="text-sm text-fg-muted">{label}</span>
+        <span className="text-2xl font-bold tabular-nums text-fg">{away}%</span>
       </div>
-      <div className="flex h-2 gap-0.5 overflow-hidden rounded-full">
-        <div
-          className="rounded-full bg-wydad-red transition-all duration-500"
-          style={{ width: `${home}%` }}
-        />
-        <div
-          className="flex-1 rounded-full bg-accent-blue transition-all duration-500"
-        />
+      <div className="flex h-2.5 gap-0.5 overflow-hidden rounded-full">
+        <div className="rounded-full transition-all duration-500" style={{ width: `${home}%`, backgroundColor: colors.home }} />
+        <div className="flex-1 rounded-full transition-all duration-500" style={{ backgroundColor: colors.away }} />
       </div>
     </div>
   );
 }
 
-export function MatchStatsPanel({ stats }: MatchStatsProps) {
+export function MatchStatsPanel({ stats, homeColor, awayColor }: MatchStatsProps) {
   const t = useTranslations('matches');
+  const colors = { home: homeColor, away: awayColor };
+
+  const label = (key: string) =>
+    t.has(`stat.${key}`) ? t(`stat.${key}`) : key.replace(/_/g, ' ');
 
   return (
     <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
@@ -59,16 +79,26 @@ export function MatchStatsPanel({ stats }: MatchStatsProps) {
         {t('statistics')}
       </h3>
 
-      <div className="space-y-5">
-        <PossessionBar home={stats.possession_home} away={stats.possession_away} />
-
-        <div className="space-y-4">
-          <StatBar label={t('shots')} home={stats.shots_home} away={stats.shots_away} />
-          <StatBar label={t('shots_on_target')} home={stats.shots_on_target_home} away={stats.shots_on_target_away} />
-          <StatBar label={t('corners')} home={stats.corners_home} away={stats.corners_away} />
-          <StatBar label={t('fouls')} home={stats.fouls_home} away={stats.fouls_away} />
-          <StatBar label={t('offsides')} home={stats.offsides_home} away={stats.offsides_away} />
-        </div>
+      <div className="space-y-8">
+        {stats.groups.map((group) => {
+          const possession = group.rows.find((r) => r.key === 'ball_possession');
+          const rows = group.rows.filter((r) => r !== possession);
+          return (
+            <section key={group.key}>
+              <h4 className="mb-4 text-xs font-semibold uppercase tracking-wider text-fg-muted">
+                {t.has(`stat_groups.${group.key}`) ? t(`stat_groups.${group.key}`) : group.key}
+              </h4>
+              <div className="space-y-4">
+                {possession && (
+                  <PossessionBar home={possession.home} away={possession.away} label={label('ball_possession')} colors={colors} />
+                )}
+                {rows.map((row) => (
+                  <StatBar key={row.key} row={row} label={label(row.key)} colors={colors} />
+                ))}
+              </div>
+            </section>
+          );
+        })}
       </div>
     </div>
   );

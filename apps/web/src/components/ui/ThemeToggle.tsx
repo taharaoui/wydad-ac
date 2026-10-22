@@ -2,13 +2,13 @@
 
 import { useTheme } from './ThemeProvider';
 
-export function ThemeToggle() {
+export function ThemeToggle({ className = 'rounded-lg p-2 text-fg-muted transition-colors hover:bg-surface-secondary hover:text-fg' }: { className?: string }) {
   const { resolvedTheme, setTheme } = useTheme();
 
   return (
     <button
       onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-      className="rounded-lg p-2 text-fg-muted transition-colors hover:bg-surface-secondary hover:text-fg"
+      className={className}
       aria-label={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       {resolvedTheme === 'dark' ? (

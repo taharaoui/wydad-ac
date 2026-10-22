@@ -9,9 +9,14 @@ const config: Config = {
       colors: {
         wydad: {
           red: 'rgb(var(--color-wydad-red) / <alpha-value>)',
-          'red-hover': '#D42B27',
+          'red-hover': '#B82228',
           'red-soft': 'rgb(var(--color-wydad-red) / 0.08)',
-          'red-dark': '#C41E1A',
+          'red-dark': '#A11C21',
+          /** Exact crest red (#D9292F) in both themes, for button and badge fills */
+          logo: 'rgb(217 41 47 / <alpha-value>)',
+          /** Header surfaces */
+          burgundy: '#4A0E16',
+          charcoal: '#171719',
           white: '#FFFFFF',
         },
         surface: {
@@ -42,6 +47,8 @@ const config: Config = {
       },
       fontFamily: {
         display: ['Cairo', 'system-ui', '-apple-system', 'sans-serif'],
+        // Sports-numeral face for match cards (Latin only; Arabic falls back to Cairo)
+        condensed: ['"Barlow Condensed"', 'Cairo', 'Arial Narrow', 'sans-serif'],
         body: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['SF Mono', 'Fira Code', 'monospace'],
       },

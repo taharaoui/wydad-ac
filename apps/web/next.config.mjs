@@ -10,6 +10,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.supabase.co',
       },
+      {
+        // YouTube thumbnails (Wydad TV)
+        protocol: 'https',
+        hostname: 'i.ytimg.com',
+      },
     ],
   },
 };

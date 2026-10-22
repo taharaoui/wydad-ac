@@ -43,6 +43,7 @@ const SOCIAL_LINKS = [
 
 export function Footer() {
   const t = useTranslations('footer');
+  const tNav = useTranslations('nav');
 
   return (
     <footer className="border-t border-border bg-surface-dark text-fg-inverse">
@@ -52,9 +53,9 @@ export function Footer() {
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3">
               <Image
-                src="/images/crest-stars.png"
-                alt="Wydad AC"
-                width={32}
+                src="/images/wydad-crest.svg"
+                alt="Wydad Athletic Club"
+                width={30}
                 height={38}
                 className="h-[38px] w-auto opacity-80"
               />
@@ -76,6 +77,7 @@ export function Footer() {
                 { href: '/team', label: t('team') },
                 { href: '/news', label: t('news') },
                 { href: '/club', label: t('club') },
+                { href: '/wydad-tv', label: tNav('wydad_tv') },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link
@@ -118,7 +120,7 @@ export function Footer() {
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.07] text-white/60 transition-all hover:bg-wydad-red hover:text-white hover:scale-105"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.07] text-white/60 transition-all hover:bg-wydad-logo hover:text-white hover:scale-105"
                   aria-label={name}
                 >
                   {icon}
@@ -134,23 +136,13 @@ export function Footer() {
             {t('sponsors')}
           </h3>
           <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
-            {/* Wydad Crest */}
-            <div className="flex items-center justify-center">
-              <Image
-                src="/images/crest-stars.png"
-                alt="Wydad AC"
-                width={40}
-                height={48}
-                className="h-12 w-auto opacity-60 grayscale transition-all hover:opacity-100 hover:grayscale-0"
-              />
-            </div>
             {/* Ingelec - Main Sponsor */}
             <div className="flex items-center justify-center">
               <Image
-                src="/images/sponsors/ingelec.svg"
+                src="/images/sponsors/ingelec.png"
                 alt="Ingelec"
-                width={100}
-                height={100}
+                width={140}
+                height={36}
                 className="h-10 w-auto brightness-0 invert opacity-50 transition-all hover:opacity-100"
               />
             </div>
@@ -170,6 +162,16 @@ export function Footer() {
                 src="/images/sponsors/coca-cola.webp"
                 alt="Coca-Cola"
                 width={120}
+                height={40}
+                className="h-8 w-auto brightness-0 invert opacity-50 transition-all hover:opacity-100"
+              />
+            </div>
+            {/* Fiat */}
+            <div className="flex items-center justify-center">
+              <Image
+                src="/images/sponsors/fiat.svg"
+                alt="Fiat"
+                width={60}
                 height={40}
                 className="h-8 w-auto brightness-0 invert opacity-50 transition-all hover:opacity-100"
               />

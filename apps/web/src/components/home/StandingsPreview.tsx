@@ -1,21 +1,26 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { StandingRow } from '@/types';
+import { clubShortName, isWydad as isWydadTeam } from '@/lib/clubs';
+import { ZONES, ZONE_CELL, zoneFor } from '@/lib/standings-zones';
+import { TeamCrest } from '@/components/ui/TeamCrest';
 
 interface StandingsPreviewProps {
   standings: StandingRow[];
 }
 
+/** Full league table in the classic broadcast style: red title bar, coloured position cells for each zone. */
 export function StandingsPreview({ standings }: StandingsPreviewProps) {
   const t = useTranslations('matches');
+  const num = 'px-1 py-2.5 text-center tabular-nums sm:px-2.5';
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
-      <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
-        <h3 className="font-display text-sm font-bold text-fg">{t('standings')}</h3>
+    <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-card">
+      <div className="flex items-center justify-between bg-wydad-logo px-4 py-2.5 text-white">
+        <h3 className="font-condensed text-lg font-bold uppercase tracking-wide">{t('season_title')}</h3>
         <Link
-          href="/matches"
-          className="group/link inline-flex items-center gap-1 text-xs font-medium text-wydad-red transition-colors hover:text-wydad-red-hover"
+          href="/standings"
+          className="group/link inline-flex items-center gap-1 text-xs font-semibold text-white/90 transition-colors hover:text-white"
         >
           {t('view_all')}
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover/link:translate-x-0.5 rtl:rotate-180 rtl:group-hover/link:-translate-x-0.5">
@@ -27,63 +32,62 @@ export function StandingsPreview({ standings }: StandingsPreviewProps) {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-surface-secondary/50 text-xs text-fg-muted">
-              <th className="px-3 py-2.5 text-start">#</th>
-              <th className="px-3 py-2.5 text-start">{t('team')}</th>
-              <th className="px-3 py-2.5 text-center">{t('played_short')}</th>
-              <th className="px-3 py-2.5 text-center">{t('goal_diff_short')}</th>
-              <th className="px-3 py-2.5 text-center font-bold">{t('points_short')}</th>
+            <tr className="border-b border-border text-xs font-semibold text-fg-muted">
+              <th className="w-10 px-1 py-2 text-center sm:w-12">{t('pos_short')}</th>
+              <th className="px-2 py-2 text-start">{t('team')}</th>
+              <th className={num}>{t('played_short')}</th>
+              <th className={num}>{t('won_short')}</th>
+              <th className={num}>{t('drawn_short')}</th>
+              <th className={num}>{t('lost_short')}</th>
+              <th className={num}>{t('gd_short_sign')}</th>
+              <th className={`${num} text-fg`}>{t('points_short')}</th>
             </tr>
           </thead>
           <tbody>
-            {standings.slice(0, 6).map((row) => {
-              const isWydad = row.team.id === 'wydad';
+            {standings.map((row, i) => {
+              const wydad = isWydadTeam(row.team.id);
+              const zone = zoneFor(row.position);
+              // Dashed line where one zone ends and the next begins
+              const nextZone = standings[i + 1] ? zoneFor(standings[i + 1].position) : zone;
+              const boundary = i < standings.length - 1 && nextZone !== zone;
               return (
                 <tr
-                  key={row.position}
-                  className={`border-b border-border last:border-0 transition-colors ${
-                    isWydad
-                      ? 'bg-wydad-red/[0.04] hover:bg-wydad-red/[0.08]'
-                      : 'hover:bg-surface-secondary/50'
+                  key={row.team.id}
+                  className={`${boundary ? 'border-b border-dashed border-fg-muted/50' : 'border-b border-border'} last:border-0 transition-colors ${
+                    wydad ? 'bg-fg/[0.07]' : 'hover:bg-surface-secondary/60'
                   }`}
                 >
-                  <td className="px-3 py-3 tabular-nums text-fg-muted">{row.position}</td>
-                  <td className="px-3 py-3">
+                  <td className={`px-1 py-2.5 text-center font-semibold tabular-nums ${zone ? ZONE_CELL[zone] : 'text-fg-secondary'}`}>
+                    {row.position}
+                  </td>
+                  <td className="px-2 py-2.5">
                     <div className="flex items-center gap-2.5">
-                      <div className={`flex h-7 w-7 items-center justify-center rounded-lg text-[10px] font-bold ${
-                        isWydad
-                          ? 'bg-wydad-red text-white'
-                          : 'bg-surface-secondary text-fg-secondary'
-                      }`}>
-                        {row.team.short_name.slice(0, 2)}
-                      </div>
-                      <span className={isWydad ? 'font-bold text-wydad-red' : 'text-fg'}>
-                        {row.team.short_name}
-                      </span>
+                      <TeamCrest team={row.team} size={22} fallbackClassName="rounded-full bg-surface-secondary text-fg-secondary" />
+                      <span className={`max-w-[9rem] truncate ${wydad ? 'font-bold text-fg' : 'text-fg'}`}>{clubShortName(row.team)}</span>
                     </div>
                   </td>
-                  <td className="px-3 py-3 text-center tabular-nums text-fg-muted">{row.played}</td>
-                  <td className="px-3 py-3 text-center tabular-nums text-fg-muted">
-                    <span className={row.goal_difference > 0 ? 'text-accent-green' : row.goal_difference < 0 ? 'text-wydad-red' : ''}>
-                      {row.goal_difference > 0 ? '+' : ''}
-                      {row.goal_difference}
-                    </span>
-                  </td>
-                  <td className="px-3 py-3 text-center">
-                    <span className={`inline-flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold tabular-nums ${
-                      isWydad
-                        ? 'bg-wydad-red text-white'
-                        : 'bg-surface-secondary text-fg'
-                    }`}>
-                      {row.points}
-                    </span>
-                  </td>
+                  <td className={`${num} text-fg-secondary`}>{row.played}</td>
+                  <td className={`${num} text-fg-secondary`}>{row.won}</td>
+                  <td className={`${num} text-fg-secondary`}>{row.drawn}</td>
+                  <td className={`${num} text-fg-secondary`}>{row.lost}</td>
+                  <td className={`${num} text-fg-secondary`}>{row.goal_difference}</td>
+                  <td className={`${num} font-bold text-fg`}>{row.points}</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
+
+      {/* Legend */}
+      <ul className="flex flex-wrap gap-x-5 gap-y-2 border-t border-border px-4 py-3 text-xs text-fg-secondary">
+        {ZONES.map((z) => (
+          <li key={z} className="flex items-center gap-2">
+            <span className={`h-3 w-3 rounded-sm ${ZONE_CELL[z]}`} aria-hidden />
+            {t(`zone_${z}`)}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

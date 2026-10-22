@@ -4,26 +4,26 @@ import type { Match, StandingRow, Player, NewsArticle, Lineup } from '@/types';
 export const WYDAD = {
   id: 'wydad',
   name: 'الوداد الرياضي',
-  short_name: 'WAC',
-  logo_url: '/clubs/wydad.svg',
+  short_name: 'Wydad',
+  logo_url: '/clubs/tm_805667.svg',
 };
 
 export const BOTOLA_TEAMS = {
-  raja: { id: 'raja', name: 'الرجاء الرياضي', short_name: 'RCA', logo_url: '/clubs/raja.svg' },
-  far: { id: 'far', name: 'الجيش الملكي', short_name: 'FAR', logo_url: '/clubs/far.svg' },
-  rsk: { id: 'rsk', name: 'النهضة البركانية', short_name: 'RSB', logo_url: '/clubs/rsb.svg' },
-  maz: { id: 'maz', name: 'المغرب الفاسي', short_name: 'MAS', logo_url: '/clubs/mas.svg' },
-  hus: { id: 'hus', name: 'حسنية أكادير', short_name: 'HUSA', logo_url: '/clubs/husa.svg' },
-  ocs: { id: 'ocs', name: 'أولمبيك آسفي', short_name: 'OCS', logo_url: '/clubs/ocs.svg' },
-  fus: { id: 'fus', name: 'الفتح الرباطي', short_name: 'FUS', logo_url: '/clubs/fus.svg' },
-  uck: { id: 'uck', name: 'أولمبيك خريبكة', short_name: 'OCK', logo_url: '/clubs/ock.svg' },
-  cra: { id: 'cra', name: 'شباب الريف الحسيمي', short_name: 'CRA', logo_url: '/clubs/cra.svg' },
-  dhj: { id: 'dhj', name: 'الدفاع الحسني الجديدي', short_name: 'DHJ', logo_url: '/clubs/dhj.svg' },
-  mat: { id: 'mat', name: 'المغرب التطواني', short_name: 'MAT', logo_url: '/clubs/mat.svg' },
-  yas: { id: 'yas', name: 'يوسفية برشيد', short_name: 'YSB', logo_url: '/clubs/ysb.svg' },
-  kac: { id: 'kac', name: 'الكوكب المراكشي', short_name: 'KACM', logo_url: '/clubs/kacm.svg' },
-  rak: { id: 'rak', name: 'شباب المحمدية', short_name: 'SCC', logo_url: '/clubs/scc.svg' },
-  utsm: { id: 'utsm', name: 'اتحاد طنجة', short_name: 'IRT', logo_url: '/clubs/irt.svg' },
+  raja: { id: 'raja', name: 'الرجاء الرياضي', short_name: 'RCA', logo_url: '/clubs/tm_327682.svg' },
+  far: { id: 'far', name: 'الجيش الملكي', short_name: 'FAR', logo_url: '/clubs/tm_029484.svg' },
+  rsk: { id: 'rsk', name: 'النهضة البركانية', short_name: 'RSB', logo_url: '/clubs/tm_4560072.svg' },
+  maz: { id: 'maz', name: 'المغرب الفاسي', short_name: 'MAS', logo_url: '/clubs/tm_446779.svg' },
+  hus: { id: 'hus', name: 'حسنية أكادير', short_name: 'HUSA', logo_url: '/clubs/tm_773999.svg' },
+  ocs: { id: 'ocs', name: 'أولمبيك آسفي', short_name: 'OCS', logo_url: '/clubs/oc-safi.svg' },
+  fus: { id: 'fus', name: 'الفتح الرباطي', short_name: 'FUS', logo_url: '/clubs/tm_337870.svg' },
+  uck: { id: 'uck', name: 'أولمبيك خريبكة', short_name: 'OCK', logo_url: undefined },
+  cra: { id: 'cra', name: 'شباب الريف الحسيمي', short_name: 'CRA', logo_url: undefined },
+  dhj: { id: 'dhj', name: 'الدفاع الحسني الجديدي', short_name: 'DHJ', logo_url: '/clubs/tm_551225.svg' },
+  mat: { id: 'mat', name: 'المغرب التطواني', short_name: 'MAT', logo_url: '/clubs/tm_773955.png' },
+  yas: { id: 'yas', name: 'يوسفية برشيد', short_name: 'YSB', logo_url: undefined },
+  kac: { id: 'kac', name: 'الكوكب المراكشي', short_name: 'KACM', logo_url: '/clubs/tm_602409.svg' },
+  rak: { id: 'rak', name: 'شباب المحمدية', short_name: 'SCC', logo_url: undefined },
+  utsm: { id: 'utsm', name: 'اتحاد طنجة', short_name: 'IRT', logo_url: '/clubs/tm_1309697.svg' },
 } as const;
 
 const BOTOLA = {
@@ -54,18 +54,24 @@ export const mockMatches: Match[] = [
       { id: 'e4', type: 'goal', minute: 78, player_name: 'أيمن الحسوني', team_id: 'wydad' },
     ],
     stats: {
-      possession_home: 56,
-      possession_away: 44,
-      shots_home: 14,
-      shots_away: 9,
-      shots_on_target_home: 6,
-      shots_on_target_away: 3,
-      corners_home: 7,
-      corners_away: 4,
-      fouls_home: 12,
-      fouls_away: 15,
-      offsides_home: 2,
-      offsides_away: 3,
+      groups: [
+        {
+          key: 'overview',
+          rows: [
+            { key: 'ball_possession', home: 56, away: 44, unit: 'percent' },
+            { key: 'expected_goals', home: 1.84, away: 0.92, unit: 'decimal' },
+            { key: 'total_shots', home: 14, away: 9, unit: 'count' },
+            { key: 'shots_on_target', home: 6, away: 3, unit: 'count' },
+            { key: 'corner_kicks', home: 7, away: 4, unit: 'count' },
+            { key: 'fouls', home: 12, away: 15, unit: 'count' },
+            { key: 'yellow_cards', home: 1, away: 2, unit: 'count' },
+          ],
+        },
+        {
+          key: 'attack',
+          rows: [{ key: 'offsides', home: 2, away: 3, unit: 'count' }],
+        },
+      ],
     },
     home_lineup: {
       formation: '4-3-3',
@@ -171,6 +177,84 @@ export const mockPlayers: Player[] = [
 
 // ── Mock News ──
 export const mockNews: NewsArticle[] = [
+  {
+    // Officials appointed for Union Touarga Sport vs Wydad, 22 Oct 2026
+    id: 'news-officials-uts-wac-2026',
+    slug: 'arbitres-touarga-wydad',
+    title: {
+      ar: 'هشام التمسماني حكماً لمباراة إتحاد تواركة والوداد الرياضي',
+      fr: 'Hicham Temsamani au sifflet de Touarga – Wydad',
+      en: 'Hicham Temsamani to referee Touarga vs Wydad',
+    },
+    excerpt: {
+      ar: 'عُيّن هشام التمسماني لقيادة مباراة إتحاد تواركة والوداد الرياضي، يوم السبت 24 أكتوبر على الساعة السادسة مساءً، برسم الجولة الخامسة من البطولة الاحترافية.',
+      fr: 'Hicham Temsamani dirigera la rencontre entre l’Union Touarga Sport et le Wydad, samedi 24 octobre à 18h, pour la 5e journée de Botola Pro.',
+      en: 'Hicham Temsamani will take charge of Union Touarga Sport vs Wydad on Saturday 24 October at 6pm, on Botola Pro matchday 5.',
+    },
+    body: {
+      ar: 'وسيتواجد سليمان العاطفي في غرفة الفار.',
+      fr: 'Soulaimane El Atifi officiera dans la salle de la VAR.',
+      en: 'Soulaimane El Atifi will be in the VAR room.',
+    },
+    category: 'club',
+    match_id: 'mt_468151508',
+    published_at: '2026-10-22T14:00:00Z',
+    read_time_minutes: 1,
+    author: 'Wydad Athletic Club',
+  },
+  {
+    // Official club statement, 22 Oct 2026
+    id: 'news-wac-coach-2026-10',
+    slug: 'paulo-sergio-depart-accord',
+    title: {
+      ar: 'الوداد ينهي ارتباطه بالمدرب باولو سيرجيو بالتراضي',
+      fr: 'Le Wydad et Paulo Sérgio se séparent d’un commun accord',
+      en: 'Wydad and Paulo Sérgio part ways by mutual agreement',
+    },
+    excerpt: {
+      ar: 'يعلن نادي الوداد الرياضي عن توصله إلى اتفاق مع المدرب باولو سيرجيو بيريتو يقضي بفسخ العقد الذي يربط الطرفين بالتراضي.',
+      fr: 'Le Wydad Athletic Club annonce être parvenu à un accord avec l’entraîneur Paulo Sérgio pour mettre fin, à l’amiable, au contrat qui liait les deux parties.',
+      en: 'Wydad Athletic Club has reached an agreement with head coach Paulo Sérgio to terminate the contract between the two parties by mutual consent.',
+    },
+    body: {
+      ar: 'وبهذه المناسبة، يتقدم النادي بخالص الشكر والتقدير للمدرب على ما قدمه خلال فترة إشرافه على الفريق، متمنياً له كامل التوفيق والنجاح في مسيرته المهنية.',
+      fr: 'À cette occasion, le club adresse ses sincères remerciements à l’entraîneur pour le travail accompli durant sa période à la tête de l’équipe, et lui souhaite pleine réussite dans la suite de sa carrière.',
+      en: 'The club extends its sincere thanks and appreciation to the coach for his work during his time in charge of the team, and wishes him every success in the rest of his career.',
+    },
+    category: 'club',
+    cover_image_url: '/images/news/paulo-sergio-thank-you.jpg',
+    cover_position: '72% 22%',
+    cover_orientation: 'portrait',
+    published_at: '2026-10-22T12:00:00Z',
+    read_time_minutes: 1,
+    author: 'Wydad Athletic Club',
+  },
+  {
+    id: 'news-wac-usat-2026',
+    slug: 'wydad-amal-tiznit-1-1',
+    title: {
+      ar: 'تعثر جديد: الوداد يسقط في فخ التعادل أمام أمل تيزنيت',
+      fr: "Nouveau faux pas : le Wydad tenu en échec par l'Amal Tiznit",
+      en: 'Another slip: Wydad held by Amal Tiznit',
+    },
+    excerpt: {
+      ar: 'اكتفى الوداد بالتعادل بهدف لمثله أمام أمل تيزنيت بملعب محمد الخامس، في الجولة الرابعة من البطولة الاحترافية.',
+      fr: "Le Wydad a dû se contenter d'un nul 1-1 face à l'Amal Tiznit au complexe Mohammed V, lors de la 4e journée de Botola Pro.",
+      en: 'Wydad had to settle for a 1-1 draw against Amal Tiznit at the Mohammed V complex on Botola Pro matchday 4.',
+    },
+    body: {
+      ar: 'لم ينجح الوداد الرياضي في تحقيق الفوز أمام جماهيره، بعدما فرض عليه أمل تيزنيت التعادل بهدف لمثله على أرضية مركب محمد الخامس بالدار البيضاء، برسم الجولة الرابعة من البطولة الاحترافية.\n\nافتتح الضيوف التسجيل في الدقيقة 53 عن طريق زكرياء الصالحي من ضربة جزاء.\n\nوردّ الوداد بعد تسع دقائق فقط، حين عادل سيلفير غانفولا النتيجة في الدقيقة 62 من ضربة جزاء أيضاً.\n\nبهذه النتيجة يرفع الوداد رصيده إلى 5 نقاط في المركز التاسع، فيما يصل أمل تيزنيت إلى 4 نقاط في المركز الحادي عشر.',
+      fr: "Le Wydad Athletic Club n'a pas réussi à s'imposer devant son public. Au complexe Mohammed V de Casablanca, les Rouges ont été accrochés par l'Amal Tiznit (1-1), en clôture de la 4e journée de Botola Pro.\n\nLes visiteurs ont frappé les premiers : à la 53e minute, Zakaria Salhi a transformé un penalty pour donner l'avantage à Tiznit.\n\nLa réaction est venue neuf minutes plus tard. À la 62e, Silvère Ganvoula a lui aussi converti un penalty pour remettre les deux équipes à égalité.\n\nAvec ce nul, le Wydad compte 5 points et pointe à la 9e place. L'Amal Tiznit passe à 4 unités, au 11e rang.",
+      en: "Wydad Athletic Club could not get the win in front of their own fans. At the Mohammed V complex in Casablanca, the Reds were held 1-1 by Amal Tiznit on Botola Pro matchday 4.\n\nThe visitors struck first: Zakaria Salhi converted a penalty in the 53rd minute to put Tiznit ahead.\n\nWydad answered nine minutes later, with Silvère Ganvoula also scoring from the spot in the 62nd minute to level the game.\n\nThe draw takes Wydad to 5 points in 9th place, while Amal Tiznit move up to 4 points in 11th.",
+    },
+    category: 'match_report',
+    cover_image_url: '/images/news/wydad-amal-tiznit-lineup.jpg',
+    cover_position: 'center 78%',
+    match_id: 'mt_371866534',
+    published_at: '2026-10-18T22:15:00Z',
+    read_time_minutes: 2,
+    author: 'Wydad Athletic Club',
+  },
   {
     id: 'news-1',
     slug: 'derby-victory-2026',

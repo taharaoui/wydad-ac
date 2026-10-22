@@ -61,7 +61,7 @@ export default async function WydadPlusPage({
 
         <div className="relative mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 sm:py-24 lg:px-8">
           <div className="inline-flex items-center gap-2 rounded-full bg-wydad-red/20 px-4 py-1.5 text-sm font-semibold text-wydad-red">
-            <span className="h-1.5 w-1.5 rounded-full bg-wydad-red" />
+            <span className="h-1.5 w-1.5 rounded-full bg-wydad-logo" />
             {t('title')}
           </div>
           <h1 className="mt-6 font-display text-display-xl font-bold text-white sm:text-6xl">
@@ -81,12 +81,12 @@ export default async function WydadPlusPage({
               key={i}
               className={`relative flex flex-col rounded-2xl border p-6 sm:p-8 ${
                 tier.highlighted
-                  ? 'border-wydad-red bg-surface shadow-xl shadow-wydad-red/5'
+                  ? 'border-wydad-logo bg-surface shadow-xl shadow-wydad-red/5'
                   : 'border-border bg-surface'
               }`}
             >
               {tier.highlighted && (
-                <div className="absolute -top-3 start-1/2 -translate-x-1/2 rounded-full bg-wydad-red px-4 py-1 text-xs font-bold text-white">
+                <div className="absolute -top-3 start-1/2 -translate-x-1/2 rounded-full bg-wydad-logo px-4 py-1 text-xs font-bold text-white">
                   {t('most_popular')}
                 </div>
               )}
@@ -127,7 +127,7 @@ export default async function WydadPlusPage({
               <button
                 className={`mt-8 w-full rounded-xl px-6 py-3 text-sm font-bold transition-all ${
                   tier.highlighted
-                    ? 'bg-wydad-red text-white hover:bg-wydad-red-dark active:scale-[0.98]'
+                    ? 'bg-wydad-logo text-white hover:bg-wydad-red-dark active:scale-[0.98]'
                     : 'border border-border bg-surface-secondary text-fg hover:border-wydad-red/30 hover:text-wydad-red'
                 }`}
               >
