@@ -9,7 +9,7 @@ import { TICKETS_PAGE } from './links';
 /** Club page showing the WAC Official Brand catalogue (wacofficialbrand.com) */
 export const BRAND_URL = '/brand';
 export const STORE_URL = process.env.NEXT_PUBLIC_STORE_URL || '/coming-soon/store';
-export const ACADEMY_URL = process.env.NEXT_PUBLIC_ACADEMY_URL || '/coming-soon/academy';
+export const ACADEMY_URL = process.env.NEXT_PUBLIC_ACADEMY_URL || '/sections/academy';
 /** The header's Shop button opens the jersey store */
 export const SHOP_URL = STORE_URL;
 /** Login and member area share the account page until authentication ships */
@@ -46,8 +46,9 @@ export const SERVICE_LINKS: NavLink[] = [
 
 /**
  * The club's sports sections (French Wikipedia, "Wydad Athletic Club": basketball, football,
- * boxing, fencing), plus swimming (with water polo) and table tennis as confirmed by the club.
- * Sections without pages yet go to /coming-soon.
+ * boxing, fencing), plus swimming (with water polo), handball and table tennis as confirmed by the
+ * club. Sections fed by their Instagram account live at /sections/{key} (lib/sections.ts); the
+ * rest go to /coming-soon.
  */
 export const SECTIONS: MenuNode[] = [
   {
@@ -71,6 +72,7 @@ export const SECTIONS: MenuNode[] = [
           { key: 'fixtures_results', href: '/team/espoirs/fixtures' },
         ],
       },
+      { key: 'women', href: '/sections/women' },
     ],
   },
   {
@@ -86,13 +88,14 @@ export const SECTIONS: MenuNode[] = [
   {
     key: 'swimming',
     children: [
-      { key: 'swimming_section', href: '/coming-soon/swimming' },
+      { key: 'swimming_section', href: '/sections/swimming' },
       { key: 'water_polo', href: '/coming-soon/water-polo' },
     ],
   },
+  { key: 'handball', href: '/sections/handball' },
+  { key: 'boxing', href: '/sections/boxing' },
+  { key: 'fencing', href: '/sections/fencing' },
   { key: 'table_tennis', href: '/coming-soon/table-tennis' },
-  { key: 'boxing', href: '/coming-soon/boxing' },
-  { key: 'fencing', href: '/coming-soon/fencing' },
 ];
 
 /** Side menu (all sizes), after psg.fr: main list, then levels in a grey panel beside it */

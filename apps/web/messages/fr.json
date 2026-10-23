@@ -456,7 +456,7 @@
     "first_team": "Équipe première",
     "matches_results": "Matchs & Résultats",
     "news": "Actualités",
-    "academy": "Académie",
+    "academy": "Wydad Football School",
     "wydad_tv": "Wydad TV",
     "wydad_plus": "Wydad+",
     "shop": "Boutique",
@@ -535,7 +535,9 @@
     "swimming": "Natation",
     "swimming_section": "Natation",
     "water_polo": "Water-polo",
-    "table_tennis": "Tennis de table"
+    "table_tennis": "Tennis de table",
+    "handball": "Handball",
+    "women": "Football féminin"
   },
   "soon": {
     "title": "{section} : bientôt disponible",
@@ -677,5 +679,72 @@
     "sale_closed": "Vente fermée",
     "new_tab": "(billetterie officielle, nouvel onglet)",
     "note": "Paiement sécurisé sur wydad.ticketing.ma, la plateforme officielle du club."
+  },
+  "sections": {
+    "kicker": "Wydad Athletic Club · Section",
+    "highlights": "À la une",
+    "latest": "Dernières publications",
+    "followers": "abonnés",
+    "posts": "publications",
+    "follow": "Suivre",
+    "see_post": "Voir la publication",
+    "register": "S’inscrire",
+    "more_photos": "Plus de photos",
+    "staff_president": "Président délégué",
+    "staff_head_coach": "Entraîneur principal",
+    "staff_coaches": "Entraîneurs",
+    "staff_physio": "Kinésithérapeute",
+    "swimming": {
+      "title": "Natation",
+      "intro": "Benjamins, élites et anciens internationaux : la section natation du Wydad forme ses nageurs au bassin comme en dehors, avec le water-polo dans la même famille.",
+      "stage_title": "Stage de préparation à Bouznika",
+      "stage_text": "Du 19 au 24 octobre 2026, les nageurs du Wydad sont en stage au Club CIH de Bouznika : entraînements intensifs, technique, préparation physique et cohésion, sous la direction du head coach Aymen Riadi, avec Karima El Marhar et Monsef Daghai.",
+      "physio_title": "Khadija Aboutaib, kiné de nos champions",
+      "physio_text": "La section renforce sa collaboration avec Khadija Aboutaib, kinésithérapeute fidèle au club depuis de nombreuses années, pour le suivi des nageurs en compétition, à l’entraînement et en récupération.",
+      "internationals_title": "Deux anciens internationaux",
+      "internationals_text": "Badreddine Bouchouirab, président délégué de la section et président de la Ligue Casablanca-Settat, et Brahim Tahsi, responsable aquatique régional à la SONARGES, ont tous deux nagé et joué au water-polo pour le Maroc.",
+      "gallery_title": "Archives",
+      "gallery_text": "Les années rouge et blanc au bord des bassins, partagées par la section sur sa page Facebook."
+    },
+    "boxing": {
+      "title": "Boxe",
+      "intro": "Technique, discipline et esprit de famille : la salle du Wydad accueille boxeurs et boxeuses de tous âges, des premiers gants au championnat du Maroc.",
+      "mouti_title": "Taha Mouti vice-champion du Maroc",
+      "mouti_text": "Le Wydad félicite son boxeur Taha Mouti, médaillé d’argent au championnat du Maroc. Le meilleur reste à venir.",
+      "training_title": "Technique & discipline",
+      "training_text": "Séances de sparring, travail technique et préparation physique : le quotidien de la section boxe, à suivre sur son compte officiel."
+    },
+    "fencing": {
+      "title": "Escrime",
+      "intro": "Fleuret, épée, sabre : la section escrime du Wydad forme une génération de jeunes tireuses et tireurs jusqu’au niveau international.",
+      "zaimi_title": "Hiba Zaimi aux JOJ Dakar 2026",
+      "zaimi_text": "Cadette U15 de première année, Hiba Zaimi représentera le Maroc aux Jeux olympiques de la jeunesse de Dakar 2026 au fleuret féminin, dans la catégorie juniors U20.",
+      "antidoping_title": "Formation antidopage ADEL",
+      "antidoping_text": "Nos escrimeurs ont suivi à Rabat la formation ADEL de l’Agence marocaine antidopage (AMAD), avec leurs parents et leur entraîneur, en route vers Dakar 2026.",
+      "next_gen_title": "La relève est assurée",
+      "next_gen_text": "Les petites championnes de la section portent déjà haut les couleurs rouge et blanc sur les pistes."
+    },
+    "handball": {
+      "title": "Handball",
+      "intro": "La section handball du Wydad et son équipe première, portées par les tribunes rouges et blanches.",
+      "coach_title": "Abdelmajid Zaouli prolongé",
+      "coach_text": "L’entraîneur Abdelmajid Zaouli renouvelle son contrat avec la section handball pour une saison, renouvelable, afin de renforcer la stabilité de l’équipe première."
+    },
+    "women": {
+      "title": "Football féminin",
+      "intro": "L’équipe féminine du Wydad : entraînements, matchs et coulisses, au quotidien sur son compte officiel."
+    },
+    "academy": {
+      "title": "Wydad Football School",
+      "intro": "Wlad Al Madrassa : depuis toujours, les plus grandes légendes du Wydad sont des enfants de l’école. L’académie forme les talents de demain.",
+      "registrations_title": "Inscriptions 2026/2027 ouvertes",
+      "registrations_text": "La Wydad Football Academy ouvre ses inscriptions pour la saison 2026/2027 : nouvelle identité, même ADN, pour former les prochains Wlad Al Madrassa.",
+      "summer_camp_title": "Wydad Summer Camp",
+      "summer_camp_text": "Une première édition réussie en juillet 2026 : football, ateliers, découvertes et beaucoup de sourires pour les jeunes campeurs."
+    },
+    "basketball": {
+      "academy_title": "École de basket du Wydad",
+      "academy_text": "L’Académie de basketball du Wydad ouvre ses inscriptions. Infos : 06 62 71 56 85."
+    }
   }
 }

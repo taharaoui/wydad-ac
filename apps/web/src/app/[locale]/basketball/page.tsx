@@ -6,6 +6,9 @@ import { formatKickoffLong } from '@/lib/datetime';
 import { TeamCrest } from '@/components/ui/TeamCrest';
 import { NextMatchCountdown } from '@/components/home/NextMatchCountdown';
 import { FootballNav } from '@/components/team/FootballNav';
+import { getSection, getSectionFeed } from '@/lib/sections';
+import { InstagramFeedGrid } from '@/components/sections/InstagramFeedGrid';
+import { SectionHighlights } from '@/components/sections/SectionHighlights';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -19,6 +22,8 @@ export default async function BasketballPage({ params }: { params: Promise<{ loc
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'basketball' });
   const [next, ...later] = upcomingBasketball();
+  const section = getSection('basketball')!;
+  const [feed, tSections] = await Promise.all([getSectionFeed(section), getTranslations({ locale, namespace: 'sections' })]);
 
   return (
     <div>
@@ -103,6 +108,11 @@ export default async function BasketballPage({ params }: { params: Promise<{ loc
         <div className="mt-14 flex items-center gap-4 rounded-2xl bg-surface-secondary/60 p-6 sm:p-8">
           <Image src="/images/wydad-crest.svg" alt="" width={48} height={61} className="h-14 w-auto shrink-0" />
           <p className="text-fg-secondary">{t('multisport')}</p>
+        </div>
+
+        <div className="mt-16 space-y-16">
+          <SectionHighlights section={section} locale={locale} />
+          <InstagramFeedGrid feed={feed} title={tSections('latest')} />
         </div>
       </section>
     </div>

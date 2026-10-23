@@ -78,9 +78,10 @@ interface EmbedMedia {
   };
 }
 
-export async function getInstagram(): Promise<InstagramFeed> {
+/** Live profile and latest posts of any public account, from its embed page (hourly); null if refused */
+export async function fetchInstagramFeed(username: string): Promise<InstagramFeed | null> {
   try {
-    const res = await fetch(`${INSTAGRAM_URL}embed/`, {
+    const res = await fetch(`https://www.instagram.com/${username}/embed/`, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
       next: { revalidate: 3600 },
     });
@@ -93,7 +94,7 @@ export async function getInstagram(): Promise<InstagramFeed> {
     const posts = media.map(({ shortcode_media: n }) => ({
       shortcode: n.shortcode,
       kind: KIND[n.__typename] ?? 'image',
-      caption: (n.edge_media_to_caption?.edges[0]?.node.text ?? '').split('\n')[0].slice(0, 140),
+      caption: (n.edge_media_to_caption?.edges[0]?.node.text ?? '').split('\n')[0].replace(/\*+/g, '').trim().slice(0, 140),
       image: n.display_url,
       width: n.dimensions.width,
       height: n.dimensions.height,
@@ -111,7 +112,11 @@ export async function getInstagram(): Promise<InstagramFeed> {
       posts,
     };
   } catch (err) {
-    console.warn('[instagram] using snapshot:', err instanceof Error ? err.message : err);
-    return { profile: SNAPSHOT_PROFILE, posts: SNAPSHOT };
+    console.warn(`[instagram] @${username} using snapshot:`, err instanceof Error ? err.message : err);
+    return null;
   }
+}
+
+export async function getInstagram(): Promise<InstagramFeed> {
+  return (await fetchInstagramFeed(SNAPSHOT_PROFILE.username)) ?? { profile: SNAPSHOT_PROFILE, posts: SNAPSHOT };
 }

@@ -456,7 +456,7 @@
     "first_team": "First Team",
     "matches_results": "Matches & Results",
     "news": "News",
-    "academy": "Academy",
+    "academy": "Wydad Football School",
     "wydad_tv": "Wydad TV",
     "wydad_plus": "Wydad+",
     "shop": "Shop",
@@ -535,7 +535,9 @@
     "swimming": "Swimming",
     "swimming_section": "Swimming",
     "water_polo": "Water polo",
-    "table_tennis": "Table tennis"
+    "table_tennis": "Table tennis",
+    "handball": "Handball",
+    "women": "Women’s football"
   },
   "soon": {
     "title": "{section}: coming soon",
@@ -677,5 +679,72 @@
     "sale_closed": "Sale closed",
     "new_tab": "(official ticketing, opens in a new tab)",
     "note": "Secure payment on wydad.ticketing.ma, the club’s official platform."
+  },
+  "sections": {
+    "kicker": "Wydad Athletic Club · Section",
+    "highlights": "Highlights",
+    "latest": "Latest posts",
+    "followers": "followers",
+    "posts": "posts",
+    "follow": "Follow",
+    "see_post": "See the post",
+    "register": "Register",
+    "more_photos": "More photos",
+    "staff_president": "Delegate president",
+    "staff_head_coach": "Head coach",
+    "staff_coaches": "Coaches",
+    "staff_physio": "Physiotherapist",
+    "swimming": {
+      "title": "Swimming",
+      "intro": "Juniors, elites and former internationals: Wydad’s swimming section trains its swimmers in and out of the pool, with water polo in the same family.",
+      "stage_title": "Training camp in Bouznika",
+      "stage_text": "From 19 to 24 October 2026, Wydad’s swimmers are at Club CIH in Bouznika: intensive sessions, technique, conditioning and team spirit, led by head coach Aymen Riadi with Karima El Marhar and Monsef Daghai.",
+      "physio_title": "Khadija Aboutaib, our champions’ physio",
+      "physio_text": "The section strengthens its partnership with physiotherapist Khadija Aboutaib, at the club’s side for many years, to follow swimmers in competition, training and recovery.",
+      "internationals_title": "Two former internationals",
+      "internationals_text": "Badreddine Bouchouirab, the section’s delegate president and head of the Casablanca-Settat league, and Brahim Tahsi, regional aquatics manager at SONARGES, both swam and played water polo for Morocco.",
+      "gallery_title": "Archives",
+      "gallery_text": "Red and white years by the pool, shared by the section on its Facebook page."
+    },
+    "boxing": {
+      "title": "Boxing",
+      "intro": "Technique, discipline and family spirit: Wydad’s gym welcomes boxers of all ages, from first gloves to the Moroccan championship.",
+      "mouti_title": "Taha Mouti, Moroccan runner-up",
+      "mouti_text": "Wydad congratulates boxer Taha Mouti on his silver medal at the Moroccan championship. The best is yet to come.",
+      "training_title": "Technique & discipline",
+      "training_text": "Sparring, technical work and conditioning: the boxing section’s daily routine, on its official account."
+    },
+    "fencing": {
+      "title": "Fencing",
+      "intro": "Foil, épée, sabre: Wydad’s fencing section is raising a generation of young fencers up to international level.",
+      "zaimi_title": "Hiba Zaimi at the Dakar 2026 YOG",
+      "zaimi_text": "An under-15 cadet in her first year, Hiba Zaimi will represent Morocco at the Dakar 2026 Youth Olympic Games in women’s foil, in the under-20 junior category.",
+      "antidoping_title": "ADEL anti-doping training",
+      "antidoping_text": "Our fencers took the ADEL course of the Moroccan Anti-Doping Agency (AMAD) in Rabat with their parents and coach, on the road to Dakar 2026.",
+      "next_gen_title": "The future is in good hands",
+      "next_gen_text": "The section’s young champions already fly the red and white colours on the piste."
+    },
+    "handball": {
+      "title": "Handball",
+      "intro": "Wydad’s handball section and its first team, driven by the red and white stands.",
+      "coach_title": "Abdelmajid Zaouli extended",
+      "coach_text": "Coach Abdelmajid Zaouli renews with the handball section for one season, renewable, to keep the first team stable."
+    },
+    "women": {
+      "title": "Women’s football",
+      "intro": "Wydad’s women’s team: training, matches and behind the scenes, every day on its official account."
+    },
+    "academy": {
+      "title": "Wydad Football School",
+      "intro": "Wlad Al Madrassa: Wydad’s greatest legends have always been children of the school. The academy trains tomorrow’s talent.",
+      "registrations_title": "2026/27 registrations open",
+      "registrations_text": "Wydad Football Academy opens registrations for the 2026/27 season: a new identity, the same DNA, to raise the next Wlad Al Madrassa.",
+      "summer_camp_title": "Wydad Summer Camp",
+      "summer_camp_text": "A successful first edition in July 2026: football, workshops, discoveries and plenty of smiles for the young campers."
+    },
+    "basketball": {
+      "academy_title": "Wydad basketball school",
+      "academy_text": "Wydad’s basketball academy is open for registration. Info: +212 6 62 71 56 85."
+    }
   }
 }
