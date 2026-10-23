@@ -1,7 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { Match } from '@/types';
-import { clubShortName, isWydad } from '@/lib/clubs';
+import { clubShortName, isWydad, isBotola } from '@/lib/clubs';
 import { TeamCrest } from '@/components/ui/TeamCrest';
 import { NextMatchCountdown } from './NextMatchCountdown';
 import { TICKETS_URL } from '@/lib/links';
@@ -18,12 +18,11 @@ interface CalendarSectionProps {
   nextKickoff?: string;
 }
 
-const BOTOLA_ID = 'comp_30610';
 
 function MatchCard({ match, dateLabel, isNext }: CalendarItem & { isNext: boolean }) {
   const t = useTranslations('matches');
   const played = match.status === 'finished' || match.status === 'live';
-  const botola = match.competition.id === BOTOLA_ID || /botola/i.test(match.competition.name);
+  const botola = isBotola(match.competition);
   const wydadHome = isWydad(match.home_team.id);
   const showTickets = !played && wydadHome;
   const competition = botola ? 'Botola Pro' : match.competition.name;

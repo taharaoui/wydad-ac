@@ -74,3 +74,14 @@ export function clubCrestUrl(teamId: string, teamName?: string): string | undefi
   if (PNG_CRESTS.has(id)) return `/clubs/${id}.png`;
   return teamName ? NAMED_CRESTS.find(([re]) => re.test(teamName))?.[1] : undefined;
 }
+
+/** Botola Pro competition ids: TheStatsAPI's, and the one used by the demo data */
+const BOTOLA_IDS = new Set(['comp_30610', 'botola-pro']);
+
+/** True for the Botola Pro, whatever the source names it ("Botola Pro Inwi", "البطولة الاحترافية", …) */
+export function isBotola(competition: { id: string; name: string; short_name?: string }): boolean {
+  return (
+    BOTOLA_IDS.has(competition.id) ||
+    /botola|البطولة الاحترافية/i.test(`${competition.name} ${competition.short_name ?? ''}`)
+  );
+}

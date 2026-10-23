@@ -1,11 +1,11 @@
 import { useTranslations } from 'next-intl';
 import type { Match } from '@/types';
-import { isWydad } from '@/lib/clubs';
+import { isWydad, isBotola } from '@/lib/clubs';
 import type { Official } from '@/lib/match-notes';
 
 export function MatchInfoCard({ match, dateLabel, officials = [], locale }: { match: Match; dateLabel: string; officials?: Official[]; locale: string }) {
   const t = useTranslations('matches');
-  const competition = /botola/i.test(match.competition.name) ? 'Botola Pro' : match.competition.name;
+  const competition = isBotola(match.competition) ? 'Botola Pro' : match.competition.name;
   const venue = match.venue ?? (isWydad(match.home_team.id) ? t('home_game') : t('away_game'));
 
   const rows: [string, React.ReactNode][] = [

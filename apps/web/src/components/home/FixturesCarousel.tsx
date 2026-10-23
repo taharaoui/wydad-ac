@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import type { Match } from '@/types';
-import { clubShortName } from '@/lib/clubs';
+import { clubShortName, isBotola } from '@/lib/clubs';
 import { TeamCrest } from '@/components/ui/TeamCrest';
 import { SmartLink } from '@/components/layout/header/SmartLink';
 
@@ -20,11 +20,6 @@ interface FixturesCarouselProps {
   items: FixtureItem[];
 }
 
-const BOTOLA_ID = 'comp_30610';
-
-function isBotola(match: Match) {
-  return match.competition.id === BOTOLA_ID || /botola/i.test(match.competition.name);
-}
 
 // Card cut: square corners with the bottom-right corner clipped, as on psg.fr
 const CARD_CLIP = 'polygon(0 0, 100% 0, 100% calc(100% - 28px), calc(100% - 28px) 100%, 0 100%)';
@@ -68,7 +63,7 @@ function FixtureCard({ match, day, time, ticketsUrl }: FixtureItem) {
   const isFinished = match.status === 'finished';
   const isLive = match.status === 'live';
   const basketball = match.sport === 'basketball';
-  const botola = !basketball && isBotola(match);
+  const botola = !basketball && isBotola(match.competition);
 
   return (
     <SmartLink

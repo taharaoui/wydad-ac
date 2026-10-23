@@ -1,3 +1,4 @@
+import { isBotola } from '@/lib/clubs';
 import { useTranslations } from 'next-intl';
 import type { Match } from '@/types';
 import type { SummaryGoal } from '@/lib/match-summary';
@@ -59,7 +60,7 @@ export function MatchHeader({ match, dateLabel, timeLabel, goals }: MatchHeaderP
   const isFinished = match.status === 'finished';
   const isLive = match.status === 'live';
   const played = isFinished || isLive;
-  const botola = /botola/i.test(match.competition.name);
+  const botola = isBotola(match.competition);
 
   return (
     <header className="relative overflow-hidden bg-surface-dark text-white">
