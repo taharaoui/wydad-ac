@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { TICKETS_PAGE } from '@/lib/links';
-import { BAR_LINKS, SHOP_URL, SIGN_IN_URL, isActive } from '@/lib/navigation-config';
+import { BAR_LINKS, BRAND_URL, SIGN_IN_URL, isActive } from '@/lib/navigation-config';
 import { MenuIcon, SearchIcon, TicketIcon, UserIcon } from './icons';
 import { LanguageSelector } from './LanguageSelector';
 import { MenuPanel } from './MenuPanel';
@@ -134,8 +134,8 @@ export function SiteHeader({ data }: { data: HeaderData }) {
                     <TicketIcon size={18} className="sm:hidden" />
                     <span className="sr-only sm:not-sr-only">{t('tickets')}</span>
                   </SmartLink>
-                  <SmartLink href={SHOP_URL} className={`${pill} hidden bg-white/15 text-white hover:bg-white/25 sm:flex`}>
-                    {t('shop')}
+                  <SmartLink href={BRAND_URL} className={`${pill} hidden bg-white/15 text-white hover:bg-white/25 sm:flex`}>
+                    {t('brand_short')}
                   </SmartLink>
                   <div className="hidden md:block">
                     <LanguageSelector tone="light" />

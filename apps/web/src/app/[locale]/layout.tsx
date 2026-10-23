@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { locales, rtlLocales, type Locale } from '@/i18n/config';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { Analytics } from '@vercel/analytics/next';
 import '@/app/globals.css';
 
 export async function generateMetadata({
@@ -63,6 +64,7 @@ export default async function LocaleLayout({
               <Footer />
             </div>
           </NextIntlClientProvider>
+          <Analytics />
       </body>
     </html>
   );
