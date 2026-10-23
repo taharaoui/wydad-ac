@@ -667,8 +667,14 @@
   },
   "tickets": {
     "title": "Billetterie",
-    "subtitle": "Réservez vos places sur la billetterie officielle du Wydad, sans quitter le site.",
-    "open_new_tab": "Ouvrir dans un nouvel onglet",
-    "frame_title": "Billetterie officielle du Wydad Athletic Club"
+    "subtitle": "Les matchs du Wydad en vente. L’achat se fait sur la billetterie officielle.",
+    "platform": "Billetterie officielle",
+    "on_sale": "En vente",
+    "none_on_sale": "Aucun match en vente pour le moment. Les prochains matchs à domicile apparaîtront ici dès l’ouverture de la vente.",
+    "past": "Matchs précédents",
+    "buy": "Acheter",
+    "sale_closed": "Vente fermée",
+    "new_tab": "(billetterie officielle, nouvel onglet)",
+    "note": "Paiement sécurisé sur wydad.ticketing.ma, la plateforme officielle du club."
   }
 }

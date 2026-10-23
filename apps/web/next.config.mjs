@@ -23,6 +23,11 @@ const nextConfig = {
         hostname: '**.cdninstagram.com',
       },
       {
+        // Match posters from the official ticketing platform
+        protocol: 'https',
+        hostname: 'ticketing-storage-eu-west-3.s3.eu-west-3.amazonaws.com',
+      },
+      {
         // WAC Official Brand product photos (Shopify CDN)
         protocol: 'https',
         hostname: 'cdn.shopify.com',

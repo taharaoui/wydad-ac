@@ -667,8 +667,14 @@
   },
   "tickets": {
     "title": "Tickets",
-    "subtitle": "Book your seats on Wydad’s official ticketing platform without leaving the site.",
-    "open_new_tab": "Open in a new tab",
-    "frame_title": "Wydad Athletic Club official ticketing"
+    "subtitle": "Wydad matches on sale. Tickets are bought on the official ticketing platform.",
+    "platform": "Official ticketing",
+    "on_sale": "On sale",
+    "none_on_sale": "No match on sale right now. Upcoming home matches will appear here as soon as sales open.",
+    "past": "Previous matches",
+    "buy": "Buy tickets",
+    "sale_closed": "Sale closed",
+    "new_tab": "(official ticketing, opens in a new tab)",
+    "note": "Secure payment on wydad.ticketing.ma, the club’s official platform."
   }
 }
