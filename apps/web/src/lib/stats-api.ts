@@ -44,6 +44,7 @@ class ApiError extends Error {
 
 /** The Starter plan allows 12 requests per minute (x-ratelimit-limit). */
 const IS_BUILD = process.env.NEXT_PHASE === 'phase-production-build';
+const IS_PROD_RUNTIME = !IS_BUILD && process.env.VERCEL_ENV === 'production';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function apiFetch<T>(
@@ -60,11 +61,14 @@ async function apiFetch<T>(
       // stay well under the per-minute limit
       next: { revalidate: Math.max(options?.revalidate ?? 300, 300) },
     });
-    // During the build, wait for the rate-limit window to reset instead of falling back to demo
-    // data (up to four times, ~1 min each). At runtime a visitor never waits: the caller falls back.
-    for (let attempt = 0; IS_BUILD && res.status === 429 && attempt < 4; attempt++) {
+    // On 429, wait for the rate-limit window to reset instead of falling back to demo data: up to
+    // four times (~1 min each) during the build, twice in production. Production pages are
+    // regenerated in the background (visitors get the previous version meanwhile), so the wait
+    // never shows; caching demo data there would show it until the next revalidation.
+    const attempts = IS_BUILD ? 4 : IS_PROD_RUNTIME ? 2 : 0;
+    for (let attempt = 0; res.status === 429 && attempt < attempts; attempt++) {
       const reset = Number(res.headers.get('x-ratelimit-reset')) * 1000;
-      await sleep(Math.min(65_000, Math.max(2_000, (reset || Date.now() + 60_000) - Date.now() + 500)));
+      await sleep(Math.min(IS_BUILD ? 65_000 : 30_000, Math.max(2_000, (reset || Date.now() + 60_000) - Date.now() + 500)));
       res = await fetch(url, {
         headers: { Authorization: `Bearer ${API_KEY}` },
         next: { revalidate: Math.max(options?.revalidate ?? 300, 300) },
