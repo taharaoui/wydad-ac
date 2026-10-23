@@ -1,6 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { TICKETS_URL } from '@/lib/links';
+import { TICKETS_PAGE } from '@/lib/links';
 import { ACADEMY_URL, BRAND_URL, MEMBER_AREA_URL, STORE_URL, type NavLink } from '@/lib/navigation-config';
 import { SmartLink } from './header/SmartLink';
 import Image from 'next/image';
@@ -70,7 +70,7 @@ export function Footer() {
   ];
   const services: NavLink[] = [
     { key: 'member_area', href: MEMBER_AREA_URL },
-    { key: 'tickets', href: TICKETS_URL },
+    { key: 'tickets', href: TICKETS_PAGE },
     { key: 'store', href: STORE_URL },
     { key: 'brand', href: BRAND_URL },
     { key: 'gold_membership', href: '/gold-membership' },

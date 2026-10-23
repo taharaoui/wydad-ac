@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { TICKETS_URL } from '@/lib/links';
+import { TICKETS_PAGE } from '@/lib/links';
 import { locales } from '@/i18n/config';
 
 /** Sections linked from the header that have no page yet (see lib/navigation-config.ts) */
@@ -38,10 +38,9 @@ export default async function ComingSoonPage({ params }: { params: Promise<{ loc
         <Link href="/" className="inline-flex min-h-11 items-center rounded-lg bg-wydad-logo px-5 font-condensed text-lg font-bold uppercase text-white hover:bg-wydad-red-hover">
           {t('home')}
         </Link>
-        <a href={TICKETS_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-lg border border-border px-5 font-condensed text-lg font-bold uppercase text-fg hover:border-wydad-logo hover:text-wydad-red">
+        <Link href={TICKETS_PAGE} className="inline-flex min-h-11 items-center rounded-lg border border-border px-5 font-condensed text-lg font-bold uppercase text-fg hover:border-wydad-logo hover:text-wydad-red">
           {t('tickets')}
-          <span className="sr-only"> {tHeader('new_tab')}</span>
-        </a>
+        </Link>
       </div>
     </div>
   );

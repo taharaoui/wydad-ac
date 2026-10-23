@@ -1,4 +1,4 @@
-import { TICKETS_URL } from './links';
+import { TICKETS_PAGE } from './links';
 
 /**
  * Header navigation: every destination lives here, apart from rendering.
@@ -41,7 +41,7 @@ export const BAR_LINKS: NavLink[] = [
 export const SERVICE_LINKS: NavLink[] = [
   { key: 'sign_in', href: SIGN_IN_URL },
   { key: 'member_area', href: MEMBER_AREA_URL },
-  { key: 'tickets', href: TICKETS_URL },
+  { key: 'tickets', href: TICKETS_PAGE },
 ];
 
 /**

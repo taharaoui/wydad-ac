@@ -664,5 +664,11 @@
     "shop_collection": "Découvrir la collection t-shirts",
     "rail_subtitle": "La nouvelle collection de t-shirts de la marque officielle du Wydad",
     "discover": "Découvrir"
+  },
+  "tickets": {
+    "title": "Billetterie",
+    "subtitle": "Réservez vos places sur la billetterie officielle du Wydad, sans quitter le site.",
+    "open_new_tab": "Ouvrir dans un nouvel onglet",
+    "frame_title": "Billetterie officielle du Wydad Athletic Club"
   }
 }

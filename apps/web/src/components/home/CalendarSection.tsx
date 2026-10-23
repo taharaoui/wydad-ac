@@ -4,7 +4,7 @@ import type { Match } from '@/types';
 import { clubShortName, isWydad, isBotola } from '@/lib/clubs';
 import { TeamCrest } from '@/components/ui/TeamCrest';
 import { NextMatchCountdown } from './NextMatchCountdown';
-import { TICKETS_URL } from '@/lib/links';
+import { TICKETS_PAGE } from '@/lib/links';
 
 export interface CalendarItem {
   match: Match;
@@ -90,14 +90,12 @@ function MatchCard({ match, dateLabel, isNext }: CalendarItem & { isNext: boolea
 
         <div className="mt-auto pt-6">
           {showTickets ? (
-            <a
-              href={TICKETS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href={TICKETS_PAGE}
               className="block rounded-md bg-wydad-logo py-3 text-center font-condensed text-lg font-bold uppercase tracking-wide text-white shadow-sm transition-colors hover:bg-wydad-red-hover"
             >
               {t('tickets')}
-            </a>
+            </Link>
           ) : (
             <Link
               href={`/matches/${match.id}`}

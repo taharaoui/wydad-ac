@@ -664,5 +664,11 @@
     "shop_collection": "Shop the t-shirt collection",
     "rail_subtitle": "The new t-shirt collection from Wydad’s official brand",
     "discover": "Discover"
+  },
+  "tickets": {
+    "title": "Tickets",
+    "subtitle": "Book your seats on Wydad’s official ticketing platform without leaving the site.",
+    "open_new_tab": "Open in a new tab",
+    "frame_title": "Wydad Athletic Club official ticketing"
   }
 }

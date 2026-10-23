@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
-import { TICKETS_URL } from '@/lib/links';
+import { TICKETS_PAGE } from '@/lib/links';
 import { BAR_LINKS, SHOP_URL, SIGN_IN_URL, isActive } from '@/lib/navigation-config';
 import { MenuIcon, SearchIcon, TicketIcon, UserIcon } from './icons';
 import { LanguageSelector } from './LanguageSelector';
@@ -130,7 +130,7 @@ export function SiteHeader({ data }: { data: HeaderData }) {
                     <UserIcon size={20} />
                     {t('sign_in')}
                   </SmartLink>
-                  <SmartLink href={TICKETS_URL} className={`${pill} bg-white text-wydad-logo hover:bg-white/90`}>
+                  <SmartLink href={TICKETS_PAGE} className={`${pill} bg-white text-wydad-logo hover:bg-white/90`}>
                     <TicketIcon size={18} className="sm:hidden" />
                     <span className="sr-only sm:not-sr-only">{t('tickets')}</span>
                   </SmartLink>
