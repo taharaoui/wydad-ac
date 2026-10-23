@@ -1,4 +1,4 @@
-import { clubCrestUrl, isWydad } from '@/lib/clubs';
+import { clubCrestUrl, clubName, isWydad } from '@/lib/clubs';
 /**
  * TheStatsAPI client for Wydad AC website.
  *
@@ -84,7 +84,7 @@ async function apiFetch<T>(
     throw new ApiError(`TheStatsAPI ${res.status} on ${path}: ${text}`, res.status);
   }
 
-  return res.json() as Promise<T>;
+  return JSON.parse(clubName(await res.text())) as T;
 }
 
 // ── Competition / Season ──

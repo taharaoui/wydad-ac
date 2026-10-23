@@ -12,7 +12,7 @@ export function isWydad(teamId: string): boolean {
 
 /** Botola Pro 2026/27 clubs with a vector crest in public/clubs/{id}.svg. */
 const SVG_CRESTS = new Set([
-  'tm_805667', // Wydad Casablanca
+  'tm_805667', // Wydad Athletic Club (first team)
   'tm_327682', // Raja Club Athletic
   'tm_029484', // AS FAR Rabat
   'tm_4560072', // RS Berkane
@@ -84,4 +84,14 @@ export function isBotola(competition: { id: string; name: string; short_name?: s
     BOTOLA_IDS.has(competition.id) ||
     /botola|البطولة الاحترافية/i.test(`${competition.name} ${competition.short_name ?? ''}`)
   );
+}
+
+/**
+ * The club is always "Wydad Athletic Club", never "Wydad Casablanca" (as TheStatsAPI names it).
+ * Applied to every outside text: API responses, YouTube titles, Instagram captions.
+ */
+export function clubName(text: string): string {
+  return text
+    .replace(/\b(?:Wydad(?:\s+(?:AC|Athletic(?:\s+Club)?))?|WAC)\s+(?:(?:de|of)\s+)?Casablanca\b/gi, 'Wydad Athletic Club')
+    .replace(/الوداد البيضاوي/g, 'الوداد الرياضي');
 }

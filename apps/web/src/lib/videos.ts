@@ -1,3 +1,4 @@
+import { clubName } from '@/lib/clubs';
 /**
  * Wydad TV: videos from the club's official YouTube channel (youtube.com/@WACofficiel).
  * CHANNEL_VIDEOS is a snapshot of the channel (with exact upload dates); getVideos() adds any
@@ -83,7 +84,7 @@ export async function getVideos(): Promise<Video[]> {
       const title = entry.match(/<title>([^<]+)</)?.[1];
       const published = entry.match(/<published>([^<]+)</)?.[1];
       if (!id || !title || !published || known.has(id) || /#shorts/i.test(title)) continue;
-      const clean = title.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+      const clean = clubName(title).replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
       fresh.push(withCategory({ id, title: clean, published_at: new Date(published).toISOString() }));
     }
     return [...fresh, ...VIDEOS].sort((a, b) => b.published_at.localeCompare(a.published_at));
