@@ -11,6 +11,11 @@ export const DISLOG_LEAGUE = {
   country: 'Morocco',
 };
 
+/** Ticket pages (webook.com), by fixture id */
+export const BASKETBALL_TICKETS: Record<string, string> = {
+  'bb-wac-fus-2026-10-26': 'https://webook.com/en/MA/cas/sports-event/events/wac-basket-m2-26-27',
+};
+
 export const BASKETBALL_FIXTURES: Match[] = [
   {
     id: 'bb-wac-fus-2026-10-26',
@@ -34,3 +39,48 @@ export function upcomingBasketball(now = new Date()): Match[] {
     a.kickoff.localeCompare(b.kickoff),
   );
 }
+
+// ── Squad, staff, standings, honours ──
+// Filled in by hand as the club publishes them; each page shows a notice while its list is empty.
+
+export type BasketballPosition = 'point_guard' | 'shooting_guard' | 'small_forward' | 'power_forward' | 'center';
+export const BASKETBALL_POSITIONS: BasketballPosition[] = ['point_guard', 'shooting_guard', 'small_forward', 'power_forward', 'center'];
+
+export interface BasketballPlayer {
+  id: string;
+  name: string;
+  number: number | null;
+  position: BasketballPosition;
+  photo?: string;
+}
+
+export const BASKETBALL_SQUAD: BasketballPlayer[] = [];
+
+export interface BasketballStaffMember {
+  name: string;
+  name_ar?: string;
+  role: { ar: string; fr: string; en: string };
+  head?: boolean;
+}
+
+export const BASKETBALL_STAFF: BasketballStaffMember[] = [];
+
+export interface BasketballStandingRow {
+  position: number;
+  team: { id: string; name: string; short_name: string };
+  played: number;
+  won: number;
+  lost: number;
+  points_for: number;
+  points_against: number;
+  points: number;
+}
+
+export const BASKETBALL_STANDINGS: BasketballStandingRow[] = [];
+
+export interface BasketballTrophy {
+  name: { ar: string; fr: string; en: string };
+  years: string[];
+}
+
+export const BASKETBALL_HONOURS: BasketballTrophy[] = [];

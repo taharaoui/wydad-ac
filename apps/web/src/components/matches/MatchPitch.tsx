@@ -118,10 +118,25 @@ function CardIcon({ color }: { color: string }) {
   return <span className="inline-block h-2.5 w-[7px] rounded-[1px]" style={{ backgroundColor: color }} />;
 }
 
+/** Shirt outline on a 40×40 grid: collar, short sleeves, body */
+const JERSEY_PATH =
+  'M13.5 3.5 7.5 5.8 1.8 11.2 6 18.4 9.4 16.4V36.5H30.6V16.4L34 18.4 38.2 11.2 32.5 5.8 26.5 3.5C25.6 6.4 23.1 8 20 8S14.4 6.4 13.5 3.5Z';
+
+/** Player marker: a shirt in the team colour with the squad number (goalkeepers in a dark kit). */
+function Jersey({ color, number, ring }: { color: string; number: number | null; ring: string }) {
+  return (
+    <span className="relative flex h-9 w-9 items-center justify-center drop-shadow-md transition-transform group-hover:scale-110 sm:h-10 sm:w-10">
+      <svg viewBox="0 0 40 40" className="absolute inset-0 h-full w-full" aria-hidden>
+        <path d={JERSEY_PATH} fill={color} stroke={ring} strokeWidth={2} strokeLinejoin="round" />
+      </svg>
+      <span className="relative mt-1.5 font-condensed text-[13px] font-extrabold leading-none text-white sm:text-sm">{number || ''}</span>
+    </span>
+  );
+}
+
 function PlayerMarker({
   player,
   color,
-  photo,
   isPotm,
   selected,
   onSelect,
@@ -146,19 +161,11 @@ function PlayerMarker({
       className="group flex w-[72px] flex-col items-center gap-0.5 sm:w-[88px]"
     >
       <span className="relative">
-        <span
-          className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold text-white shadow-md transition-transform group-hover:scale-110 sm:h-9 sm:w-9 sm:text-sm ${
-            selected ? 'border-white ring-2 ring-white/70' : isPotm ? 'border-accent-gold' : 'border-white/80'
-          }`}
-          style={{ backgroundColor: color }}
-        >
-          {photo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={photo} alt="" className="h-full w-full rounded-full object-cover object-top" />
-          ) : (
-            player.number || ''
-          )}
-        </span>
+        <Jersey
+          color={player.position === 'goalkeeper' ? '#2b2b30' : color}
+          number={player.number}
+          ring={selected ? '#ffffff' : isPotm ? 'rgb(var(--color-accent-gold))' : 'rgba(255,255,255,0.85)'}
+        />
         {player.rating != null && (
           <RatingBadge rating={player.rating} size="sm" className="absolute -right-5 -top-2 shadow" />
         )}

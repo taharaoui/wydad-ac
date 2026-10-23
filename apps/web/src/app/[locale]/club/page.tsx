@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import {
   CLUB_SOURCE_URL,
   ERAS,
+  crestsForYear,
   FACILITIES,
   FIGURES,
   NICKNAMES,
@@ -12,6 +13,7 @@ import {
   TROPHIES_NATIONAL,
 } from '@/lib/club-info';
 import { HonoursList } from '@/components/club/HonoursList';
+import { HonoursBanners } from '@/components/club/HonoursBanners';
 
 const sectionTitle = 'font-condensed text-4xl font-extrabold uppercase italic leading-none text-fg rtl:not-italic sm:text-5xl';
 const kicker = 'font-condensed text-sm font-bold uppercase tracking-[0.16em] text-wydad-red';
@@ -32,8 +34,8 @@ export default async function ClubPage({ params }: { params: Promise<{ locale: s
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[#141016] text-white">
-        <div className="pointer-events-none absolute -end-24 -top-24 h-[520px] w-[520px] rounded-full bg-wydad-logo/25 blur-[120px]" aria-hidden />
+      <section className="relative overflow-hidden bg-surface-dark text-white">
+        <div className="pointer-events-none absolute -end-24 -top-24 h-[520px] w-[520px] rounded-full bg-white/10 blur-[120px]" aria-hidden />
         <Image
           src="/images/wydad-crest-white.svg"
           alt=""
@@ -42,13 +44,13 @@ export default async function ClubPage({ params }: { params: Promise<{ locale: s
           className="pointer-events-none absolute -bottom-16 end-0 hidden h-[115%] w-auto opacity-[0.06] md:block"
         />
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-          <p className={kicker}>{t('since')}</p>
+          <p className={`${kicker} !text-white/75`}>{t('since')}</p>
           <h1 className="mt-3 font-condensed text-6xl font-extrabold uppercase italic leading-none rtl:not-italic sm:text-8xl">{t('title')}</h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/75">{t('about_text')}</p>
 
           <dl className="mt-12 grid max-w-4xl grid-cols-2 gap-px overflow-hidden rounded-xl bg-white/10 ring-1 ring-white/10 lg:grid-cols-4">
             {facts.map((f) => (
-              <div key={f.label} className="bg-[#141016] p-5">
+              <div key={f.label} className="bg-surface-dark p-5">
                 <dt className="font-condensed text-xs font-bold uppercase tracking-[0.14em] text-white/50">{f.label}</dt>
                 <dd className="mt-1.5 font-semibold">{f.value}</dd>
               </div>
@@ -87,7 +89,17 @@ export default async function ClubPage({ params }: { params: Promise<{ locale: s
         <ol className="mt-6 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
           {TIMELINE.map((entry) => (
             <li key={entry.year} className="border-s-2 border-wydad-logo ps-5">
-              <p className="font-condensed text-3xl font-extrabold leading-none text-wydad-red">{entry.year}</p>
+              <div className="flex items-center gap-3">
+                <p className="font-condensed text-3xl font-extrabold leading-none text-wydad-red">{entry.year}</p>
+                {/* Crest the club wore at the time */}
+                <span className="flex gap-1.5">
+                  {crestsForYear(Number(entry.year)).map((c) => (
+                    <span key={c.src} className={`flex h-11 w-11 items-center justify-center overflow-hidden rounded-full ${c.dark ? 'bg-black' : 'bg-surface ring-1 ring-border'}`}>
+                      <Image src={c.src} alt="" width={44} height={44} className={c.dark ? 'h-full w-full object-cover' : 'h-9 w-auto'} />
+                    </span>
+                  ))}
+                </span>
+              </div>
               <h4 className="mt-2 font-condensed text-xl font-bold uppercase text-fg">{entry.title[lang]}</h4>
               <p className="mt-1.5 text-sm leading-relaxed text-fg-secondary">{entry.text[lang]}</p>
             </li>
@@ -99,7 +111,10 @@ export default async function ClubPage({ params }: { params: Promise<{ locale: s
       <section id="honours" className="border-y border-border bg-surface-secondary/40">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <h2 className={sectionTitle}>{t('honours')}</h2>
-          <div className="mt-10 grid gap-12 lg:grid-cols-2">
+          <div className="mt-10">
+            <HonoursBanners lang={lang} />
+          </div>
+          <div className="mt-16 grid gap-12 lg:grid-cols-2">
             <HonoursList title={t('honours_national')} trophies={TROPHIES_NATIONAL} lang={lang} />
             <HonoursList title={t('honours_international')} trophies={TROPHIES_INTERNATIONAL} lang={lang} />
           </div>
@@ -153,13 +168,13 @@ export default async function ClubPage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* Stadium + facilities */}
-      <section id="stadium" className="bg-[#141016] text-white">
+      <section id="stadium" className="bg-surface-dark text-white">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <h2 className="font-condensed text-4xl font-extrabold uppercase italic leading-none rtl:not-italic sm:text-5xl">{t('facilities')}</h2>
 
           <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
             <div>
-              <p className={kicker}>{t('stadium')}</p>
+              <p className={`${kicker} !text-white/75`}>{t('stadium')}</p>
               <h3 className="mt-2 font-condensed text-3xl font-bold uppercase">{t('stadium_name')}</h3>
               <p className="mt-4 max-w-2xl leading-relaxed text-white/70">{t('stadium_text')}</p>
               <dl className="mt-6 grid max-w-md grid-cols-2 gap-3">
@@ -178,7 +193,7 @@ export default async function ClubPage({ params }: { params: Promise<{ locale: s
               <ol className="mt-4 space-y-4">
                 {STADIUM_HISTORY.map((m) => (
                   <li key={m.year} className="grid grid-cols-[3.5rem_minmax(0,1fr)] gap-3">
-                    <span className="font-condensed text-xl font-extrabold text-wydad-logo">{m.year}</span>
+                    <span className="font-condensed text-xl font-extrabold text-white">{m.year}</span>
                     <span className="text-white/80">{m.text[lang]}</span>
                   </li>
                 ))}
@@ -193,7 +208,7 @@ export default async function ClubPage({ params }: { params: Promise<{ locale: s
                 <ul className="mt-4 space-y-2.5">
                   {f.facts.map((fact) => (
                     <li key={fact.fr} className="flex gap-3 text-white/75">
-                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-wydad-logo" aria-hidden />
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-white" aria-hidden />
                       {fact[lang]}
                     </li>
                   ))}

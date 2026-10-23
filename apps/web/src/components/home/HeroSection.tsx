@@ -114,7 +114,7 @@ export function HeroSection({ stories = [], videos = [], locale }: HeroSectionPr
             </span>
             <span className="text-white/75">{tTv(video.category)}</span>
           </div>
-          <h2 className={titleClass}>{video.title[lang]}</h2>
+          <h2 className={titleClass}>{video.title}</h2>
           <div className="mt-7">
             <Link href={`/wydad-tv/${video.id}`} className={primaryCta}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -148,10 +148,6 @@ export function HeroSection({ stories = [], videos = [], locale }: HeroSectionPr
   }
 
   return (
-    <HeroSlider
-      slides={slides}
-      prevLabel={locale === 'ar' ? 'السابق' : locale === 'fr' ? 'Précédent' : 'Previous'}
-      nextLabel={locale === 'ar' ? 'التالي' : locale === 'fr' ? 'Suivant' : 'Next'}
-    />
+    <HeroSlider slides={slides} />
   );
 }

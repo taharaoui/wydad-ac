@@ -2,6 +2,7 @@ import type { Player, Position } from '@/types';
 import { mockPlayers } from '@/lib/mock-data';
 import {
   IS_MOCK,
+  ESPOIR_TEAM_ID,
   fetchSquad as apiFetchSquad,
   fetchPlayer as apiFetchPlayer,
   fetchPlayerStats,
@@ -42,6 +43,17 @@ function warnFallback(label: string, err: unknown): void {
 }
 
 // ── Public API ──
+
+/** Wydad AC Espoir (U23) squad from the API; empty if unavailable (no mock data for it). */
+export async function getEspoirSquad(): Promise<Player[]> {
+  if (IS_MOCK) return [];
+  try {
+    return (await apiFetchSquad(ESPOIR_TEAM_ID)).map((p) => toPlayer(p));
+  } catch (err) {
+    console.warn('[players] getEspoirSquad failed:', err instanceof Error ? err.message : err);
+    return [];
+  }
+}
 
 export async function getSquad(): Promise<Player[]> {
   if (IS_MOCK) return mockPlayers;

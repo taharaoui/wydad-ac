@@ -60,8 +60,8 @@ export default async function WydadPlusPage({
         </div>
 
         <div className="relative mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 sm:py-24 lg:px-8">
-          <div className="inline-flex items-center gap-2 rounded-full bg-wydad-red/20 px-4 py-1.5 text-sm font-semibold text-wydad-red">
-            <span className="h-1.5 w-1.5 rounded-full bg-wydad-logo" />
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold text-white">
+            <span className="h-1.5 w-1.5 rounded-full bg-white" />
             {t('title')}
           </div>
           <h1 className="mt-6 font-display text-display-xl font-bold text-white sm:text-6xl">

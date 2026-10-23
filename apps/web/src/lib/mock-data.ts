@@ -178,6 +178,32 @@ export const mockPlayers: Player[] = [
 // ── Mock News ──
 export const mockNews: NewsArticle[] = [
   {
+    // Official club statement, 22 Oct 2026
+    id: 'news-wac-nabi-2026-10',
+    slug: 'nasreddine-nabi-entraineur',
+    title: {
+      ar: 'تعيين الإطار التونسي نصر الدين نابي مدرباً للفريق الأول',
+      fr: 'Le Tunisien Nasreddine Nabi nommé entraîneur de l’équipe première',
+      en: 'Tunisian coach Nasreddine Nabi appointed first-team head coach',
+    },
+    excerpt: {
+      ar: 'يعلن نادي الوداد الرياضي عن تعيين الإطار التونسي نصر الدين نابي مدربا للفريق الأول، وذلك إلى غاية نهاية الموسم الرياضي الحالي.',
+      fr: 'Le Wydad Athletic Club annonce la nomination du technicien tunisien Nasreddine Nabi au poste d’entraîneur de l’équipe première, jusqu’à la fin de la saison en cours.',
+      en: 'Wydad Athletic Club announces the appointment of Tunisian coach Nasreddine Nabi as first-team head coach until the end of the current season.',
+    },
+    body: {
+      ar: 'ويعكس هذا التعيين توجه النادي نحو الاستفادة من خبرة الإطار نصر الدين نابي وكفاءته التدريبية، لقيادة الفريق الأول خلال المرحلة المقبلة، والعمل على تطوير أدائه وتعزيز حضوره التنافسي في مختلف الاستحقاقات.\n\nوإذ يرحب نادي الوداد الرياضي بمدربه نصر الدين نابي، فإنه يتمنى له كامل التوفيق والنجاح في مهامه، والمساهمة في تحقيق الأهداف المسطرة والاستجابة لتطلعات الجماهير الودادية.',
+      fr: 'Cette nomination traduit la volonté du club de s’appuyer sur l’expérience et les compétences de Nasreddine Nabi pour diriger l’équipe première lors de la période à venir, améliorer ses performances et renforcer sa compétitivité dans toutes les compétitions.\n\nEn souhaitant la bienvenue à son entraîneur Nasreddine Nabi, le Wydad Athletic Club lui adresse tous ses vœux de réussite dans ses missions, pour atteindre les objectifs fixés et répondre aux attentes des supporters wydadis.',
+      en: 'The appointment reflects the club’s wish to draw on Nasreddine Nabi’s experience and coaching ability to lead the first team in the period ahead, improve its performances and strengthen its competitiveness across all competitions.\n\nIn welcoming its new coach Nasreddine Nabi, Wydad Athletic Club wishes him every success in his role, in reaching the objectives set and in meeting the expectations of the Wydad supporters.',
+    },
+    category: 'club',
+    cover_image_url: '/images/news/nasreddine-nabi-appointment.jpg',
+    cover_position: '28% 35%',
+    published_at: '2026-10-22T17:00:00Z',
+    read_time_minutes: 1,
+    author: 'Wydad Athletic Club',
+  },
+  {
     // Officials appointed for Union Touarga Sport vs Wydad, 22 Oct 2026
     id: 'news-officials-uts-wac-2026',
     slug: 'arbitres-touarga-wydad',

@@ -11,6 +11,20 @@ const nextConfig = {
         hostname: '**.supabase.co',
       },
       {
+        // Instagram post images (@wacofficiel); proxied because Instagram blocks cross-site loading
+        protocol: 'https',
+        hostname: '**.fbcdn.net',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.cdninstagram.com',
+      },
+      {
+        // WAC Official Brand product photos (Shopify CDN)
+        protocol: 'https',
+        hostname: 'cdn.shopify.com',
+      },
+      {
         // YouTube thumbnails (Wydad TV)
         protocol: 'https',
         hostname: 'i.ytimg.com',

@@ -56,22 +56,6 @@ export default async function ProfilePage({
         </div>
 
         <div className="rounded-2xl border border-border bg-surface p-6">
-          <h2 className="font-display text-base font-bold text-fg">{t('subscription')}</h2>
-          <div className="mt-4 flex items-center justify-between">
-            <div>
-              <span className="text-sm text-fg-muted">{t('current_plan')}</span>
-              <p className="mt-0.5 font-semibold text-fg">{t('free_plan')}</p>
-            </div>
-            <Link
-              href="/wydad-plus"
-              className="rounded-lg bg-wydad-red/10 px-4 py-2 text-xs font-bold text-wydad-red"
-            >
-              {t('upgrade')}
-            </Link>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-surface p-6">
           <h2 className="font-display text-base font-bold text-fg">{t('notifications')}</h2>
           <div className="mt-4 space-y-4">
             {(['match_alerts', 'news_alerts', 'transfer_alerts'] as const).map(key => (

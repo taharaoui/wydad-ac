@@ -6,7 +6,6 @@ import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { TICKETS_URL } from '@/lib/links';
 import { BAR_LINKS, SHOP_URL, SIGN_IN_URL, isActive } from '@/lib/navigation-config';
-import { AnnouncementBar } from './AnnouncementBar';
 import { MenuIcon, SearchIcon, TicketIcon, UserIcon } from './icons';
 import { LanguageSelector } from './LanguageSelector';
 import { MenuPanel } from './MenuPanel';
@@ -14,8 +13,6 @@ import { SearchDialog } from './SearchDialog';
 import { SmartLink } from './SmartLink';
 import type { HeaderData } from './types';
 
-/** Height (px) of the announcement strip, which scrolls away above the pinned bar */
-const ANNOUNCE_H = 40;
 /** Main bar height, mobile / lg+ */
 const BAR_H = 'h-16 lg:h-[72px]';
 
@@ -27,7 +24,7 @@ const pill =
 /**
  * psg.fr-style header: a full-width bar (MENU, crest, News, Wydad TV | search, sign in, tickets,
  * shop, language), transparent over the homepage hero and dark everywhere else or once scrolled.
- * The red announcement strip above it scrolls away; the bar stays pinned (sticky, negative top).
+ * The bar stays pinned at the top (sticky).
  */
 export function SiteHeader({ data }: { data: HeaderData }) {
   const t = useTranslations('header');
@@ -37,16 +34,15 @@ export function SiteHeader({ data }: { data: HeaderData }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
-  const announceH = data.announcements.length ? ANNOUNCE_H : 0;
 
   useEffect(() => setMenuOpen(false), [pathname]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > announceH + 8);
+    const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [announceH]);
+  }, []);
 
   // "/" or Cmd/Ctrl+K opens search, unless the visitor is typing somewhere
   useEffect(() => {
@@ -73,14 +69,13 @@ export function SiteHeader({ data }: { data: HeaderData }) {
         {t('skip')}
       </a>
 
-      <header className="sticky z-50" style={{ top: -announceH }}>
-        <AnnouncementBar items={data.announcements} />
+      <header className="sticky top-0 z-50">
 
         {/* Zero-height layer: on the homepage the hero runs underneath the bar */}
         <div className="relative h-0">
           <div
             className={`absolute inset-x-0 top-0 ${BAR_H} transition-[background-color,box-shadow] duration-300 motion-reduce:transition-none ${
-              transparent ? 'bg-gradient-to-b from-black/60 to-transparent' : 'bg-wydad-charcoal shadow-[0_1px_0_rgb(255_255_255/0.08)]'
+              transparent ? 'bg-gradient-to-b from-black/60 to-transparent' : 'bg-wydad-logo shadow-[0_2px_12px_rgb(0_0_0/0.12)]'
             }`}
           >
             <div className="flex h-full items-stretch">
@@ -92,7 +87,7 @@ export function SiteHeader({ data }: { data: HeaderData }) {
                 aria-expanded={menuOpen}
                 aria-haspopup="dialog"
                 className={`flex w-16 shrink-0 flex-col items-center justify-center gap-1 text-white transition-colors lg:w-[88px] ${
-                  transparent ? 'hover:bg-white/10' : 'bg-wydad-logo hover:bg-wydad-red-hover'
+                  transparent ? 'hover:bg-white/10' : 'bg-wydad-red-dark hover:bg-black/20'
                 }`}
               >
                 <MenuIcon size={24} />
@@ -135,11 +130,11 @@ export function SiteHeader({ data }: { data: HeaderData }) {
                     <UserIcon size={20} />
                     {t('sign_in')}
                   </SmartLink>
-                  <SmartLink href={TICKETS_URL} className={`${pill} bg-wydad-logo text-white hover:bg-wydad-red-hover`}>
+                  <SmartLink href={TICKETS_URL} className={`${pill} bg-white text-wydad-logo hover:bg-white/90`}>
                     <TicketIcon size={18} className="sm:hidden" />
                     <span className="sr-only sm:not-sr-only">{t('tickets')}</span>
                   </SmartLink>
-                  <SmartLink href={SHOP_URL} className={`${pill} hidden bg-white/10 text-white hover:bg-white/20 sm:flex`}>
+                  <SmartLink href={SHOP_URL} className={`${pill} hidden bg-white/15 text-white hover:bg-white/25 sm:flex`}>
                     {t('shop')}
                   </SmartLink>
                   <div className="hidden md:block">

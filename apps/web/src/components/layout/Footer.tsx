@@ -1,5 +1,8 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import { TICKETS_URL } from '@/lib/links';
+import { ACADEMY_URL, BRAND_URL, MEMBER_AREA_URL, STORE_URL, type NavLink } from '@/lib/navigation-config';
+import { SmartLink } from './header/SmartLink';
 import Image from 'next/image';
 
 const SOCIAL_LINKS = [
@@ -41,149 +44,109 @@ const SOCIAL_LINKS = [
   },
 ];
 
+const SPONSORS = [
+  { name: 'Ingelec', src: '/images/sponsors/ingelec.png', w: 140, h: 36, cls: 'h-10' },
+  { name: 'Kappa', src: '/images/sponsors/kappa.svg', w: 100, h: 100, cls: 'h-10' },
+  { name: 'Coca-Cola', src: '/images/sponsors/coca-cola.webp', w: 120, h: 40, cls: 'h-8' },
+  { name: 'Fiat', src: '/images/sponsors/fiat.svg', w: 60, h: 40, cls: 'h-8' },
+];
+
+const colTitle = 'font-condensed text-xl font-bold uppercase tracking-wide text-white/70';
+const colLink = 'text-[17px] font-medium text-white transition-opacity hover:opacity-70';
+
+/** psg.fr-style footer in Wydad red: link columns, crest, partners, then a full-width DIMA WYDAD wordmark. */
 export function Footer() {
   const t = useTranslations('footer');
-  const tNav = useTranslations('nav');
+  const tH = useTranslations('header');
+
+  const club: NavLink[] = [
+    { key: 'news', href: '/news' },
+    { key: 'football', href: '/team' },
+    { key: 'basketball', href: '/basketball' },
+    { key: 'wydad_tv', href: '/wydad-tv' },
+    { key: 'club', href: '/club' },
+    { key: 'fans', href: '/fans' },
+    { key: 'academy', href: ACADEMY_URL },
+  ];
+  const services: NavLink[] = [
+    { key: 'member_area', href: MEMBER_AREA_URL },
+    { key: 'tickets', href: TICKETS_URL },
+    { key: 'store', href: STORE_URL },
+    { key: 'brand', href: BRAND_URL },
+    { key: 'gold_membership', href: '/gold-membership' },
+  ];
+
+  const column = (title: string, links: NavLink[]) => (
+    <nav aria-label={title}>
+      <h2 className={colTitle}>{title}</h2>
+      <ul className="mt-6 space-y-3">
+        {links.map((l) => (
+          <li key={l.key}>
+            <SmartLink href={l.href} className={colLink}>
+              {tH(l.key)}
+            </SmartLink>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
 
   return (
-    <footer className="border-t border-border bg-surface-dark text-fg-inverse">
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Brand */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center gap-3">
-              <Image
-                src="/images/wydad-crest.svg"
-                alt="Wydad Athletic Club"
-                width={30}
-                height={38}
-                className="h-[38px] w-auto opacity-80"
-              />
-              <span className="font-display text-lg font-bold">{t('club_name')}</span>
-            </div>
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/50">
-              {t('description')}
-            </p>
-          </div>
+    <footer className="overflow-hidden bg-wydad-logo text-white">
+      <div className="mx-auto max-w-7xl px-4 pt-16 sm:px-6 lg:px-8">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[repeat(3,minmax(0,1fr))_auto]">
+          {column(t('club_name'), club)}
+          {column(t('services'), services)}
 
-          {/* Quick links */}
           <div>
-            <h3 className="text-label-lg font-semibold uppercase text-white/30">
-              {t('quick_links')}
-            </h3>
-            <ul className="mt-4 flex flex-col gap-2.5">
-              {[
-                { href: '/matches', label: t('matches') },
-                { href: '/team', label: t('team') },
-                { href: '/news', label: t('news') },
-                { href: '/club', label: t('club') },
-                { href: '/wydad-tv', label: tNav('wydad_tv') },
-              ].map(({ href, label }) => (
-                <li key={href}>
-                  <Link
-                    href={href}
-                    className="text-sm text-white/60 transition-colors hover:text-white"
-                  >
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Wydad+ */}
-          <div>
-            <h3 className="text-label-lg font-semibold uppercase text-white/30">
-              Wydad+
-            </h3>
-            <ul className="mt-4 flex flex-col gap-2.5">
-              <li>
-                <Link
-                  href="/wydad-plus"
-                  className="text-sm text-white/60 transition-colors hover:text-white"
-                >
-                  {t('subscribe')}
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Social */}
-          <div>
-            <h3 className="text-label-lg font-semibold uppercase text-white/30">
-              {t('follow_us')}
-            </h3>
-            <div className="mt-4 flex gap-2.5">
+            <h2 className={colTitle}>{t('follow_us')}</h2>
+            <p className="mt-6 max-w-xs text-[17px] leading-snug">{t('description')}</p>
+            <div className="mt-6 flex gap-2.5">
               {SOCIAL_LINKS.map(({ name, href, icon }) => (
                 <a
                   key={name}
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.07] text-white/60 transition-all hover:bg-wydad-logo hover:text-white hover:scale-105"
                   aria-label={name}
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white hover:text-wydad-logo"
                 >
                   {icon}
                 </a>
               ))}
             </div>
           </div>
+
+          <Link href="/" aria-label={tH('home_label')} className="hidden lg:block">
+            <Image src="/images/wydad-crest-white.svg" alt="" width={150} height={190} className="h-44 w-auto" />
+          </Link>
         </div>
 
-        {/* Sponsors */}
-        <div className="mt-12 border-t border-white/[0.06] pt-8">
-          <h3 className="mb-6 text-center text-label-lg font-semibold uppercase tracking-wider text-white/30">
-            {t('sponsors')}
-          </h3>
-          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
-            {/* Ingelec - Main Sponsor */}
-            <div className="flex items-center justify-center">
-              <Image
-                src="/images/sponsors/ingelec.png"
-                alt="Ingelec"
-                width={140}
-                height={36}
-                className="h-10 w-auto brightness-0 invert opacity-50 transition-all hover:opacity-100"
-              />
-            </div>
-            {/* Kappa - Equipment */}
-            <div className="flex items-center justify-center">
-              <Image
-                src="/images/sponsors/kappa.svg"
-                alt="Kappa"
-                width={100}
-                height={100}
-                className="h-10 w-auto brightness-0 invert opacity-50 transition-all hover:opacity-100"
-              />
-            </div>
-            {/* Coca-Cola */}
-            <div className="flex items-center justify-center">
-              <Image
-                src="/images/sponsors/coca-cola.webp"
-                alt="Coca-Cola"
-                width={120}
-                height={40}
-                className="h-8 w-auto brightness-0 invert opacity-50 transition-all hover:opacity-100"
-              />
-            </div>
-            {/* Fiat */}
-            <div className="flex items-center justify-center">
-              <Image
-                src="/images/sponsors/fiat.svg"
-                alt="Fiat"
-                width={60}
-                height={40}
-                className="h-8 w-auto brightness-0 invert opacity-50 transition-all hover:opacity-100"
-              />
-            </div>
-          </div>
+        {/* Partners */}
+        <div className="mt-16 border-t border-white/20 pt-8">
+          <h2 className="text-center font-condensed text-sm font-bold uppercase tracking-[0.16em] text-white/70">{t('sponsors')}</h2>
+          <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
+            {SPONSORS.map((sp) => (
+              <li key={sp.name}>
+                <Image src={sp.src} alt={sp.name} width={sp.w} height={sp.h} className={`${sp.cls} w-auto brightness-0 invert opacity-80 transition-opacity hover:opacity-100`} />
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <div className="mt-8 border-t border-white/[0.06] pt-6 text-center text-xs text-white/30">
-          <p>
-            © {new Date().getFullYear()} {t('club_name')}. {t('rights')}
-          </p>
-        </div>
+        {/* Wordmark, sized to the container width */}
+        <p
+          aria-hidden
+          className="mt-16 select-none whitespace-nowrap text-center font-condensed font-extrabold uppercase leading-[0.8] tracking-tight"
+          style={{ fontSize: 'min(18.5vw, 15.5rem)' }}
+          dir="ltr"
+        >
+          <span className="font-semibold">Dima</span> Wydad
+        </p>
+
+        <p className="border-t border-white/20 py-6 text-center text-xs text-white/70">
+          © {new Date().getFullYear()} {t('club_name')}. {t('rights')}
+        </p>
       </div>
     </footer>
   );

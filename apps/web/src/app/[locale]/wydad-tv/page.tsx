@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { VIDEOS, videoThumbnail } from '@/lib/videos';
+import { getVideos, videoThumbnail } from '@/lib/videos';
 
 function PlayBadge({ size = 56 }: { size?: number }) {
   return (
@@ -21,10 +21,10 @@ export default async function WydadTvPage({ params }: { params: Promise<{ locale
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'tv' });
   const lang = (locale === 'ar' || locale === 'fr' ? locale : 'en') as 'ar' | 'fr' | 'en';
-  const [featured, ...rest] = VIDEOS;
+  const [featured, ...rest] = await getVideos();
 
   return (
-    <div className="min-h-screen bg-[#0b0a0c] pb-20 text-white">
+    <div className="min-h-screen bg-surface-dark pb-20 text-white">
       <div className="mx-auto max-w-6xl px-4 pt-12 sm:px-6 lg:px-8">
         <h1 className="font-condensed text-6xl font-extrabold uppercase italic leading-none rtl:not-italic sm:text-7xl">
           {t('title')}
@@ -40,7 +40,7 @@ export default async function WydadTvPage({ params }: { params: Promise<{ locale
               <div className="min-w-0">
                 <p className="font-condensed text-sm font-bold uppercase tracking-wide text-white/70">{t(featured.category)}</p>
                 <p className="mt-1 font-condensed text-3xl font-extrabold uppercase italic leading-[0.95] rtl:not-italic sm:text-5xl">
-                  {featured.title[lang]}
+                  {featured.title}
                 </p>
               </div>
             </div>
@@ -57,7 +57,7 @@ export default async function WydadTvPage({ params }: { params: Promise<{ locale
                     <Image src={videoThumbnail(v.id, 'hq')} alt="" fill sizes="400px" className="object-cover" />
                     <span className="relative"><PlayBadge size={44} /></span>
                   </div>
-                  <p className="mt-3 line-clamp-2 font-semibold group-hover:text-wydad-red">{v.title[lang]}</p>
+                  <p className="mt-3 line-clamp-2 font-semibold group-hover:text-white/75">{v.title}</p>
                 </Link>
               ))}
             </div>

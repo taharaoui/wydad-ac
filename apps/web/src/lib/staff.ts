@@ -18,15 +18,19 @@ export interface StaffMember {
   head?: boolean;
   nationality?: L10n;
   photo?: string;
+  /** News article announcing the appointment */
+  statement?: string;
 }
 
 export const STAFF: StaffMember[] = [
   {
     name: 'Nasreddine Nabi',
-    name_ar: 'نصر الدين النابي',
+    name_ar: 'نصر الدين نابي',
     role: { fr: 'Entraîneur principal', en: 'Head coach', ar: 'المدرب الرئيسي' },
     category: 'technical',
     head: true,
     nationality: { fr: 'Tunisie', en: 'Tunisia', ar: 'تونس' },
+    /** Appointed until the end of the 2026-27 season (club statement, 22 Oct 2026) */
+    statement: '/news/nasreddine-nabi-entraineur',
   },
 ];

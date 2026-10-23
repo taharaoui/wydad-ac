@@ -8,8 +8,9 @@
     --color-surface: 255 255 255;
     --color-surface-secondary: 248 248 246;
     --color-surface-elevated: 255 255 255;
-    --color-surface-dark: 26 26 24;
-    --color-surface-dark-secondary: 36 36 34;
+    /* Bands (footer, fixtures, heroes) are deep Wydad red: the site is red and white only */
+    --color-surface-dark: 176 25 31;
+    --color-surface-dark-secondary: 140 18 24;
 
     --color-border: 232 232 228;
     --color-border-hover: 210 210 204;
@@ -32,32 +33,6 @@
 
     --header-bg: rgba(255, 255, 255, 0.85);
     --hero-overlay: linear-gradient(135deg, rgba(26,26,24,0.92), rgba(26,26,24,0.65));
-  }
-
-  .dark {
-    --color-surface: 18 18 16;
-    --color-surface-secondary: 28 28 26;
-    --color-surface-elevated: 36 36 34;
-    --color-surface-dark: 10 10 8;
-    --color-surface-dark-secondary: 18 18 16;
-
-    --color-border: 46 46 42;
-    --color-border-hover: 64 64 58;
-
-    --color-fg: 234 234 230;
-    --color-fg-secondary: 168 168 160;
-    --color-fg-muted: 120 120 112;
-    --color-fg-inverse: 26 26 24;
-
-    /* Crest red lifted slightly (#E54045) so red text keeps 4.5:1 contrast on dark surfaces */
-    --color-wydad-red: 229 64 69;
-
-    --shadow-card: 0 1px 3px rgb(0 0 0 / 0.2), 0 1px 2px rgb(0 0 0 / 0.15);
-    --shadow-card-hover: 0 10px 25px rgb(0 0 0 / 0.3), 0 4px 10px rgb(0 0 0 / 0.2);
-    --shadow-header: 0 1px 3px rgb(0 0 0 / 0.3);
-
-    --header-bg: rgba(18, 18, 16, 0.88);
-    --hero-overlay: linear-gradient(135deg, rgba(18,18,16,0.95), rgba(18,18,16,0.70));
   }
 
   /* Smooth scrolling */
@@ -163,8 +138,3 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Header announcement change */
-@keyframes announceIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}

@@ -21,6 +21,8 @@ export const NewsArticleSchema = z.object({
     en: z.string(),
   }),
   category: NewsCategoryEnum,
+  /** Section the story is about; football when omitted */
+  sport: z.enum(['football', 'basketball']).optional(),
   cover_image_url: z.string().optional(),
   /** CSS object-position for crops of the cover, e.g. "center 78%" */
   cover_position: z.string().optional(),

@@ -9,6 +9,8 @@ import { clubCrestUrl, isWydad } from '@/lib/clubs';
 const API_KEY = process.env.STATS_API_KEY;
 const API_BASE = process.env.STATS_API_BASE_URL || 'https://api.thestatsapi.com/api';
 const TEAM_ID = process.env.WYDAD_TEAM_ID || 'tm_805667';
+/** Wydad AC Espoir (U23 reserve team) */
+export const ESPOIR_TEAM_ID = process.env.WYDAD_ESPOIR_TEAM_ID || 'tm_83439338';
 const COMPETITION_ID = process.env.BOTOLA_COMPETITION_ID || 'comp_30610';
 
 export const IS_MOCK = !API_KEY;
@@ -658,9 +660,9 @@ function mapPlayer(p: ApiPlayer): MappedPlayer {
   };
 }
 
-export async function fetchSquad(): Promise<MappedPlayer[]> {
+export async function fetchSquad(teamId: string = TEAM_ID): Promise<MappedPlayer[]> {
   const res = await apiFetch<ApiListResponse<ApiPlayer>>(
-    `/football/teams/${TEAM_ID}/players`,
+    `/football/teams/${teamId}/players`,
     { revalidate: 3600 },
   );
 

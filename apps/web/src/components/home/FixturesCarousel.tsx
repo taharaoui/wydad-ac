@@ -2,16 +2,18 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Link } from '@/i18n/navigation';
 import type { Match } from '@/types';
 import { clubShortName } from '@/lib/clubs';
 import { TeamCrest } from '@/components/ui/TeamCrest';
+import { SmartLink } from '@/components/layout/header/SmartLink';
 
 export interface FixtureItem {
   match: Match;
   /** Kick-off text, formatted on the server (see formatKickoff) so it can't differ after hydration */
   day: string;
   time: string;
+  /** Ticket page; when set, the card opens it and its call to action reads "Buy tickets" */
+  ticketsUrl?: string;
 }
 
 interface FixturesCarouselProps {
@@ -61,7 +63,7 @@ function TeamLine({ team, score, showScore }: { team: Match['home_team']; score:
   );
 }
 
-function FixtureCard({ match, day, time }: FixtureItem) {
+function FixtureCard({ match, day, time, ticketsUrl }: FixtureItem) {
   const t = useTranslations('matches');
   const isFinished = match.status === 'finished';
   const isLive = match.status === 'live';
@@ -69,8 +71,8 @@ function FixtureCard({ match, day, time }: FixtureItem) {
   const botola = !basketball && isBotola(match);
 
   return (
-    <Link
-      href={basketball ? '/basketball' : `/matches/${match.id}`}
+    <SmartLink
+      href={ticketsUrl ?? (basketball ? '/basketball' : `/matches/${match.id}`)}
       className="group relative flex h-full w-[290px] shrink-0 flex-col overflow-hidden bg-[#f2f3f5] px-6 pb-6 pt-7 transition-transform duration-200 hover:-translate-y-1 sm:w-[340px]"
       style={{ clipPath: CARD_CLIP }}
     >
@@ -123,10 +125,10 @@ function FixtureCard({ match, day, time }: FixtureItem) {
 
       {/* Call to action */}
       <span className="relative mt-auto flex items-center gap-1.5 pt-6 font-condensed text-[19px] font-bold uppercase italic leading-none text-[#5d6e82] transition-colors group-hover:text-wydad-red rtl:not-italic">
-        {basketball ? t('basket_info') : isFinished || isLive ? t('match_centre') : t('preview')}
+        {ticketsUrl ? t('buy_tickets') : basketball ? t('basket_info') : isFinished || isLive ? t('match_centre') : t('preview')}
         <Chevron />
       </span>
-    </Link>
+    </SmartLink>
   );
 }
 

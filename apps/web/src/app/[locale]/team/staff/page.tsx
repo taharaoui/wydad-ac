@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { FootballNav } from '@/components/team/FootballNav';
 import { StaffDirectory } from '@/components/team/StaffDirectory';
 import { STAFF } from '@/lib/staff';
@@ -34,6 +35,14 @@ export default async function StaffPage({ params }: { params: Promise<{ locale: 
             <p className="font-condensed text-sm font-bold uppercase tracking-[0.16em] text-wydad-red">{head.role[lang]}</p>
             <h1 className="mt-2 font-condensed text-5xl font-extrabold uppercase italic leading-none text-fg rtl:not-italic sm:text-7xl">{name(head)}</h1>
             <p className="mt-6 max-w-xl text-xl leading-relaxed text-fg-secondary">{t('head_coach_text', { name: name(head) })}</p>
+            {head.statement && (
+              <Link href={head.statement} className="mt-5 inline-flex items-center gap-1.5 font-condensed text-lg font-bold uppercase text-wydad-red hover:text-wydad-red-hover">
+                {t('read_statement')}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="rtl:rotate-180" aria-hidden>
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </Link>
+            )}
             {head.nationality && (
               <dl className="mt-6 flex gap-8 text-sm">
                 <div>

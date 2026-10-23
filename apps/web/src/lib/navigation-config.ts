@@ -6,13 +6,12 @@ import { TICKETS_URL } from './links';
  */
 
 /** Sections without a page yet point to /coming-soon/{section} until a real URL is configured */
-export const BRAND_URL = process.env.NEXT_PUBLIC_BRAND_URL || '/coming-soon/brand';
+/** Club page showing the WAC Official Brand catalogue (wacofficialbrand.com) */
+export const BRAND_URL = '/brand';
 export const STORE_URL = process.env.NEXT_PUBLIC_STORE_URL || '/coming-soon/store';
 export const ACADEMY_URL = process.env.NEXT_PUBLIC_ACADEMY_URL || '/coming-soon/academy';
 /** The header's Shop button opens the jersey store */
 export const SHOP_URL = STORE_URL;
-/** Wydad+ is the club's subscription offer */
-export const MEMBERSHIPS_URL = process.env.NEXT_PUBLIC_MEMBERSHIPS_URL || '/wydad-plus';
 /** Login and member area share the account page until authentication ships */
 export const SIGN_IN_URL = '/profile';
 export const MEMBER_AREA_URL = process.env.NEXT_PUBLIC_MEMBER_AREA_URL || '/profile';
@@ -43,27 +42,55 @@ export const SERVICE_LINKS: NavLink[] = [
   { key: 'sign_in', href: SIGN_IN_URL },
   { key: 'member_area', href: MEMBER_AREA_URL },
   { key: 'tickets', href: TICKETS_URL },
-  { key: 'memberships', href: MEMBERSHIPS_URL },
 ];
 
 /**
  * The club's sports sections (French Wikipedia, "Wydad Athletic Club": basketball, football,
- * volleyball, athletics, boxing, fencing). Sections without pages yet go to /coming-soon.
+ * boxing, fencing), plus swimming (with water polo) and table tennis as confirmed by the club.
+ * Sections without pages yet go to /coming-soon.
  */
 export const SECTIONS: MenuNode[] = [
   {
     key: 'football',
+    // First team or Espoirs (U23)
     children: [
-      { key: 'squad', href: '/team' },
-      { key: 'staff', href: '/team/staff' },
-      { key: 'fixtures_results', href: '/matches' },
-      { key: 'standings', href: '/standings' },
-      { key: 'honours_football', href: '/team/honours' },
+      {
+        key: 'first_team',
+        children: [
+          { key: 'squad', href: '/team' },
+          { key: 'staff', href: '/team/staff' },
+          { key: 'fixtures_results', href: '/matches' },
+          { key: 'standings', href: '/standings' },
+          { key: 'honours_football', href: '/team/honours' },
+        ],
+      },
+      {
+        key: 'espoirs',
+        children: [
+          { key: 'squad', href: '/team/espoirs' },
+          { key: 'fixtures_results', href: '/team/espoirs/fixtures' },
+        ],
+      },
     ],
   },
-  { key: 'basketball', href: '/basketball' },
-  { key: 'volleyball', href: '/coming-soon/volleyball' },
-  { key: 'athletics', href: '/coming-soon/athletics' },
+  {
+    key: 'basketball',
+    children: [
+      { key: 'squad', href: '/basketball/squad' },
+      { key: 'staff', href: '/basketball/staff' },
+      { key: 'fixtures_results', href: '/basketball' },
+      { key: 'standings', href: '/basketball/standings' },
+      { key: 'honours_football', href: '/basketball/honours' },
+    ],
+  },
+  {
+    key: 'swimming',
+    children: [
+      { key: 'swimming_section', href: '/coming-soon/swimming' },
+      { key: 'water_polo', href: '/coming-soon/water-polo' },
+    ],
+  },
+  { key: 'table_tennis', href: '/coming-soon/table-tennis' },
   { key: 'boxing', href: '/coming-soon/boxing' },
   { key: 'fencing', href: '/coming-soon/fencing' },
 ];
@@ -76,7 +103,6 @@ export const MENU: MenuNode[] = [
     key: 'wydad_tv',
     children: [
       { key: 'all_videos', href: '/wydad-tv' },
-      { key: 'wydad_plus', href: '/wydad-plus' },
       { key: 'youtube_channel', href: YOUTUBE_URL },
     ],
   },

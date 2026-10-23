@@ -3,8 +3,7 @@
 import { useEffect, useRef, useState, type MouseEvent, type RefObject } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePathname } from '@/i18n/navigation';
-import { MENU, MEMBER_AREA_URL, SIGN_IN_URL, isActive, type MenuNode } from '@/lib/navigation-config';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { MENU, MEMBER_AREA_URL, SIGN_IN_URL, type MenuNode } from '@/lib/navigation-config';
 import { ChevronRightIcon, CloseIcon, UserIcon } from './icons';
 import { LanguageSwitch } from './LanguageSwitch';
 import { SmartLink } from './SmartLink';
@@ -69,7 +68,7 @@ export function MenuPanel({ open, onClose, trigger }: { open: boolean; onClose: 
                 href={node.href!}
                 onClick={onClose}
                 // Anchor links (/club#history) share a path, so only plain links mark the current page
-                aria-current={!node.href!.includes('#') && isActive(pathname, node.href!) ? 'page' : undefined}
+                aria-current={!node.href!.includes('#') && pathname === node.href ? 'page' : undefined}
                 className={`${cls} ${dimmed ? '' : 'aria-[current=page]:text-wydad-logo'}`}
               >
                 {t(node.key)}
@@ -163,11 +162,8 @@ export function MenuPanel({ open, onClose, trigger }: { open: boolean; onClose: 
                 {t('member_area')}
               </SmartLink>
             </div>
-            <div className="mt-3 flex items-center gap-2">
-              <div className="flex-1">
-                <LanguageSwitch onSwitch={onClose} />
-              </div>
-              <ThemeToggle className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-xl bg-black/[0.05] text-wydad-charcoal/70 transition-colors hover:text-wydad-charcoal" />
+            <div className="mt-3">
+              <LanguageSwitch onSwitch={onClose} />
             </div>
           </div>
         </div>

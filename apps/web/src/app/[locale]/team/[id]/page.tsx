@@ -1,10 +1,10 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { getPlayerById, getSquad } from '@/services/players';
+import { getEspoirSquad, getPlayerById, getSquad } from '@/services/players';
 import { Link } from '@/i18n/navigation';
 
 export async function generateStaticParams() {
-  const squad = await getSquad();
+  const squad = [...(await getSquad()), ...(await getEspoirSquad())];
   const locales = ['ar', 'fr', 'en'];
   return locales.flatMap(locale =>
     squad.map(player => ({
@@ -71,7 +71,7 @@ export default async function PlayerDetailPage({
           {/* Info */}
           <div className="p-6 sm:col-span-2 sm:p-8">
             <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-wydad-logo text-2xl font-bold text-white">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white text-2xl font-bold text-wydad-logo">
                 {player.number}
               </div>
               <div className="min-w-0">

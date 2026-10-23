@@ -4,6 +4,7 @@ import { isWydad } from '@/lib/clubs';
 import {
   IS_MOCK,
   fetchMatches as apiFetchMatches,
+  ESPOIR_TEAM_ID,
   fetchSeasonMatches,
   getSeasonIds,
   getCurrentSeasonId,
@@ -287,5 +288,20 @@ export async function getMatchContext(match: Match): Promise<MatchContext> {
   } catch (err) {
     warnFallback('getMatchContext', err);
     return { opponent, wydadForm: [], opponentForm: [], h2h: [] };
+  }
+}
+
+/** Wydad AC Espoir (U23) matches from the API, oldest first; empty when none are published. */
+export async function getEspoirMatches(): Promise<Match[]> {
+  if (IS_MOCK) return [];
+  try {
+    const [finished, scheduled] = await Promise.all([
+      apiFetchMatches({ teamId: ESPOIR_TEAM_ID, status: 'finished', sort: '-utc_date', limit: 30 }),
+      apiFetchMatches({ teamId: ESPOIR_TEAM_ID, status: 'scheduled', sort: 'utc_date', limit: 30 }),
+    ]);
+    return [...finished.reverse(), ...scheduled].map(toMatch);
+  } catch (err) {
+    console.warn('[matches] getEspoirMatches failed:', err instanceof Error ? err.message : err);
+    return [];
   }
 }

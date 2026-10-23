@@ -28,10 +28,10 @@ export default async function FansPage({ params }: { params: Promise<{ locale: s
 
   return (
     <div>
-      <section className="relative overflow-hidden bg-[#141016] text-white">
-        <div className="pointer-events-none absolute -end-24 -top-24 h-[480px] w-[480px] rounded-full bg-wydad-logo/25 blur-[120px]" aria-hidden />
+      <section className="relative overflow-hidden bg-surface-dark text-white">
+        <div className="pointer-events-none absolute -end-24 -top-24 h-[480px] w-[480px] rounded-full bg-white/10 blur-[120px]" aria-hidden />
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-          <p className="font-condensed text-sm font-bold uppercase tracking-[0.16em] text-wydad-red">{t('kicker')}</p>
+          <p className="font-condensed text-sm font-bold uppercase tracking-[0.16em] text-white/75">{t('kicker')}</p>
           <h1 className="mt-3 font-condensed text-6xl font-extrabold uppercase italic leading-none rtl:not-italic sm:text-8xl">{t('title')}</h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/75">{t('intro')}</p>
         </div>
@@ -41,7 +41,7 @@ export default async function FansPage({ params }: { params: Promise<{ locale: s
       <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
         <Link
           href="/gold-membership"
-          className="group grid overflow-hidden rounded-2xl bg-[#0d0c0f] text-white ring-1 ring-[#E8C468]/30 transition-shadow hover:shadow-[0_24px_60px_rgb(232_196_104/0.15)] sm:grid-cols-[minmax(0,1fr)_14rem]"
+          className="group grid overflow-hidden rounded-2xl bg-surface-dark text-white ring-1 ring-[#E8C468]/30 transition-shadow hover:shadow-[0_24px_60px_rgb(232_196_104/0.15)] sm:grid-cols-[minmax(0,1fr)_14rem]"
         >
           <div className="p-7 sm:p-9">
             <h2 className="font-condensed text-3xl font-extrabold uppercase italic leading-none text-[#E8C468] rtl:not-italic sm:text-4xl">{t('gold_title')}</h2>

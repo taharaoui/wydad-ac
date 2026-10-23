@@ -13,7 +13,7 @@ interface HighlightsCardProps {
 
 function PlayIcon() {
   return (
-    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 text-[#16151a] shadow-lg transition-transform group-hover:scale-110">
+    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 text-surface-dark shadow-lg transition-transform group-hover:scale-110">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" className="ms-1" aria-hidden>
         <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" />
       </svg>
@@ -37,7 +37,7 @@ export function HighlightsCard({ videoId, searchUrl, finished, title }: Highligh
     </div>
   );
 
-  const frame = 'relative aspect-video w-full overflow-hidden bg-gradient-to-br from-[#16151a] via-[#2a1214] to-[#5c0f12]';
+  const frame = 'relative aspect-video w-full overflow-hidden bg-gradient-to-br from-surface-dark via-surface-dark to-surface-dark-secondary';
 
   return (
     <section className="overflow-hidden rounded-2xl border border-border bg-surface">

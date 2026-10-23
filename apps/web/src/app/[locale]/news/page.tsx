@@ -1,101 +1,65 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getLatestNews } from '@/services/news';
-import { Link } from '@/i18n/navigation';
-import { ScrollReveal } from '@/components/ui/ScrollReveal';
-import type { NewsArticle } from '@/types';
+import { getVideos, videoThumbnail } from '@/lib/videos';
+import { NewsFeed, type FeedItem } from '@/components/news/NewsFeed';
 
-function ArticleCard({ article, locale }: { article: NewsArticle; locale: string }) {
-  const lang = (locale === 'ar' ? 'ar' : locale === 'fr' ? 'fr' : 'en') as keyof typeof article.title;
-  const dateLocale = locale === 'ar' ? 'ar-MA' : locale === 'fr' ? 'fr-FR' : 'en-GB';
-
-  const categoryColors: Record<string, string> = {
-    match_report: 'bg-wydad-red/10 text-wydad-red',
-    transfer: 'bg-accent-blue/10 text-accent-blue',
-    club: 'bg-accent-gold/10 text-accent-gold',
-    interview: 'bg-accent-green/10 text-accent-green',
-    youth: 'bg-surface-secondary text-fg-secondary',
-  };
-
-  return (
-    <Link
-      href={`/news/${article.slug}`}
-      className="group overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-all hover:shadow-card-hover hover:border-border-hover"
-    >
-      {/* Image placeholder */}
-      <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-surface-secondary to-surface-dark/10">
-        <div className="flex h-full items-center justify-center">
-          <svg className="h-10 w-10 text-fg-muted/15" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z" />
-          </svg>
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-      </div>
-
-      <div className="p-4 sm:p-5">
-        <div className="flex items-center gap-2">
-          <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${categoryColors[article.category] || 'bg-surface-secondary text-fg-secondary'}`}>
-            {article.category.replace('_', ' ')}
-          </span>
-          <span className="text-xs text-fg-muted">
-            {article.read_time_minutes} {locale === 'ar' ? 'د' : 'min'}
-          </span>
-        </div>
-
-        <h3 className="mt-3 font-display text-base font-bold text-fg transition-colors group-hover:text-wydad-red sm:text-lg">
-          {article.title[lang]}
-        </h3>
-        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-fg-muted">
-          {article.excerpt[lang]}
-        </p>
-
-        <div className="mt-3 flex items-center justify-between">
-          <p className="text-xs text-fg-muted">
-            {new Date(article.published_at).toLocaleDateString(dateLocale, {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-              timeZone: 'Africa/Casablanca',
-            })}
-          </p>
-          <div className="flex items-center gap-1 text-xs font-medium text-wydad-red opacity-0 transition-opacity group-hover:opacity-100">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="rtl:rotate-180">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'news' });
+  return { title: t('latest') };
 }
 
-export default async function NewsPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+/** Topic filters in display order; only those with at least one story are shown */
+const TOPICS = ['football', 'basketball', 'match_report', 'club', 'transfer', 'interview', 'youth', 'wydad_tv'] as const;
+
+export default async function NewsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'news' });
+  const tTv = await getTranslations({ locale, namespace: 'tv' });
+  const lang = (locale === 'ar' || locale === 'fr' ? locale : 'en') as 'ar' | 'fr' | 'en';
+  const dateLocale = locale === 'ar' ? 'ar-MA' : locale === 'fr' ? 'fr-FR' : 'en-GB';
+  const date = (iso: string) =>
+    new Intl.DateTimeFormat(dateLocale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Africa/Casablanca' }).format(new Date(iso));
 
-  const articles = await getLatestNews(20);
+  const [articles, videos] = await Promise.all([getLatestNews(100), getVideos()]);
+
+  const items: FeedItem[] = [
+    ...articles.map((a) => ({
+      id: a.id,
+      kind: 'article' as const,
+      href: `/news/${a.slug}`,
+      title: a.title[lang],
+      label: `${t(a.sport ?? 'football')} · ${t(a.category)}`,
+      tags: [a.sport ?? 'football', a.category],
+      image: a.cover_image_url,
+      imagePosition: a.cover_position,
+      published: a.published_at,
+      dateLabel: date(a.published_at),
+    })),
+    ...videos.map((v) => ({
+      id: `video-${v.id}`,
+      kind: 'video' as const,
+      href: `/wydad-tv/${v.id}`,
+      title: v.title,
+      label: `${tTv('title')} · ${tTv(v.category)}`,
+      tags: ['wydad_tv', 'football'],
+      image: videoThumbnail(v.id, 'hq'),
+      published: v.published_at,
+      dateLabel: v.published_at && date(v.published_at),
+    })),
+  ]
+    // Newest first; undated items (e.g. videos without a date) go last
+    .sort((a, b) => (b.published ?? '').localeCompare(a.published ?? ''));
+
+  const topics = TOPICS.filter((k) => items.some((i) => i.tags.includes(k))).map((k) => ({ key: k, label: t(k) }));
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="font-display text-display-lg font-bold text-fg">
-        {t('latest')}
-      </h1>
-
-      <ScrollReveal stagger>
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {articles.map(article => (
-            <ArticleCard key={article.id} article={article} locale={locale} />
-          ))}
-        </div>
-      </ScrollReveal>
-
-      {articles.length === 0 && (
-        <p className="mt-8 text-fg-muted">No articles yet.</p>
-      )}
+    <div className="mx-auto max-w-7xl px-4 pb-20 pt-12 sm:px-6 sm:pt-16 lg:px-8">
+      <h1 className="font-condensed text-6xl font-extrabold uppercase italic leading-none text-fg rtl:not-italic sm:text-8xl">{t('latest')}</h1>
+      <div className="mt-12">
+        <NewsFeed items={items} topics={topics} locale={locale} />
+      </div>
     </div>
   );
 }

@@ -14,6 +14,21 @@ export interface TimelineEntry {
   text: L10n;
 }
 
+/** Club crests through history, as dated by the club (dark artwork) */
+export const HISTORIC_CRESTS = {
+  round: { src: '/images/crests/1937-round.png', period: '1937 – 1950s' },
+  calligraphy: { src: '/images/crests/1937-calligraphy.png', period: '1937 – 1950s' },
+  diamond: { src: '/images/crests/1950s-diamond.png', period: '1950s – 1970' },
+} as const;
+
+/** Crest(s) in use in a given year: the founding-era crests, then the diamond, then today's crest */
+export function crestsForYear(year: number): { src: string; dark: boolean }[] {
+  if (year === 1937) return [HISTORIC_CRESTS.calligraphy, HISTORIC_CRESTS.round].map((c) => ({ src: c.src, dark: true }));
+  if (year < 1956) return [{ src: HISTORIC_CRESTS.round.src, dark: true }];
+  if (year <= 1970) return [{ src: HISTORIC_CRESTS.diamond.src, dark: true }];
+  return [{ src: '/images/wydad-crest.svg', dark: false }];
+}
+
 export const TIMELINE: TimelineEntry[] = [
   {
     year: '1937',
@@ -119,15 +134,19 @@ export const TIMELINE: TimelineEntry[] = [
 export interface Trophy {
   name: L10n;
   years: string[];
+  /** Pennant artwork (public/images/honours) for the club's six headline trophies */
+  banner?: string;
 }
 
 export const TROPHIES_NATIONAL: Trophy[] = [
   {
     name: { fr: 'Championnat du Maroc', en: 'Moroccan Championship', ar: 'البطولة الوطنية' },
+    banner: '/images/honours/botola.png',
     years: ['1947-48', '1948-49', '1949-50', '1950-51', '1954-55', '1956-57', '1965-66', '1968-69', '1975-76', '1976-77', '1977-78', '1985-86', '1989-90', '1990-91', '1992-93', '2005-06', '2009-10', '2014-15', '2016-17', '2018-19', '2020-21', '2021-22'],
   },
   {
     name: { fr: 'Coupe du Trône', en: 'Throne Cup', ar: 'كأس العرش' },
+    banner: '/images/honours/throne-cup.png',
     years: ['1969-70', '1977-78', '1978-79', '1980-81', '1988-89', '1993-94', '1996-97', '1997-98', '2000-01'],
   },
   {
@@ -139,6 +158,7 @@ export const TROPHIES_NATIONAL: Trophy[] = [
 export const TROPHIES_INTERNATIONAL: Trophy[] = [
   {
     name: { fr: 'Ligue des champions de la CAF', en: 'CAF Champions League', ar: 'دوري أبطال إفريقيا' },
+    banner: '/images/honours/caf-champions-league.png',
     years: ['1992', '2017', '2021-22'],
   },
   {
@@ -147,6 +167,7 @@ export const TROPHIES_INTERNATIONAL: Trophy[] = [
   },
   {
     name: { fr: 'Supercoupe de la CAF', en: 'CAF Super Cup', ar: 'كأس السوبر الإفريقي' },
+    banner: '/images/honours/caf-super-cup.png',
     years: ['2018'],
   },
   {
@@ -156,12 +177,33 @@ export const TROPHIES_INTERNATIONAL: Trophy[] = [
   {
     name: { fr: 'Coupe arabe des clubs champions', en: 'Arab Club Champions Cup', ar: 'كأس الأندية العربية البطلة' },
     years: ['1989'],
+    banner: '/images/honours/arab-champions-cup.png',
+  },
+  {
+    name: { fr: 'Supercoupe arabe', en: 'Arab Super Cup', ar: 'كأس السوبر العربي' },
+    years: ['1990'],
+    banner: '/images/honours/arab-super-cup.png',
   },
   {
     name: { fr: 'Championnat d’Afrique du Nord', en: 'North African Championship', ar: 'بطولة شمال إفريقيا' },
     years: ['1948', '1949', '1950'],
   },
 ];
+
+/** The six pennants, in the club's display order */
+export const BANNER_ORDER = [
+  '/images/honours/botola.png',
+  '/images/honours/throne-cup.png',
+  '/images/honours/caf-champions-league.png',
+  '/images/honours/caf-super-cup.png',
+  '/images/honours/arab-super-cup.png',
+  '/images/honours/arab-champions-cup.png',
+];
+
+export function bannerTrophies(): Trophy[] {
+  const all = [...TROPHIES_NATIONAL, ...TROPHIES_INTERNATIONAL];
+  return BANNER_ORDER.map((b) => all.find((t) => t.banner === b)).filter((t): t is Trophy => !!t);
+}
 
 export interface Figure {
   name: L10n;

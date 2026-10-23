@@ -4,7 +4,7 @@
  */
 
 /** Wydad's live API id, plus the id used in mock data. */
-const WYDAD_IDS = new Set(['tm_805667', 'wydad']);
+const WYDAD_IDS = new Set(['tm_805667', 'wydad', 'tm_83439338']);
 
 export function isWydad(teamId: string): boolean {
   return WYDAD_IDS.has(teamId);
@@ -44,6 +44,7 @@ const NAMED_CRESTS: [RegExp, string][] = [
 /** Short names for tight spots (match cards), the way psg.fr writes "Paris" or "Lyon". */
 const SHORT_NAMES: Record<string, string> = {
   tm_805667: 'Wydad',
+  tm_83439338: 'Wydad Espoirs',
   wydad: 'Wydad',
   tm_327682: 'Raja',
   tm_029484: 'AS FAR',
@@ -67,7 +68,8 @@ export function clubShortName(team: { id: string; name: string }): string {
 }
 
 export function clubCrestUrl(teamId: string, teamName?: string): string | undefined {
-  const id = teamId === 'wydad' ? 'tm_805667' : teamId;
+  // The Espoir (U23) team wears the club crest
+  const id = teamId === 'wydad' || teamId === 'tm_83439338' ? 'tm_805667' : teamId;
   if (SVG_CRESTS.has(id)) return `/clubs/${id}.svg`;
   if (PNG_CRESTS.has(id)) return `/clubs/${id}.png`;
   return teamName ? NAMED_CRESTS.find(([re]) => re.test(teamName))?.[1] : undefined;

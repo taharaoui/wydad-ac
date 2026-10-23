@@ -11,7 +11,9 @@ import { getPlayerOfTheMatch } from '@/lib/rating';
 import { buildMatchSummary, teamAverageRating } from '@/lib/match-summary';
 import { getPlayerPhotos } from '@/lib/player-photos';
 import { formatKickoff, formatKickoffLong } from '@/lib/datetime';
-import { MATCH_HIGHLIGHTS, highlightsSearchUrl } from '@/lib/highlights';
+import { findArryadiaHighlight, highlightsSearchUrl } from '@/lib/highlights';
+import { getVideos, matchVideos } from '@/lib/videos';
+import { BehindTheScenes } from '@/components/matches/centre/BehindTheScenes';
 import { isWydad } from '@/lib/clubs';
 import { MATCH_NOTES, currentWydadCoach } from '@/lib/match-notes';
 import type { Match } from '@/types';
@@ -191,15 +193,19 @@ export default async function MatchDetailPage({
     commentary.push({ id: 'ko', kind: 'kick_off', label: t('kickoff'), minute: 0, text: t('ko_text', { home: match.home_team.name, away: match.away_team.name }) });
   }
 
+  const [highlightId, clubVideos] = await Promise.all([findArryadiaHighlight(match), getVideos()]);
+  const btsVideos = matchVideos(clubVideos, match);
+
   const extras = (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)]">
       <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-5">
         <HighlightsCard
-          videoId={MATCH_HIGHLIGHTS[match.id]}
+          videoId={highlightId}
           searchUrl={highlightsSearchUrl(match.home_team.name, match.away_team.name)}
           finished={played}
           title={`${match.home_team.name} – ${match.away_team.name}`}
         />
+        <BehindTheScenes videos={btsVideos} />
         {potm && (
           <PlayerOfTheMatch
             player={potm.player}

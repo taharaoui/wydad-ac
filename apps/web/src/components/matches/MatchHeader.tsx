@@ -14,7 +14,7 @@ interface MatchHeaderProps {
 
 function BallIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden className="shrink-0 text-wydad-logo">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden className="shrink-0 text-white">
       <circle cx="12" cy="12" r="9.5" />
       <path d="M12 7.5l4 2.9-1.5 4.7h-5L8 10.4z" fill="currentColor" />
       <path d="M12 7.5V2.5M16 10.4l4.6-1.5M14.5 15.1l2.9 4M9.5 15.1l-2.9 4M8 10.4 3.4 8.9" />
@@ -62,9 +62,9 @@ export function MatchHeader({ match, dateLabel, timeLabel, goals }: MatchHeaderP
   const botola = /botola/i.test(match.competition.name);
 
   return (
-    <header className="relative overflow-hidden bg-[#141016] text-white">
+    <header className="relative overflow-hidden bg-surface-dark text-white">
       {/* Club-red glow and crest watermark */}
-      <div className="pointer-events-none absolute -end-40 -top-40 h-[520px] w-[520px] rounded-full bg-wydad-red/25 blur-[120px]" aria-hidden />
+      <div className="pointer-events-none absolute -end-40 -top-40 h-[520px] w-[520px] rounded-full bg-white/10 blur-[120px]" aria-hidden />
       {botola && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -80,7 +80,7 @@ export function MatchHeader({ match, dateLabel, timeLabel, goals }: MatchHeaderP
         <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
           <span
             className={`px-4 py-2 font-condensed text-2xl font-extrabold uppercase italic leading-none rtl:not-italic sm:text-3xl ${
-              isLive ? 'bg-wydad-logo' : 'bg-white/10'
+              isLive ? 'bg-white text-wydad-logo' : 'bg-white/15'
             }`}
           >
             {isLive ? (

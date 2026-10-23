@@ -10,7 +10,7 @@ export interface HeroSlide {
   imagePosition?: string;
   /** Portrait club graphic: framed poster beside the text on desktop, over a blurred copy of itself */
   poster?: boolean;
-  /** Shown in the progress tabs */
+  /** Accessible name of the slide's position dot */
   label: string;
   content: ReactNode;
 }
@@ -19,16 +19,16 @@ const DURATION = 8000;
 
 /**
  * Full-bleed hero carousel: slides scroll horizontally on a track (looping seamlessly via edge clones),
- * auto-advance with a progress bar per slide, pause on hover/focus, arrows, keyboard and drag-to-swipe.
+ * auto-advance, position dots, pause on hover/focus, keyboard and drag-to-swipe.
  */
-export function HeroSlider({ slides, prevLabel, nextLabel }: { slides: HeroSlide[]; prevLabel: string; nextLabel: string }) {
+export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   const count = slides.length;
   const loop = count > 1;
   // Track position: with clones, 0 is a copy of the last slide and count + 1 a copy of the first
   const [pos, setPos] = useState(loop ? 1 : 0);
   const [animate, setAnimate] = useState(true);
   const [paused, setPaused] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const elapsed = useRef(0);
   const [drag, setDrag] = useState<number | null>(null);
   const touch = useRef<{ x: number; y: number; axis?: 'x' | 'y' } | null>(null);
 
@@ -39,7 +39,7 @@ export function HeroSlider({ slides, prevLabel, nextLabel }: { slides: HeroSlide
       if (!loop) return;
       setAnimate(true);
       setPos((p) => Math.min(count + 1, Math.max(0, p + delta)));
-      setProgress(0);
+      elapsed.current = 0;
     },
     [count, loop],
   );
@@ -47,7 +47,7 @@ export function HeroSlider({ slides, prevLabel, nextLabel }: { slides: HeroSlide
   const goTo = (i: number) => {
     setAnimate(true);
     setPos(i + 1);
-    setProgress(0);
+    elapsed.current = 0;
   };
 
   // After landing on a clone, jump to the real slide without animating
@@ -80,41 +80,26 @@ export function HeroSlider({ slides, prevLabel, nextLabel }: { slides: HeroSlide
     };
   }, [animate]);
 
-  // Progress clock: advances while not paused, scrolls on when it fills
+  // Auto-advance clock: counts while not paused, scrolls on every DURATION.
+  // Kept in a ref and advanced outside any state updater (updaters can run twice in dev).
   useEffect(() => {
     if (!loop || paused || drag !== null) return;
     let last = performance.now();
     let frame: number;
     const tick = (now: number) => {
-      const dt = now - last;
+      elapsed.current += now - last;
       last = now;
-      setProgress((p) => {
-        const next = p + dt / DURATION;
-        if (next >= 1) {
-          setAnimate(true);
-          setPos((x) => Math.min(count + 1, x + 1));
-          return 0;
-        }
-        return next;
-      });
+      if (elapsed.current >= DURATION) {
+        elapsed.current = 0;
+        setAnimate(true);
+        setPos((x) => Math.min(count + 1, x + 1));
+      }
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
   }, [count, loop, paused, drag]);
 
-  const arrow = (dir: 1 | -1) => (
-    <button
-      type="button"
-      onClick={() => step(dir)}
-      aria-label={dir === 1 ? nextLabel : prevLabel}
-      className="flex h-11 w-11 items-center justify-center bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-wydad-logo"
-    >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="rtl:rotate-180">
-        <polyline points={dir === 1 ? '9 18 15 12 9 6' : '15 18 9 12 15 6'} />
-      </svg>
-    </button>
-  );
 
   // Edge clones make the loop scroll forward from the last slide to the first
   const track = loop
@@ -218,37 +203,25 @@ export function HeroSlider({ slides, prevLabel, nextLabel }: { slides: HeroSlide
         })}
       </div>
 
-      {/* Slide tabs with progress + arrows */}
+      {/* Discreet position dots; the active one stretches */}
       {loop && (
-        <div className="absolute inset-x-0 bottom-16 z-20 sm:bottom-20">
-          <div className="mx-auto flex max-w-7xl items-end gap-4 px-4 sm:px-6 lg:px-8">
-            <div className="grid flex-1 gap-3" style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}>
-              {slides.map((slide, i) => (
-                <button
-                  key={slide.id}
-                  type="button"
-                  onClick={() => goTo(i)}
-                  aria-label={slide.label}
-                  aria-current={i === index}
-                  className="group text-start"
-                >
-                  <span className={`mb-2 hidden truncate text-xs font-semibold uppercase tracking-wide sm:block ${i === index ? 'text-white' : 'text-white/50 group-hover:text-white/80'}`}>
-                    {slide.label}
-                  </span>
-                  <span className="block h-[3px] overflow-hidden bg-white/25">
-                    <span
-                      className="block h-full bg-wydad-logo"
-                      style={{ width: i === index ? `${progress * 100}%` : i < index ? '100%' : '0%', opacity: i < index ? 0.6 : 1 }}
-                    />
-                  </span>
-                </button>
-              ))}
-            </div>
-            <div className="hidden gap-1.5 sm:flex">
-              {arrow(-1)}
-              {arrow(1)}
-            </div>
-          </div>
+        <div className="absolute inset-x-0 bottom-24 z-20 flex justify-center gap-2 sm:bottom-28">
+          {slides.map((slide, i) => (
+            <button
+              key={slide.id}
+              type="button"
+              onClick={() => goTo(i)}
+              aria-label={`${slide.label} (${i + 1}/${count})`}
+              aria-current={i === index}
+              className="flex h-6 items-center"
+            >
+              <span
+                className={`block h-1.5 rounded-full transition-all duration-300 motion-reduce:transition-none ${
+                  i === index ? 'w-7 bg-white' : 'w-1.5 bg-white/45 hover:bg-white/75'
+                }`}
+              />
+            </button>
+          ))}
         </div>
       )}
 

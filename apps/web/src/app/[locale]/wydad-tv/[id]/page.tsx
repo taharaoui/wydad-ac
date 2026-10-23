@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
-import { VIDEOS, getVideo, videoThumbnail, youtubeUrl } from '@/lib/videos';
+import { VIDEOS, getVideo, getVideos, videoThumbnail, youtubeUrl } from '@/lib/videos';
 
 export function generateStaticParams() {
   return ['ar', 'fr', 'en'].flatMap((locale) => VIDEOS.map((v) => ({ locale, id: v.id })));
@@ -10,16 +10,16 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }) {
   const { locale, id } = await params;
-  const video = getVideo(id);
+  const video = await getVideo(id);
   if (!video) return {};
   const lang = (locale === 'ar' || locale === 'fr' ? locale : 'en') as 'ar' | 'fr' | 'en';
-  return { title: `${video.title[lang]} | Wydad TV`, openGraph: { images: [videoThumbnail(id)] } };
+  return { title: `${video.title} | Wydad TV`, openGraph: { images: [videoThumbnail(id)] } };
 }
 
 export default async function VideoPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  const video = getVideo(id);
+  const video = await getVideo(id);
   if (!video) notFound();
 
   const t = await getTranslations({ locale, namespace: 'tv' });
@@ -31,13 +31,13 @@ export default async function VideoPage({ params }: { params: Promise<{ locale: 
     year: 'numeric',
     timeZone: 'Africa/Casablanca',
   });
-  const more = VIDEOS.filter((v) => v.id !== video.id);
+  const more = (await getVideos()).filter((v) => v.id !== video.id).slice(0, 9);
 
   return (
-    <div className="bg-[#0b0a0c] pb-20 text-white">
+    <div className="bg-surface-dark pb-20 text-white">
       <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8">
         <Link href="/wydad-tv" className="inline-flex items-center gap-2 font-condensed text-lg font-extrabold uppercase italic tracking-wide text-white rtl:not-italic">
-          <span className="flex h-6 w-6 items-center justify-center bg-wydad-logo">
+          <span className="flex h-6 w-6 items-center justify-center bg-white text-wydad-logo">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
               <path d="M7 4.5v15l12-7.5z" />
             </svg>
@@ -49,7 +49,7 @@ export default async function VideoPage({ params }: { params: Promise<{ locale: 
         <div className="relative mt-6 aspect-video overflow-hidden bg-black shadow-[0_24px_80px_rgb(217_41_47/0.18)]">
           <iframe
             src={`https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&rel=0&modestbranding=1`}
-            title={video.title[lang]}
+            title={video.title}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
@@ -60,7 +60,7 @@ export default async function VideoPage({ params }: { params: Promise<{ locale: 
         <div className="mt-8 flex flex-wrap items-start justify-between gap-6">
           <div className="min-w-0 max-w-3xl">
             <p className="font-condensed text-sm font-bold uppercase tracking-wide text-white/60">
-              <span className="text-wydad-red">{t(video.category)}</span>
+              <span className="text-white">{t(video.category)}</span>
               {date && (
                 <>
                   <span className="mx-2" aria-hidden>•</span>
@@ -69,7 +69,7 @@ export default async function VideoPage({ params }: { params: Promise<{ locale: 
               )}
             </p>
             <h1 className="mt-3 font-condensed text-4xl font-extrabold uppercase italic leading-[0.95] rtl:not-italic sm:text-5xl">
-              {video.title[lang]}
+              {video.title}
             </h1>
           </div>
           <a
@@ -94,7 +94,7 @@ export default async function VideoPage({ params }: { params: Promise<{ locale: 
                   <div className="relative aspect-video overflow-hidden bg-white/5">
                     <Image src={videoThumbnail(v.id, 'hq')} alt="" fill sizes="400px" className="object-cover transition-transform duration-500 group-hover:scale-105" />
                   </div>
-                  <p className="mt-3 line-clamp-2 font-semibold group-hover:text-wydad-red">{v.title[lang]}</p>
+                  <p className="mt-3 line-clamp-2 font-semibold group-hover:text-white/75">{v.title}</p>
                 </Link>
               ))}
             </div>

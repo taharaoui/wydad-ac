@@ -1,10 +1,11 @@
 import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { clubShortName } from '@/lib/clubs';
-import { upcomingBasketball } from '@/lib/basketball';
+import { BASKETBALL_TICKETS, upcomingBasketball } from '@/lib/basketball';
 import { formatKickoffLong } from '@/lib/datetime';
 import { TeamCrest } from '@/components/ui/TeamCrest';
 import { NextMatchCountdown } from '@/components/home/NextMatchCountdown';
+import { FootballNav } from '@/components/team/FootballNav';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -21,14 +22,15 @@ export default async function BasketballPage({ params }: { params: Promise<{ loc
 
   return (
     <div>
-      <section className="relative overflow-hidden bg-[#141016] text-white">
-        <div className="pointer-events-none absolute -start-32 top-0 h-[460px] w-[460px] rounded-full bg-wydad-logo/25 blur-[120px]" aria-hidden />
+      <FootballNav sport="basketball" active="fixtures" />
+      <section className="relative overflow-hidden bg-surface-dark text-white">
+        <div className="pointer-events-none absolute -start-32 top-0 h-[460px] w-[460px] rounded-full bg-white/10 blur-[120px]" aria-hidden />
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.6" className="pointer-events-none absolute -end-24 -top-10 hidden h-[560px] w-[560px] text-white/[0.05] md:block" aria-hidden>
           <circle cx="12" cy="12" r="10" />
           <path d="M2 12h20M12 2v20M5 5c3 3 3 11 0 14M19 5c-3 3-3 11 0 14" />
         </svg>
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-          <p className="font-condensed text-sm font-bold uppercase tracking-[0.16em] text-wydad-red">{t('kicker')}</p>
+          <p className="font-condensed text-sm font-bold uppercase tracking-[0.16em] text-white/75">{t('kicker')}</p>
           <h1 className="mt-3 font-condensed text-6xl font-extrabold uppercase italic leading-none rtl:not-italic sm:text-8xl">{t('title')}</h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/75">{t('intro')}</p>
         </div>
@@ -67,6 +69,19 @@ export default async function BasketballPage({ params }: { params: Promise<{ loc
                 <dd className="mt-0.5 font-semibold text-fg">{t('venue_mohammed_v')}</dd>
               </div>
             </dl>
+            {BASKETBALL_TICKETS[next.id] && (
+              <div className="border-t border-border px-5 py-5 sm:px-8">
+                <a
+                  href={BASKETBALL_TICKETS[next.id]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-wydad-logo font-condensed text-lg font-bold uppercase tracking-wide text-white transition-colors hover:bg-wydad-red-hover sm:w-auto sm:px-8"
+                >
+                  {t('buy_tickets')}
+                  <span className="sr-only"> {t('new_tab')}</span>
+                </a>
+              </div>
+            )}
           </article>
         ) : (
           <p className="mt-6 text-fg-secondary">{t('no_game')}</p>
