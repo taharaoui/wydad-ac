@@ -223,6 +223,8 @@ export const mockNews: NewsArticle[] = [
       en: 'Soulaimane El Atifi will be in the VAR room.',
     },
     category: 'club',
+    cover_image_url: '/images/news/hicham-temsamani.jpg',
+    cover_position: '45% 25%',
     match_id: 'mt_468151508',
     published_at: '2026-10-22T14:00:00Z',
     read_time_minutes: 1,
