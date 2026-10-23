@@ -3,6 +3,9 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig = {
+  // One build worker: pages share TheStatsAPI responses through the data cache instead of
+  // fetching in parallel past the 12 requests/minute limit
+  experimental: { cpus: 1 },
   // Enable image optimization for external sources (club photos, etc.)
   images: {
     remotePatterns: [

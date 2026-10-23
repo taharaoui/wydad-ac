@@ -42,6 +42,10 @@ class ApiError extends Error {
   }
 }
 
+/** The Starter plan allows 12 requests per minute (x-ratelimit-limit). */
+const IS_BUILD = process.env.NEXT_PHASE === 'phase-production-build';
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 async function apiFetch<T>(
   path: string,
   options?: { revalidate?: number },
@@ -52,8 +56,20 @@ async function apiFetch<T>(
   try {
     res = await fetch(url, {
       headers: { Authorization: `Bearer ${API_KEY}` },
-      next: { revalidate: options?.revalidate ?? 60 },
+      // Responses are shared by every page through Next's data cache; keep them long enough to
+      // stay well under the per-minute limit
+      next: { revalidate: Math.max(options?.revalidate ?? 300, 300) },
     });
+    // During the build, wait for the rate-limit window to reset instead of falling back to demo
+    // data (up to four times, ~1 min each). At runtime a visitor never waits: the caller falls back.
+    for (let attempt = 0; IS_BUILD && res.status === 429 && attempt < 4; attempt++) {
+      const reset = Number(res.headers.get('x-ratelimit-reset')) * 1000;
+      await sleep(Math.min(65_000, Math.max(2_000, (reset || Date.now() + 60_000) - Date.now() + 500)));
+      res = await fetch(url, {
+        headers: { Authorization: `Bearer ${API_KEY}` },
+        next: { revalidate: Math.max(options?.revalidate ?? 300, 300) },
+      });
+    }
   } catch (err) {
     // Network errors (DNS, connection refused, proxy blocked, etc.)
     throw new ApiError(

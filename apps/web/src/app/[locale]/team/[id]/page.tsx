@@ -1,17 +1,14 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { getEspoirSquad, getPlayerById, getSquad } from '@/services/players';
+import { getPlayerById } from '@/services/players';
 import { Link } from '@/i18n/navigation';
 
-export async function generateStaticParams() {
-  const squad = [...(await getSquad()), ...(await getEspoirSquad())];
-  const locales = ['ar', 'fr', 'en'];
-  return locales.flatMap(locale =>
-    squad.map(player => ({
-      locale,
-      id: player.id,
-    }))
-  );
+/**
+ * Rendered on first visit, then cached, instead of at build time: prerendering every page would
+ * exceed TheStatsAPI's 12 requests/minute and bake demo data into them.
+ */
+export function generateStaticParams() {
+  return [];
 }
 
 export default async function PlayerDetailPage({

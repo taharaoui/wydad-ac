@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { getMatchById, getMatches, getMatchContext, getStandings } from '@/services/matches';
+import { getMatchById, getMatchContext, getStandings } from '@/services/matches';
 import { MatchHeader } from '@/components/matches/MatchHeader';
 import { MatchStatsPanel } from '@/components/matches/MatchStats';
 import { MatchPitch } from '@/components/matches/MatchPitch';
@@ -26,15 +26,12 @@ import { FormPills } from '@/components/matches/centre/FormGuide';
 import { H2HPanel } from '@/components/matches/centre/H2HPanel';
 import { TeamCrest } from '@/components/ui/TeamCrest';
 
-export async function generateStaticParams() {
-  const matches = await getMatches();
-  const locales = ['ar', 'fr', 'en'];
-  return locales.flatMap(locale =>
-    matches.map(match => ({
-      locale,
-      id: match.id,
-    }))
-  );
+/**
+ * Rendered on first visit, then cached, instead of at build time: prerendering every page would
+ * exceed TheStatsAPI's 12 requests/minute and bake demo data into them.
+ */
+export function generateStaticParams() {
+  return [];
 }
 
 export default async function MatchDetailPage({
