@@ -2,12 +2,12 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getStandings, getRecentMatches, getMatchById } from '@/services/matches';
 import { getLatestNews } from '@/services/news';
-import { CalendarSection } from '@/components/home/CalendarSection';
+import { BotolaRecordCard } from '@/components/home/BotolaRecordCard';
 import { StandingsPreview } from '@/components/home/StandingsPreview';
 import { NewsPreview } from '@/components/home/NewsPreview';
 import { HeroSection } from '@/components/home/HeroSection';
 import { FixturesCarousel } from '@/components/home/FixturesCarousel';
-import { formatKickoff, formatKickoffLong } from '@/lib/datetime';
+import { formatKickoff } from '@/lib/datetime';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
 import { getVideos } from '@/lib/videos';
 import { FEATURED_COLLECTION, getBrandProducts } from '@/lib/brand-store';
@@ -34,14 +34,10 @@ export default async function HomePage({
     getInstagram(),
   ]);
 
-  // Up to three cards: upcoming games first (soonest first), then the latest results
+  // Next Wydad kick-off, for the countdown
   const upcoming = recentMatches
     .filter((m) => m.status === 'scheduled' || m.status === 'live')
     .sort((a, b) => a.kickoff.localeCompare(b.kickoff));
-  const results = recentMatches
-    .filter((m) => m.status === 'finished')
-    .sort((a, b) => b.kickoff.localeCompare(a.kickoff));
-  const calendarMatches = [...upcoming, ...results].slice(0, 3);
 
   // Hero stories: the two latest articles with a cover (e.g. today's statement, then the match report)
   const heroStories = await Promise.all(
@@ -67,23 +63,15 @@ export default async function HomePage({
           items={[...recentMatches, ...upcomingBasketball()]
             .sort((x, y) => x.kickoff.localeCompare(y.kickoff))
             .map((match) => ({ match, ...formatKickoff(match.kickoff, locale), ticketsUrl: BASKETBALL_TICKETS[match.id] }))}
+          nextKickoff={upcoming[0]?.kickoff}
+          extra={<BotolaRecordCard />}
         />
       )}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Calendar: countdown + the next games (topped up with latest results) */}
-        <ScrollReveal>
-          <div className="pt-12">
-            <CalendarSection
-              items={calendarMatches.map((match) => ({ match, dateLabel: formatKickoffLong(match.kickoff, locale) }))}
-              nextKickoff={upcoming[0]?.kickoff}
-            />
-          </div>
-        </ScrollReveal>
-
         {/* Standings */}
         <ScrollReveal delay={100}>
-          <section className="mt-12 min-w-0">
+          <section className="pt-12 min-w-0">
             <StandingsPreview standings={standings} />
           </section>
         </ScrollReveal>

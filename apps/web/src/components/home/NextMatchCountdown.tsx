@@ -14,7 +14,7 @@ function remaining(kickoff: string) {
 }
 
 /** DD : HH : MM : SS. Renders dashes until mounted so server and client HTML match. */
-export function NextMatchCountdown({ kickoff }: { kickoff: string }) {
+export function NextMatchCountdown({ kickoff, tone = 'dark' }: { kickoff: string; tone?: 'dark' | 'light' }) {
   const t = useTranslations('matches');
   const [parts, setParts] = useState<number[] | null>(null);
 
@@ -30,12 +30,12 @@ export function NextMatchCountdown({ kickoff }: { kickoff: string }) {
     <div className="flex items-start gap-1.5 sm:gap-2" dir="ltr" role="timer" aria-live="off">
       {labels.map((label, i) => (
         <div key={label} className="flex items-start gap-1.5 sm:gap-2">
-          {i > 0 && <span className="font-condensed text-3xl font-bold leading-none text-fg sm:text-4xl">:</span>}
+          {i > 0 && <span className={`font-condensed text-3xl font-bold leading-none ${tone === 'light' ? 'text-white/60' : 'text-fg'} sm:text-4xl`}>:</span>}
           <div className="flex flex-col items-center">
-            <span className="min-w-[2ch] text-center font-condensed text-3xl font-extrabold leading-none tabular-nums text-fg sm:text-[42px]">
+            <span className={`min-w-[2ch] text-center font-condensed text-3xl font-extrabold leading-none tabular-nums sm:text-[42px] ${tone === 'light' ? 'text-white' : 'text-fg'}`}>
               {parts ? String(parts[i]).padStart(2, '0') : '--'}
             </span>
-            <span className="mt-1 font-condensed text-[11px] font-bold uppercase tracking-wide text-fg-secondary">
+            <span className={`mt-1 font-condensed text-[11px] font-bold uppercase tracking-wide ${tone === 'light' ? 'text-white/70' : 'text-fg-secondary'}`}>
               {label}
             </span>
           </div>

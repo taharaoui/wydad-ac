@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { NextMatchCountdown } from './NextMatchCountdown';
 import { useTranslations, useLocale } from 'next-intl';
 import type { Match } from '@/types';
 import { clubShortName, isBotola } from '@/lib/clubs';
@@ -18,6 +19,10 @@ export interface FixtureItem {
 
 interface FixturesCarouselProps {
   items: FixtureItem[];
+  /** Next Wydad kick-off, for the countdown in the header */
+  nextKickoff?: string;
+  /** Extra card appended after the matches (e.g. the Botola record) */
+  extra?: ReactNode;
 }
 
 
@@ -127,7 +132,7 @@ function FixtureCard({ match, day, time, ticketsUrl }: FixtureItem) {
   );
 }
 
-export function FixturesCarousel({ items }: FixturesCarouselProps) {
+export function FixturesCarousel({ items, nextKickoff, extra }: FixturesCarouselProps) {
   const t = useTranslations('matches');
   const locale = useLocale();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -173,11 +178,29 @@ export function FixturesCarousel({ items }: FixturesCarouselProps) {
   return (
     <section className="relative overflow-hidden bg-surface-dark py-12 sm:py-14">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-end justify-between gap-4">
-          <h2 className="font-condensed text-4xl font-extrabold uppercase italic leading-none text-white rtl:not-italic sm:text-5xl">
-            {t('fixtures')}
-          </h2>
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+            <h2 className="font-condensed text-4xl font-extrabold uppercase italic leading-none text-white rtl:not-italic sm:text-5xl">
+              {t('calendar')}
+            </h2>
+            {nextKickoff && (
+              <div className="flex items-center gap-4">
+                <span className="font-condensed text-sm font-extrabold uppercase italic text-white/80 rtl:not-italic">{t('next_match')}</span>
+                <NextMatchCountdown kickoff={nextKickoff} tone="light" />
+              </div>
+            )}
+          </div>
           <div className="flex items-center gap-1.5">
+            <a
+              href="/api/calendar"
+              className="me-2 hidden items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20 sm:inline-flex"
+            >
+              {t('sync_calendar')}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <rect x="3" y="4.5" width="18" height="16" rx="2" />
+                <path d="M3 9.5h18M8 2.5v4M16 2.5v4" />
+              </svg>
+            </a>
             <button type="button" onClick={() => scrollBy('start')} className={arrowClass} aria-label={locale === 'ar' ? 'السابق' : locale === 'fr' ? 'Précédent' : 'Previous'}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="rtl:rotate-180">
                 <polyline points="15 18 9 12 15 6" />
@@ -199,6 +222,7 @@ export function FixturesCarousel({ items }: FixturesCarouselProps) {
               <FixtureCard {...item} />
             </div>
           ))}
+          {extra && <div className="w-[290px] shrink-0 snap-start sm:w-[340px]">{extra}</div>}
         </div>
 
         {/* Scroll position indicator */}
