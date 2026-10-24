@@ -78,14 +78,14 @@ export default async function StaffPage({ params }: { params: Promise<{ locale: 
           {t('staff_gallery_title')}
         </h2>
         <p className="mt-3 max-w-2xl text-fg-secondary">{t('staff_gallery_text')}</p>
-        <ul className="mt-8 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-3">
-          {STAFF_PHOTOS.map((p, i) => (
-            <li key={p.src} className={`relative overflow-hidden rounded-xl bg-surface-secondary ${i === 0 ? 'col-span-2 aspect-square lg:row-span-2 lg:aspect-auto' : 'aspect-[3/4]'}`}>
+        <ul className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
+          {STAFF_PHOTOS.map((p) => (
+            <li key={p.src} className="relative aspect-[3/4] overflow-hidden rounded-xl bg-surface-secondary">
               <Image
                 src={p.src}
                 alt={t('staff_gallery_alt')}
                 fill
-                sizes={i === 0 ? '(min-width: 1024px) 66vw, 100vw' : '(min-width: 1024px) 33vw, 50vw'}
+                sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw"
                 className="object-cover object-top"
               />
             </li>
