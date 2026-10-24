@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getSquad } from '@/services/players';
 import { getPlayerPhotos } from '@/lib/player-photos';
+import { getCmsPlayerPhotos } from '@/lib/cms/club';
 import { FootballNav } from '@/components/team/FootballNav';
 import { SquadGrid } from '@/components/team/SquadGrid';
 
@@ -18,7 +19,9 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
   const t = await getTranslations({ locale, namespace: 'football' });
 
   const squad = await getSquad();
-  const photos = getPlayerPhotos(squad.map((p) => p.id));
+  const ids = squad.map((p) => p.id);
+  // Photos set in the CMS win over the files in public/assets/players
+  const photos = { ...getPlayerPhotos(ids), ...(await getCmsPlayerPhotos(ids)) };
   // By line, then shirt number
   const players = [...squad]
     .sort((a, b) => POSITION_ORDER.indexOf(a.position) - POSITION_ORDER.indexOf(b.position) || (a.number ?? 999) - (b.number ?? 999))

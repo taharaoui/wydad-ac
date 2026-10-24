@@ -2,7 +2,8 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import type { Player } from '@/types';
 import { getSquad } from '@/services/players';
 import { getLatestNews } from '@/services/news';
-import { BAR_LINKS, SERVICE_LINKS, flattenMenu } from '@/lib/navigation-config';
+import { SERVICE_LINKS, flattenMenu } from '@/lib/navigation-config';
+import { getNavigation } from '@/lib/cms/site';
 import type { SearchEntry } from '@/lib/search';
 import { SiteHeader } from './header/SiteHeader';
 import type { HeaderData } from './header/types';
@@ -21,17 +22,20 @@ export async function Header() {
   const lang = (locale === 'ar' || locale === 'fr' ? locale : 'en') as 'ar' | 'fr' | 'en';
   const t = await getTranslations({ locale, namespace: 'header' });
 
-  const [squad, news] = await Promise.all([getSquad(), getLatestNews(20)]);
+  const [squad, news, nav] = await Promise.all([getSquad(), getLatestNews(20, locale), getNavigation(locale)]);
 
   const players = [...squad].sort(byNumber);
 
   // Search index: pages (one entry per destination), squad, recent news
   const pages = new Map<string, SearchEntry>();
-  const addPage = (key: string, href: string, meta?: string) => {
-    if (!pages.has(href)) pages.set(href, { kind: 'page', label: t(key), href, meta });
+  const addPage = (label: string, href: string, meta?: string) => {
+    if (!pages.has(href)) pages.set(href, { kind: 'page', label, href, meta });
   };
-  for (const link of flattenMenu()) addPage(link.key, link.href, link.parent && t(link.parent));
-  for (const p of [...BAR_LINKS, ...SERVICE_LINKS]) addPage(p.key, p.href);
+  const labels = new Map<string, string>();
+  const collect = (nodes: typeof nav.main) => nodes.forEach((n) => (labels.set(n.key, n.label ?? t(n.key)), collect(n.children ?? [])));
+  collect(nav.main);
+  for (const link of flattenMenu(nav.main)) addPage(labels.get(link.key) ?? t(link.key), link.href, link.parent && labels.get(link.parent));
+  for (const p of [...nav.bar, ...SERVICE_LINKS]) addPage(p.label ?? t(p.key), p.href);
 
   const search: SearchEntry[] = [
     ...pages.values(),
@@ -44,7 +48,7 @@ export async function Header() {
     ...news.map((a) => ({ kind: 'news' as const, label: a.title[lang], href: `/news/${a.slug}` })),
   ];
 
-  const data: HeaderData = { search };
+  const data: HeaderData = { search, menu: nav.main, bar: nav.bar };
 
   return <SiteHeader data={data} />;
 }

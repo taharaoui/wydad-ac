@@ -23,6 +23,8 @@ interface FixturesCarouselProps {
   nextKickoff?: string;
   /** Extra card appended after the matches (e.g. the Botola record) */
   extra?: ReactNode;
+  /** Title set in the CMS (home_sections); "Calendar" otherwise */
+  title?: string;
 }
 
 
@@ -132,7 +134,7 @@ function FixtureCard({ match, day, time, ticketsUrl }: FixtureItem) {
   );
 }
 
-export function FixturesCarousel({ items, nextKickoff, extra }: FixturesCarouselProps) {
+export function FixturesCarousel({ items, nextKickoff, extra, title }: FixturesCarouselProps) {
   const t = useTranslations('matches');
   const locale = useLocale();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -181,7 +183,7 @@ export function FixturesCarousel({ items, nextKickoff, extra }: FixturesCarousel
         <div className="mb-8 flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
           <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
             <h2 className="font-condensed text-4xl font-extrabold uppercase italic leading-none text-white rtl:not-italic sm:text-5xl">
-              {t('calendar')}
+              {title ?? t('calendar')}
             </h2>
             {nextKickoff && (
               <div className="flex items-center gap-4">

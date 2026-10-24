@@ -20,12 +20,16 @@ export const YOUTUBE_URL = 'https://youtube.com/@WydadAC';
 export interface NavLink {
   key: string;
   href: string;
+  /** Label written in the CMS, already in the page language; else `key` is a `header` message */
+  label?: string;
 }
 
 /** Menu entry: a link, or a level that opens its children */
 export interface MenuNode {
   key: string;
   href?: string;
+  /** Label written in the CMS, already in the page language; else `key` is a `header` message */
+  label?: string;
   children?: MenuNode[];
 }
 

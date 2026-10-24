@@ -7,6 +7,8 @@ import { RelativeTime } from '@/components/ui/RelativeTime';
 interface NewsPreviewProps {
   articles: NewsArticle[];
   locale: string;
+  /** Title set in the CMS (home_sections) */
+  title?: string;
 }
 
 /** Absolute date in Moroccan time, e.g. "22 oct. 2026" (server-side, shown until the relative label mounts) */
@@ -42,7 +44,7 @@ function Cover({ article, sizes, priority }: { article: NewsArticle; sizes: stri
 }
 
 /** Homepage news: the latest story large on one side, the next ones in a two-column grid beside it. */
-export function NewsPreview({ articles, locale }: NewsPreviewProps) {
+export function NewsPreview({ articles, locale, title }: NewsPreviewProps) {
   const t = useTranslations('news');
   const tNav = useTranslations('nav');
   const lang = (locale === 'ar' || locale === 'fr' ? locale : 'en') as 'ar' | 'fr' | 'en';
@@ -57,7 +59,7 @@ export function NewsPreview({ articles, locale }: NewsPreviewProps) {
     <section aria-labelledby="home-news">
       <div className="mb-6 flex items-baseline gap-3">
         <h2 id="home-news" className="font-condensed text-4xl font-extrabold uppercase italic leading-none text-fg rtl:not-italic">
-          {tNav('news')}
+          {title ?? tNav('news')}
         </h2>
         <span className="font-condensed text-2xl font-bold italic text-fg-muted rtl:not-italic" aria-hidden>
           /
@@ -79,7 +81,7 @@ export function NewsPreview({ articles, locale }: NewsPreviewProps) {
           <Cover article={lead} sizes="(min-width: 1024px) 50vw, 100vw" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
-            <p className="font-condensed text-xs font-bold uppercase tracking-[0.12em] text-white/85">{t(lead.category)}</p>
+            <p className="font-condensed text-xs font-bold uppercase tracking-[0.12em] text-white/85">{lead.category_label ?? t(lead.category)}</p>
             <h3 className="mt-2 font-condensed text-3xl font-extrabold uppercase italic leading-[0.95] text-white rtl:not-italic sm:text-4xl lg:text-[2.6rem]">
               {lead.title[lang]}
             </h3>
@@ -97,7 +99,7 @@ export function NewsPreview({ articles, locale }: NewsPreviewProps) {
                     <Cover article={article} sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 136px" />
                   </div>
                   <div className="min-w-0 sm:mt-3">
-                    <p className="font-condensed text-[11px] font-bold uppercase tracking-[0.12em] text-fg-muted">{t(article.category)}</p>
+                    <p className="font-condensed text-[11px] font-bold uppercase tracking-[0.12em] text-fg-muted">{article.category_label ?? t(article.category)}</p>
                     <h3 className="mt-1 line-clamp-3 font-semibold leading-snug text-fg transition-colors group-hover:text-wydad-red">
                       {article.title[lang]}
                     </h3>

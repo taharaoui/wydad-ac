@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation';
 import { locales, rtlLocales, type Locale } from '@/i18n/config';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { AnnouncementBar } from '@/components/layout/AnnouncementBar';
+import { getSiteSettings } from '@/lib/cms/site';
 import { Analytics } from '@vercel/analytics/next';
 import '@/app/globals.css';
 
@@ -14,14 +16,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'common' });
+  const [t, settings] = await Promise.all([getTranslations({ locale, namespace: 'common' }), getSiteSettings(locale)]);
 
   return {
     title: {
       template: `%s | ${t('club_name')}`,
-      default: t('club_name'),
+      default: settings.seoTitle ?? t('club_name'),
     },
-    description: t('club_name'),
+    description: settings.seoDescription ?? t('club_name'),
   };
 }
 
@@ -59,6 +61,7 @@ export default async function LocaleLayout({
       <body className="font-body bg-surface text-fg antialiased transition-colors duration-200">
           <NextIntlClientProvider messages={messages}>
             <div className="flex min-h-screen flex-col">
+              <AnnouncementBar />
               <Header />
               <main id="main" tabIndex={-1} className="flex-1 outline-none">{children}</main>
               <Footer />

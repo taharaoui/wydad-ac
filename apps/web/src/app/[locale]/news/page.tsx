@@ -22,7 +22,7 @@ export default async function NewsPage({ params }: { params: Promise<{ locale: s
   const date = (iso: string) =>
     new Intl.DateTimeFormat(dateLocale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Africa/Casablanca' }).format(new Date(iso));
 
-  const [articles, videos] = await Promise.all([getLatestNews(100), getVideos()]);
+  const [articles, videos] = await Promise.all([getLatestNews(100, locale), getVideos()]);
 
   const items: FeedItem[] = [
     ...articles.map((a) => ({
@@ -30,7 +30,7 @@ export default async function NewsPage({ params }: { params: Promise<{ locale: s
       kind: 'article' as const,
       href: `/news/${a.slug}`,
       title: a.title[lang],
-      label: `${t(a.sport ?? 'football')} · ${t(a.category)}`,
+      label: `${t(a.sport ?? 'football')} · ${a.category_label ?? t(a.category)}`,
       tags: [a.sport ?? 'football', a.category],
       image: a.cover_image_url,
       imagePosition: a.cover_position,

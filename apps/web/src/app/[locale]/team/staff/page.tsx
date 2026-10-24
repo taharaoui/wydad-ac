@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { FootballNav } from '@/components/team/FootballNav';
 import { StaffDirectory } from '@/components/team/StaffDirectory';
-import { STAFF, STAFF_PHOTOS } from '@/lib/staff';
+import { getGallery, getStaff } from '@/lib/cms/club';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -21,9 +21,10 @@ export default async function StaffPage({ params }: { params: Promise<{ locale: 
   const t = await getTranslations({ locale, namespace: 'football' });
   const lang = (locale === 'ar' || locale === 'fr' ? locale : 'en') as 'ar' | 'fr' | 'en';
 
-  const head = STAFF.find((m) => m.head);
-  const others = STAFF.filter((m) => !m.head);
-  const name = (m: (typeof STAFF)[number]) => (lang === 'ar' && m.name_ar ? m.name_ar : m.name);
+  const [staff, photos] = await Promise.all([getStaff('first_team'), getGallery('staff-first-team', locale)]);
+  const head = staff.find((m) => m.head);
+  const others = staff.filter((m) => !m.head);
+  const name = (m: (typeof staff)[number]) => (lang === 'ar' && m.name_ar ? m.name_ar : m.name);
 
   return (
     <div>
@@ -73,25 +74,27 @@ export default async function StaffPage({ params }: { params: Promise<{ locale: 
         </section>
       )}
 
-      <section aria-labelledby="staff-gallery-title" className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-        <h2 id="staff-gallery-title" className="font-condensed text-4xl font-extrabold uppercase italic leading-none text-fg rtl:not-italic sm:text-5xl">
-          {t('staff_gallery_title')}
-        </h2>
-        <p className="mt-3 max-w-2xl text-fg-secondary">{t('staff_gallery_text')}</p>
-        <ul className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
-          {STAFF_PHOTOS.map((p) => (
-            <li key={p.src} className="relative aspect-[3/4] overflow-hidden rounded-xl bg-surface-secondary">
-              <Image
-                src={p.src}
-                alt={t('staff_gallery_alt')}
-                fill
-                sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw"
-                className="object-cover object-top"
-              />
-            </li>
-          ))}
-        </ul>
-      </section>
+      {photos.length > 0 && (
+        <section aria-labelledby="staff-gallery-title" className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+          <h2 id="staff-gallery-title" className="font-condensed text-4xl font-extrabold uppercase italic leading-none text-fg rtl:not-italic sm:text-5xl">
+            {t('staff_gallery_title')}
+          </h2>
+          <p className="mt-3 max-w-2xl text-fg-secondary">{t('staff_gallery_text')}</p>
+          <ul className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
+            {photos.map((p) => (
+              <li key={p.src} className="relative aspect-[3/4] overflow-hidden rounded-xl bg-surface-secondary">
+                <Image
+                  src={p.src}
+                  alt={p.caption ?? t('staff_gallery_alt')}
+                  fill
+                  sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw"
+                  className="object-cover object-top"
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
         {others.length > 0 ? (

@@ -124,3 +124,16 @@ export const getSection = (key: string) => SECTION_PAGES.find((s) => s.key === k
 export async function getSectionFeed(section: SectionConfig): Promise<InstagramFeed> {
   return (await fetchInstagramFeed(section.instagram)) ?? SECTION_SNAPSHOTS[section.key];
 }
+
+/** The bundled highlights of a section with their texts from the `sections` messages */
+export function bundledHighlights(section: SectionConfig, t: (key: string) => string) {
+  return section.highlights.map((h) => ({
+    id: h.id,
+    image: h.image,
+    date: h.date,
+    url: h.url,
+    title: t(`${section.key}.${h.id}_title`),
+    text: t(`${section.key}.${h.id}_text`),
+    cta: h.cta ? t(h.cta) : undefined,
+  }));
+}

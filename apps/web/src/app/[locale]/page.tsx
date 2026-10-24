@@ -14,7 +14,10 @@ import { FEATURED_COLLECTION, getBrandProducts } from '@/lib/brand-store';
 import { BrandRail } from '@/components/home/BrandRail';
 import { InstagramStories } from '@/components/home/InstagramStories';
 import { getInstagram } from '@/lib/instagram';
-import { BASKETBALL_TICKETS, upcomingBasketball } from '@/lib/basketball';
+import { getManualFixtures, upcoming as upcomingOf } from '@/lib/cms/club';
+import { getHomeSections } from '@/lib/cms/site';
+import type { HomeSectionKey } from '@/lib/site-defaults';
+import type { ReactNode } from 'react';
 
 export default async function HomePage({
   params,
@@ -26,12 +29,14 @@ export default async function HomePage({
   const t = await getTranslations({ locale, namespace: 'home' });
   const tCommon = await getTranslations({ locale, namespace: 'common' });
 
-  const [standings, news, recentMatches, brandProducts, instagram] = await Promise.all([
+  const [standings, news, recentMatches, brandProducts, instagram, basketball, sections] = await Promise.all([
     getStandings(),
-    getLatestNews(9),
+    getLatestNews(9, locale),
     getRecentMatches(8),
     getBrandProducts(FEATURED_COLLECTION),
     getInstagram(),
+    getManualFixtures('basketball'),
+    getHomeSections(locale),
   ]);
 
   // Next Wydad kick-off, for the countdown
@@ -52,51 +57,66 @@ export default async function HomePage({
       })),
   );
 
+
+  // Each section the CMS can show, hide, reorder or retitle (home_sections)
+  const render: Record<HomeSectionKey, (title?: string) => ReactNode> = {
+    fixtures: (title) =>
+      recentMatches.length > 0 && (
+        <FixturesCarousel
+          title={title}
+          items={[...recentMatches, ...upcomingOf(basketball.matches)]
+            .sort((x, y) => x.kickoff.localeCompare(y.kickoff))
+            .map((match) => ({ match, ...formatKickoff(match.kickoff, locale), ticketsUrl: basketball.tickets[match.id] }))}
+          nextKickoff={upcoming[0]?.kickoff}
+          extra={<BotolaRecordCard />}
+        />
+      ),
+    standings: (title) => (
+      <ScrollReveal delay={100}>
+        <section className="pt-12 min-w-0">
+          <StandingsPreview standings={standings} title={title} />
+        </section>
+      </ScrollReveal>
+    ),
+    brand: (title) => (
+      <ScrollReveal delay={100}>
+        <div className="mt-16">
+          <BrandRail products={brandProducts} title={title} />
+        </div>
+      </ScrollReveal>
+    ),
+    news: (title) => (
+      <ScrollReveal delay={150}>
+        <section className="mt-12 pb-16">
+          <NewsPreview articles={news} locale={locale} title={title} />
+        </section>
+      </ScrollReveal>
+    ),
+    instagram: (title) => (
+      <ScrollReveal delay={100}>
+        <div className="pb-16">
+          <InstagramStories profile={instagram.profile} posts={instagram.posts} title={title} />
+        </div>
+      </ScrollReveal>
+    ),
+  };
+
   return (
     <div>
       {/* Hero — full-bleed, outside the container */}
       <HeroSection stories={heroStories} videos={(await getVideos()).slice(0, 1)} locale={locale} />
 
-      {/* Fixtures carousel — dark strip bridging hero to content */}
-      {recentMatches.length > 0 && (
-        <FixturesCarousel
-          items={[...recentMatches, ...upcomingBasketball()]
-            .sort((x, y) => x.kickoff.localeCompare(y.kickoff))
-            .map((match) => ({ match, ...formatKickoff(match.kickoff, locale), ticketsUrl: BASKETBALL_TICKETS[match.id] }))}
-          nextKickoff={upcoming[0]?.kickoff}
-          extra={<BotolaRecordCard />}
-        />
-      )}
-
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Standings */}
-        <ScrollReveal delay={100}>
-          <section className="pt-12 min-w-0">
-            <StandingsPreview standings={standings} />
-          </section>
-        </ScrollReveal>
-
-        {/* WAC Official Brand */}
-        <ScrollReveal delay={100}>
-          <div className="mt-16">
-            <BrandRail products={brandProducts} />
-          </div>
-        </ScrollReveal>
-
-        {/* News */}
-        <ScrollReveal delay={150}>
-          <section className="mt-12 pb-16">
-            <NewsPreview articles={news} locale={locale} />
-          </section>
-        </ScrollReveal>
-
-        {/* Instagram */}
-        <ScrollReveal delay={100}>
-          <div className="pb-16">
-            <InstagramStories profile={instagram.profile} posts={instagram.posts} />
-          </div>
-        </ScrollReveal>
-      </div>
+      {sections.map(({ key, title }) => (
+        <HomeBlock key={key} id={key}>
+          {render[key](title)}
+        </HomeBlock>
+      ))}
     </div>
   );
+}
+
+/** The fixtures strip is full-bleed; the other sections sit in the page container */
+function HomeBlock({ id, children }: { id: HomeSectionKey; children: ReactNode }) {
+  if (id === 'fixtures') return <>{children}</>;
+  return <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">{children}</div>;
 }

@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState, type MouseEvent, type RefObject } from 'react';
+import { useEffect, useMemo, useRef, useState, type MouseEvent, type RefObject } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePathname } from '@/i18n/navigation';
-import { MENU, MEMBER_AREA_URL, SIGN_IN_URL, type MenuNode } from '@/lib/navigation-config';
+import { MEMBER_AREA_URL, SIGN_IN_URL, type MenuNode } from '@/lib/navigation-config';
 import { ChevronRightIcon, CloseIcon, UserIcon } from './icons';
 import { LanguageSwitch } from './LanguageSwitch';
 import { SmartLink } from './SmartLink';
@@ -14,8 +14,8 @@ const PANEL_ID = 'menu-level';
 const COL = 'lg:w-[460px]';
 
 /** Children of the node reached by following `path` from the root */
-function nodesAt(path: string[]): MenuNode[] {
-  let nodes = MENU;
+function nodesAt(menu: MenuNode[], path: string[]): MenuNode[] {
+  let nodes = menu;
   for (const key of path) nodes = nodes.find((n) => n.key === key)?.children ?? [];
   return nodes;
 }
@@ -25,11 +25,19 @@ function nodesAt(path: string[]): MenuNode[] {
  * with children opens a grey panel beside it (lg+). On smaller screens levels replace each other,
  * with a back button. The page stays visible, dimmed, behind. Focus is trapped while open.
  */
-export function MenuPanel({ open, onClose, trigger }: { open: boolean; onClose: () => void; trigger: RefObject<HTMLElement> }) {
+export function MenuPanel({ menu, open, onClose, trigger }: { menu: MenuNode[]; open: boolean; onClose: () => void; trigger: RefObject<HTMLElement> }) {
   const t = useTranslations('header');
   const pathname = usePathname();
   const ref = useRef<HTMLDivElement>(null);
   const [path, setPath] = useState<string[]>([]);
+  // CMS labels by key (entries without one use the `header` messages)
+  const labels = useMemo(() => {
+    const map = new Map<string, string>();
+    const walk = (nodes: MenuNode[]) => nodes.forEach((n) => (n.label && map.set(n.key, n.label), walk(n.children ?? [])));
+    walk(menu);
+    return map;
+  }, [menu]);
+  const labelOf = (key: string) => labels.get(key) ?? t(key);
 
   useFocusTrap(ref, open, onClose, trigger);
   useEffect(() => {
@@ -60,7 +68,7 @@ export function MenuPanel({ open, onClose, trigger }: { open: boolean; onClose: 
           <li key={node.key}>
             {node.children ? (
               <button type="button" aria-expanded={selected} aria-controls={PANEL_ID} onClick={openLevel([...path.slice(0, depth), node.key])} className={cls}>
-                {t(node.key)}
+                {node.label ?? t(node.key)}
                 <ChevronRightIcon size={22} className={`shrink-0 rtl:rotate-180 ${dimmed ? 'opacity-40' : 'text-wydad-charcoal/60'}`} />
               </button>
             ) : (
@@ -71,7 +79,7 @@ export function MenuPanel({ open, onClose, trigger }: { open: boolean; onClose: 
                 aria-current={!node.href!.includes('#') && pathname === node.href ? 'page' : undefined}
                 className={`${cls} ${dimmed ? '' : 'aria-[current=page]:text-wydad-logo'}`}
               >
-                {t(node.key)}
+                {node.label ?? t(node.key)}
               </SmartLink>
             )}
           </li>
@@ -87,12 +95,12 @@ export function MenuPanel({ open, onClose, trigger }: { open: boolean; onClose: 
       className="mb-3 flex min-h-11 items-center gap-1.5 font-condensed text-sm font-bold uppercase tracking-[0.14em] text-wydad-charcoal/55 hover:text-wydad-charcoal"
     >
       <ChevronRightIcon size={16} className="rotate-180 rtl:rotate-0" />
-      {t(path.length > 1 ? path[path.length - 2] : 'back')}
+      {path.length > 1 ? labelOf(path[path.length - 2]) : t('back')}
     </button>
   );
   const levelTitle = path.length > 0 && (
     <h2 className="mb-4 inline-block border-b-[3px] border-wydad-logo pb-1 font-condensed text-[26px] font-extrabold uppercase leading-none text-wydad-charcoal">
-      {t(path[path.length - 1])}
+      {labelOf(path[path.length - 1])}
     </h2>
   );
 
@@ -139,13 +147,13 @@ export function MenuPanel({ open, onClose, trigger }: { open: boolean; onClose: 
           <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-6 pt-6 sm:px-8 lg:pt-10">
             {/* lg+: main list stays; below lg the open level replaces it */}
             <nav aria-label={t('main_nav')} className={path.length ? 'hidden lg:block' : ''}>
-              {level(MENU, 0)}
+              {level(menu, 0)}
             </nav>
             {path.length > 0 && (
               <div className="lg:hidden">
                 {back}
                 {levelTitle}
-                <div>{level(nodesAt(path), path.length)}</div>
+                <div>{level(nodesAt(menu, path), path.length)}</div>
               </div>
             )}
           </div>
@@ -175,7 +183,7 @@ export function MenuPanel({ open, onClose, trigger }: { open: boolean; onClose: 
         >
           {path.length > 1 && back}
           {levelTitle}
-          {path.length > 0 && level(nodesAt(path), path.length)}
+          {path.length > 0 && level(nodesAt(menu, path), path.length)}
         </div>
       </div>
     </div>

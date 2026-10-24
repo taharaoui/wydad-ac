@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { GoldCardStage } from '@/components/gold/GoldCardStage';
+import { getMembershipOffer } from '@/lib/cms/club';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -19,6 +20,12 @@ export default async function GoldMembershipPage({ params }: { params: Promise<{
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'gold' });
+  // Price, benefits and sign-up link from the CMS offer (membership_offers, slug "gold") once live
+  const offer = await getMembershipOffer('gold', locale);
+  const benefits = offer?.benefits.length ? offer.benefits : BENEFITS.map((b) => t(`benefit_${b}`));
+  const price = offer?.price ?? 1_000_000;
+  const currency = offer?.currency === 'MAD' || !offer ? 'DH' : offer.currency;
+  const ctaUrl = offer?.ctaUrl ?? '#gold-benefits';
 
   return (
     <div className="bg-surface-dark text-white">
@@ -35,10 +42,10 @@ export default async function GoldMembershipPage({ params }: { params: Promise<{
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70">{t('intro')}</p>
 
             <ul className="mt-8 grid max-w-xl gap-x-6 gap-y-2.5 sm:grid-cols-2">
-              {(['box', 'hospitality', 'away_tickets', 'team_experiences'] as const).map((b) => (
+              {benefits.slice(0, 4).map((b) => (
                 <li key={b} className="flex items-center gap-2.5 text-sm text-white/85">
                   <span className="h-1.5 w-1.5 shrink-0 rotate-45 bg-[#E8C468]" aria-hidden />
-                  {t(`benefit_${b}`)}
+                  {b}
                 </li>
               ))}
             </ul>
@@ -47,11 +54,11 @@ export default async function GoldMembershipPage({ params }: { params: Promise<{
               <div>
                 <p className="font-condensed text-xs font-bold uppercase tracking-[0.16em] text-white/45">{t('price_label')}</p>
                 <p className={`mt-1 whitespace-nowrap font-condensed text-4xl font-extrabold tabular-nums ${GOLD}`} dir="ltr">
-                  1&nbsp;000&nbsp;000 <span className="text-2xl">DH</span>
+                  {String(price).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0')} <span className="text-2xl">{currency}</span>
                 </p>
               </div>
               <a
-                href="#gold-benefits"
+                href={ctaUrl}
                 className="inline-flex min-h-12 items-center bg-gradient-to-b from-[#F3D98A] to-[#C9A24A] px-7 font-condensed text-lg font-extrabold uppercase tracking-wide text-[#1a1407] shadow-[0_10px_30px_rgb(232_196_104/0.25)] transition-transform hover:-translate-y-0.5"
               >
                 {t('cta')}
@@ -75,10 +82,10 @@ export default async function GoldMembershipPage({ params }: { params: Promise<{
             {t('benefits_title')}
           </h2>
           <ul className="mt-10 grid gap-px overflow-hidden rounded-2xl bg-[#E8C468]/15 sm:grid-cols-2 lg:grid-cols-4">
-            {BENEFITS.map((b, i) => (
+            {benefits.map((b, i) => (
               <li key={b} className="bg-surface-dark-secondary p-6">
                 <span className={`font-condensed text-sm font-bold tabular-nums ${GOLD}`}>{String(i + 1).padStart(2, '0')}</span>
-                <p className="mt-2 font-condensed text-2xl font-bold uppercase leading-tight">{t(`benefit_${b}`)}</p>
+                <p className="mt-2 font-condensed text-2xl font-bold uppercase leading-tight">{b}</p>
               </li>
             ))}
           </ul>

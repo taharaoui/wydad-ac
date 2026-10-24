@@ -1,12 +1,12 @@
 import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { clubShortName } from '@/lib/clubs';
-import { BASKETBALL_TICKETS, upcomingBasketball } from '@/lib/basketball';
+import { getManualFixtures, getSectionHighlights, upcoming } from '@/lib/cms/club';
 import { formatKickoffLong } from '@/lib/datetime';
 import { TeamCrest } from '@/components/ui/TeamCrest';
 import { NextMatchCountdown } from '@/components/home/NextMatchCountdown';
 import { FootballNav } from '@/components/team/FootballNav';
-import { getSection, getSectionFeed } from '@/lib/sections';
+import { bundledHighlights, getSection, getSectionFeed } from '@/lib/sections';
 import { InstagramFeedGrid } from '@/components/sections/InstagramFeedGrid';
 import { SectionHighlights } from '@/components/sections/SectionHighlights';
 
@@ -21,9 +21,15 @@ export default async function BasketballPage({ params }: { params: Promise<{ loc
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'basketball' });
-  const [next, ...later] = upcomingBasketball();
+  const { matches, tickets } = await getManualFixtures('basketball');
+  const [next, ...later] = upcoming(matches);
   const section = getSection('basketball')!;
-  const [feed, tSections] = await Promise.all([getSectionFeed(section), getTranslations({ locale, namespace: 'sections' })]);
+  const [feed, tSections, cmsHighlights] = await Promise.all([
+    getSectionFeed(section),
+    getTranslations({ locale, namespace: 'sections' }),
+    getSectionHighlights('basketball', locale),
+  ]);
+  const highlights = cmsHighlights ?? bundledHighlights(section, (key) => tSections(key as never));
 
   return (
     <div>
@@ -74,10 +80,10 @@ export default async function BasketballPage({ params }: { params: Promise<{ loc
                 <dd className="mt-0.5 font-semibold text-fg">{t('venue_mohammed_v')}</dd>
               </div>
             </dl>
-            {BASKETBALL_TICKETS[next.id] && (
+            {tickets[next.id] && (
               <div className="border-t border-border px-5 py-5 sm:px-8">
                 <a
-                  href={BASKETBALL_TICKETS[next.id]}
+                  href={tickets[next.id]}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-wydad-logo font-condensed text-lg font-bold uppercase tracking-wide text-white transition-colors hover:bg-wydad-red-hover sm:w-auto sm:px-8"
@@ -111,7 +117,7 @@ export default async function BasketballPage({ params }: { params: Promise<{ loc
         </div>
 
         <div className="mt-16 space-y-16">
-          <SectionHighlights section={section} locale={locale} />
+          <SectionHighlights items={highlights} locale={locale} />
           <InstagramFeedGrid feed={feed} title={tSections('latest')} />
         </div>
       </section>

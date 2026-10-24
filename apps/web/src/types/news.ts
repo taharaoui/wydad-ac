@@ -20,7 +20,10 @@ export const NewsArticleSchema = z.object({
     fr: z.string(),
     en: z.string(),
   }),
-  category: NewsCategoryEnum,
+  /** Category slug: one of NewsCategoryEnum for bundled articles, any CMS category otherwise */
+  category: z.string(),
+  /** Category name from the CMS, in the page language (bundled categories use the `news` messages) */
+  category_label: z.string().optional(),
   /** Section the story is about; football when omitted */
   sport: z.enum(['football', 'basketball']).optional(),
   cover_image_url: z.string().optional(),
@@ -33,5 +36,7 @@ export const NewsArticleSchema = z.object({
   published_at: z.string(), // ISO datetime
   read_time_minutes: z.number(),
   author: z.string().optional(),
+  seo_title: z.string().optional(),
+  seo_description: z.string().optional(),
 });
 export type NewsArticle = z.infer<typeof NewsArticleSchema>;

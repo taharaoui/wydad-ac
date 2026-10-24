@@ -15,7 +15,8 @@ import { findArryadiaHighlight, highlightsSearchUrl } from '@/lib/highlights';
 import { getVideos, matchVideos } from '@/lib/videos';
 import { BehindTheScenes } from '@/components/matches/centre/BehindTheScenes';
 import { isWydad } from '@/lib/clubs';
-import { MATCH_NOTES, currentWydadCoach } from '@/lib/match-notes';
+import { currentWydadCoach } from '@/lib/match-notes';
+import { getCmsPlayerPhotos, getMatchNote } from '@/lib/cms/club';
 import type { Match } from '@/types';
 import { MatchTabs, type MatchTab } from '@/components/matches/centre/MatchTabs';
 import { HighlightsCard } from '@/components/matches/centre/HighlightsCard';
@@ -65,8 +66,8 @@ export default async function MatchDetailPage({
 
   const summary = buildMatchSummary(match);
   // Hand-entered scorers/venue when the source has none
-  const note = MATCH_NOTES[match.id];
-  if (note?.goals) {
+  const note = await getMatchNote(match.id);
+  if (note?.goals?.length) {
     summary.goals = note.goals.map((g) => ({ side: g.side, player: g.player, count: 1, assists: [], minute: g.minute, penalty: g.penalty }));
   }
   if (note?.venue && !match.venue) match.venue = note.venue;
@@ -75,7 +76,8 @@ export default async function MatchDetailPage({
   else match.away_coach = currentWydadCoach(match.away_coach, match.kickoff);
   const potm = getPlayerOfTheMatch(match.home_lineup, match.away_lineup);
   const playerIds = [...(match.home_lineup?.players ?? []), ...(match.away_lineup?.players ?? [])].map((p) => p.id);
-  const photos = getPlayerPhotos(playerIds);
+  // Photos set in the CMS win over the files in public/assets/players
+  const photos = { ...getPlayerPhotos(playerIds), ...(await getCmsPlayerPhotos(playerIds)) };
   const dateLabel = formatKickoffLong(match.kickoff, locale);
   const wydadTeam = isWydad(match.home_team.id) ? match.home_team : match.away_team;
 
@@ -190,7 +192,10 @@ export default async function MatchDetailPage({
     commentary.push({ id: 'ko', kind: 'kick_off', label: t('kickoff'), minute: 0, text: t('ko_text', { home: match.home_team.name, away: match.away_team.name }) });
   }
 
-  const [highlightId, clubVideos] = await Promise.all([findArryadiaHighlight(match), getVideos()]);
+  const [highlightId, clubVideos] = await Promise.all([
+    note?.highlightYoutubeId ?? findArryadiaHighlight(match),
+    getVideos(),
+  ]);
   const btsVideos = matchVideos(clubVideos, match);
 
   const extras = (
@@ -221,7 +226,7 @@ export default async function MatchDetailPage({
 
   const overview = played ? (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-14">
-      <Commentary items={commentary} keyMomentsLabel={t('key_moments')} note={hasEvents || note?.goals ? undefined : t('events_note')} />
+      <Commentary items={commentary} keyMomentsLabel={t('key_moments')} note={hasEvents || note?.goals?.length ? undefined : t('events_note')} />
       {extras}
     </div>
   ) : (

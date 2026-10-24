@@ -7,9 +7,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test:db": "node --test ../../supabase/tests/",
+    "db:types": "node scripts/gen-types.mjs",
+    "db:seed:build": "tsx scripts/seed.ts",
+    "db:migrate": "node scripts/db.mjs migrate",
+    "db:seed": "node scripts/db.mjs seed",
+    "db:status": "node scripts/db.mjs status",
+    "admin:grant": "node scripts/db.mjs grant-admin",
+    "test:unit": "node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.45.0",
     "@vercel/analytics": "^2.0.1",
     "clsx": "^2.1.1",
@@ -17,16 +26,21 @@
     "next-intl": "^3.22.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "server-only": "^0.0.1",
     "swiper": "^11.1.15",
     "zod": "^3.23.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.2.17",
     "@types/node": "^20.14.0",
+    "@types/pg": "^8.11.10",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.20",
+    "pg": "^8.13.1",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.0"
   }
 }

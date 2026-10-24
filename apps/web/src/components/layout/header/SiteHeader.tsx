@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { TICKETS_PAGE } from '@/lib/links';
-import { BAR_LINKS, BRAND_URL, SIGN_IN_URL, isActive } from '@/lib/navigation-config';
+import { BRAND_URL, SIGN_IN_URL, isActive } from '@/lib/navigation-config';
 import { MenuIcon, SearchIcon, TicketIcon, UserIcon } from './icons';
 import { LanguageSelector } from './LanguageSelector';
 import { MenuPanel } from './MenuPanel';
@@ -101,12 +101,12 @@ export function SiteHeader({ data }: { data: HeaderData }) {
 
                 <nav aria-label={t('main_nav')} className="hidden h-full md:block">
                   <ul className="flex h-full items-center gap-8">
-                    {BAR_LINKS.map((l) => {
+                    {data.bar.map((l) => {
                       const active = isActive(pathname, l.href);
                       return (
                         <li key={l.key} className="h-full">
                           <Link href={l.href} aria-current={active ? 'page' : undefined} className={barLink}>
-                            {t(l.key)}
+                            {l.label ?? t(l.key)}
                             {active && <span className="absolute inset-x-0 bottom-0 h-[3px] bg-wydad-logo" aria-hidden />}
                           </Link>
                         </li>
@@ -150,7 +150,7 @@ export function SiteHeader({ data }: { data: HeaderData }) {
       {/* Reserve the bar's space on pages without a full-bleed hero */}
       {!isHome && <div className={BAR_H} aria-hidden />}
 
-      <MenuPanel open={menuOpen} onClose={() => setMenuOpen(false)} trigger={menuButton} />
+      <MenuPanel menu={data.menu} open={menuOpen} onClose={() => setMenuOpen(false)} trigger={menuButton} />
       {searchOpen && <SearchDialog index={data.search} onClose={() => setSearchOpen(false)} />}
     </>
   );

@@ -1,11 +1,11 @@
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
-import type { SectionConfig } from '@/lib/sections';
+import type { ResolvedHighlight } from '@/lib/cms/club';
 
 /** "À la une": the section's notable news, each retelling a post and linking to it. */
-export async function SectionHighlights({ section, locale }: { section: SectionConfig; locale: string }) {
-  const t = await getTranslations('sections');
-  if (section.highlights.length === 0) return null;
+export async function SectionHighlights({ items, locale }: { items: ResolvedHighlight[]; locale: string }) {
+  const t = await getTranslations({ locale, namespace: 'sections' });
+  if (items.length === 0) return null;
   const date = (iso: string) =>
     new Intl.DateTimeFormat(locale === 'ar' ? 'ar-MA-u-nu-latn' : locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(iso));
 
@@ -15,15 +15,15 @@ export async function SectionHighlights({ section, locale }: { section: SectionC
         {t('highlights')}
       </h2>
       <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {section.highlights.map((h) => (
+        {items.map((h) => (
           <article key={h.id} className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
             <div className="relative aspect-[4/5] overflow-hidden bg-surface-secondary">
               <Image src={h.image} alt="" fill sizes="(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
             </div>
             <div className="flex flex-1 flex-col p-6">
               <time dateTime={h.date} className="text-sm text-fg-muted">{date(h.date)}</time>
-              <h3 className="mt-2 font-condensed text-2xl font-extrabold uppercase leading-tight text-fg">{t(`${section.key}.${h.id}_title`)}</h3>
-              <p className="mt-3 flex-1 leading-relaxed text-fg-secondary">{t(`${section.key}.${h.id}_text`)}</p>
+              <h3 className="mt-2 font-condensed text-2xl font-extrabold uppercase leading-tight text-fg">{h.title}</h3>
+              <p className="mt-3 flex-1 leading-relaxed text-fg-secondary">{h.text}</p>
               <a
                 href={h.url}
                 target="_blank"
@@ -34,7 +34,7 @@ export async function SectionHighlights({ section, locale }: { section: SectionC
                     : 'mt-5 inline-flex items-center gap-1.5 font-condensed text-lg font-bold uppercase text-wydad-red hover:underline'
                 }
               >
-                {h.cta ? t(h.cta) : t('see_post')}
+                {h.cta ?? t('see_post')}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="rtl:rotate-180" aria-hidden>
                   <polyline points="9 18 15 12 9 6" />
                 </svg>

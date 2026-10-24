@@ -7,7 +7,7 @@ import { Link } from '@/i18n/navigation';
 import type { BrandProduct } from '@/lib/brand-store';
 
 /** Homepage strip for WAC Official Brand (psg.fr "Nike Energy" style): title, Discover, product row. */
-export function BrandRail({ products }: { products: BrandProduct[] }) {
+export function BrandRail({ products, title }: { products: BrandProduct[]; title?: string }) {
   const t = useTranslations('brand');
   const scroller = useRef<HTMLUListElement>(null);
   const [thumb, setThumb] = useState({ size: 1, offset: 0 });
@@ -27,7 +27,7 @@ export function BrandRail({ products }: { products: BrandProduct[] }) {
         <div>
           <Image src="/images/brand/wac-brand-logo.png" alt="" width={400} height={294} className="mb-3 h-10 w-auto" />
           <h2 id="brand-rail" className="font-condensed text-4xl font-extrabold uppercase italic leading-none text-fg rtl:not-italic sm:text-5xl" dir="ltr">
-            A new way to wear Wydad
+            {title ?? 'A new way to wear Wydad'}
           </h2>
           <p className="mt-3 text-lg text-fg-secondary">{t('rail_subtitle')}</p>
         </div>

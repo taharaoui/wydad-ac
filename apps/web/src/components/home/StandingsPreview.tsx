@@ -7,17 +7,19 @@ import { TeamCrest } from '@/components/ui/TeamCrest';
 
 interface StandingsPreviewProps {
   standings: StandingRow[];
+  /** Title set in the CMS (home_sections) */
+  title?: string;
 }
 
 /** Full league table in the classic broadcast style: red title bar, coloured position cells for each zone. */
-export function StandingsPreview({ standings }: StandingsPreviewProps) {
+export function StandingsPreview({ standings, title }: StandingsPreviewProps) {
   const t = useTranslations('matches');
   const num = 'px-1 py-2.5 text-center tabular-nums sm:px-2.5';
 
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-card">
       <div className="flex items-center justify-between bg-wydad-logo px-4 py-2.5 text-white">
-        <h3 className="font-condensed text-lg font-bold uppercase tracking-wide">{t('season_title')}</h3>
+        <h3 className="font-condensed text-lg font-bold uppercase tracking-wide">{title ?? t('season_title')}</h3>
         <Link
           href="/standings"
           className="group/link inline-flex items-center gap-1 text-xs font-semibold text-white/90 transition-colors hover:text-white"

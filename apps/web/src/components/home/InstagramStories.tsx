@@ -95,7 +95,7 @@ function PhoneMockup({ profile, posts }: { profile: InstagramProfile; posts: Ins
 }
 
 /** Instagram rail (Al Hilal "Must watch stories" style): phone mockup, portrait cards, dots, Follow us. */
-export function InstagramStories({ profile, posts }: { profile: InstagramProfile; posts: InstagramPost[] }) {
+export function InstagramStories({ profile, posts, title }: { profile: InstagramProfile; posts: InstagramPost[]; title?: string }) {
   const t = useTranslations('home');
   const scroller = useRef<HTMLUListElement>(null);
   const [active, setActive] = useState(0);
@@ -126,7 +126,7 @@ export function InstagramStories({ profile, posts }: { profile: InstagramProfile
       <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_auto]">
         <div>
           <h2 id="ig-stories" className="font-condensed text-5xl font-extrabold uppercase leading-none text-wydad-red sm:text-6xl">
-            {t('ig_title')}
+            {title ?? t('ig_title')}
           </h2>
           <p className="mt-2 text-lg text-fg-secondary sm:text-xl">{t('ig_subtitle')}</p>
           <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="group mt-8 inline-flex items-center gap-4">

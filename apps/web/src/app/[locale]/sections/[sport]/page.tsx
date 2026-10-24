@@ -2,7 +2,8 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { locales } from '@/i18n/config';
-import { SECTION_ROUTES, getSection, getSectionFeed } from '@/lib/sections';
+import { SECTION_ROUTES, bundledHighlights, getSection, getSectionFeed } from '@/lib/sections';
+import { getGallery, getSectionHighlights } from '@/lib/cms/club';
 import { InstagramFeedGrid } from '@/components/sections/InstagramFeedGrid';
 import { SectionHighlights } from '@/components/sections/SectionHighlights';
 
@@ -26,7 +27,12 @@ export default async function SectionPage({ params }: { params: Promise<{ locale
   if (!section || !SECTION_ROUTES.includes(section.key)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'sections' });
-  const feed = await getSectionFeed(section);
+  const [feed, cmsHighlights, archives] = await Promise.all([
+    getSectionFeed(section),
+    getSectionHighlights(section.key, locale),
+    section.gallery ? getGallery(`${section.key}-archives`, locale) : Promise.resolve([]),
+  ]);
+  const highlights = cmsHighlights ?? bundledHighlights(section, (key) => t(key as never));
   const k = section.key;
 
   return (
@@ -75,11 +81,11 @@ export default async function SectionPage({ params }: { params: Promise<{ locale
       )}
 
       <div className="mx-auto max-w-7xl space-y-16 px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-        <SectionHighlights section={section} locale={locale} />
+        <SectionHighlights items={highlights} locale={locale} />
 
         <InstagramFeedGrid feed={feed} title={t('latest')} />
 
-        {section.gallery && (
+        {section.gallery && archives.length > 0 && (
           <section aria-labelledby="gallery-title">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
@@ -93,9 +99,9 @@ export default async function SectionPage({ params }: { params: Promise<{ locale
               </a>
             </div>
             <ul className="mt-8 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
-              {section.gallery.images.map((src) => (
+              {archives.map(({ src, caption }) => (
                 <li key={src} className="relative aspect-[3/4] overflow-hidden rounded-xl bg-surface-secondary">
-                  <Image src={src} alt="" fill sizes="(min-width: 1024px) 25vw, 50vw" className="object-cover sepia-[.15]" />
+                  <Image src={src} alt={caption ?? ""} fill sizes="(min-width: 1024px) 25vw, 50vw" className="object-cover sepia-[.15]" />
                 </li>
               ))}
             </ul>

@@ -15,7 +15,9 @@
         "WYDAD_TEAM_ID",
         "WYDAD_ESPOIR_TEAM_ID",
         "BOTOLA_COMPETITION_ID",
-        "NEXT_PUBLIC_*"
+        "NEXT_PUBLIC_*",
+        "CMS_SOURCE",
+        "SUPABASE_SERVICE_ROLE_KEY"
       ]
     },
     "dev": {

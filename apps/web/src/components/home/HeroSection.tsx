@@ -51,11 +51,11 @@ export function HeroSection({ stories = [], videos = [], locale }: HeroSectionPr
       image: article.cover_image_url ?? FALLBACK_IMAGE,
       imagePosition: article.cover_position,
       poster: article.cover_orientation === 'portrait',
-      label: tNews(article.category),
+      label: article.category_label ?? tNews(article.category),
       content: (
         <>
           <div className="flex flex-wrap items-center gap-2 font-condensed text-sm font-bold uppercase tracking-wide text-white">
-            <span className="bg-wydad-logo px-2 py-1 leading-none">{tNews(article.category)}</span>
+            <span className="bg-wydad-logo px-2 py-1 leading-none">{article.category_label ?? tNews(article.category)}</span>
             {match && (
               <span className="text-white/75">
                 Botola Pro{match.matchday ? ` · ${tMatches('matchday')} ${match.matchday}` : ''}
