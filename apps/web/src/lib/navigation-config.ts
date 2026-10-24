@@ -15,7 +15,7 @@ export const SHOP_URL = STORE_URL;
 /** Login and member area share the account page until authentication ships */
 export const SIGN_IN_URL = '/profile';
 export const MEMBER_AREA_URL = process.env.NEXT_PUBLIC_MEMBER_AREA_URL || '/profile';
-export const YOUTUBE_URL = 'https://youtube.com/@WydadAC';
+export const YOUTUBE_URL = 'https://www.youtube.com/@WACofficiel';
 
 export interface NavLink {
   key: string;

@@ -1,14 +1,13 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getStandings, getRecentMatches, getMatchById } from '@/services/matches';
-import { getLatestNews } from '@/services/news';
+import { getHomeFeed, hasPicture } from '@/lib/feed';
 import { BotolaRecordCard } from '@/components/home/BotolaRecordCard';
 import { StandingsPreview } from '@/components/home/StandingsPreview';
 import { NewsPreview } from '@/components/home/NewsPreview';
 import { HeroSection } from '@/components/home/HeroSection';
 import { FixturesCarousel } from '@/components/home/FixturesCarousel';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
-import { getVideos } from '@/lib/videos';
 import { FEATURED_COLLECTION, getBrandProducts } from '@/lib/brand-store';
 import { BrandRail } from '@/components/home/BrandRail';
 import { InstagramStories } from '@/components/home/InstagramStories';
@@ -26,9 +25,9 @@ export default async function HomePage({
   const t = await getTranslations({ locale, namespace: 'home' });
   const tCommon = await getTranslations({ locale, namespace: 'common' });
 
-  const [standings, news, recentMatches, brandProducts, instagram] = await Promise.all([
+  const [standings, feed, recentMatches, brandProducts, instagram] = await Promise.all([
     getStandings(),
-    getLatestNews(9),
+    getHomeFeed(9),
     getRecentMatches(8),
     getBrandProducts(FEATURED_COLLECTION),
     getInstagram(),
@@ -39,17 +38,17 @@ export default async function HomePage({
     .filter((m) => m.status === 'scheduled' || m.status === 'live')
     .sort((a, b) => a.kickoff.localeCompare(b.kickoff));
 
-  // Hero stories: the two latest articles with a cover (e.g. today's statement, then the match report)
-  const heroStories = await Promise.all(
-    news
-      .filter((a) => a.cover_image_url)
-      .slice(0, 2)
-      .map(async (article) => ({
-        article,
-        match: article.match_id
-          ? recentMatches.find((m) => m.id === article.match_id) ?? (await getMatchById(article.match_id)) ?? undefined
-          : undefined,
-      })),
+  // Hero: the three latest news items with a picture (article, YouTube video or Facebook post), so a
+  // new upload or post leads it as soon as it appears; match reports bring their scoreline
+  const heroItems = await Promise.all(
+    feed
+      .filter(hasPicture)
+      .slice(0, 3)
+      .map(async (item) => {
+        const matchId = item.kind === 'article' ? item.article.match_id : undefined;
+        const match = matchId ? recentMatches.find((m) => m.id === matchId) ?? (await getMatchById(matchId)) ?? undefined : undefined;
+        return { ...item, match };
+      }),
   );
 
   return (
@@ -57,7 +56,7 @@ export default async function HomePage({
       {/* Hero — full-bleed, outside the container */}
       {/* Score refresh at kick-off, half-time and full time of the next Wydad game */}
       {upcoming[0] && <MatchAutoRefresh kickoff={upcoming[0].kickoff} finished={false} />}
-      <HeroSection stories={heroStories} videos={(await getVideos()).slice(0, 1)} locale={locale} />
+      <HeroSection items={heroItems} locale={locale} />
 
       {/* Fixtures carousel — dark strip bridging hero to content */}
       {recentMatches.length > 0 && (
@@ -88,7 +87,7 @@ export default async function HomePage({
         {/* News */}
         <ScrollReveal delay={150}>
           <section className="mt-12 pb-16">
-            <NewsPreview articles={news} locale={locale} />
+            <NewsPreview items={feed} locale={locale} />
           </section>
         </ScrollReveal>
 

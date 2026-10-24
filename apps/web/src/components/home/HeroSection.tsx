@@ -2,21 +2,17 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { Match, NewsArticle } from '@/types';
 import { clubShortName } from '@/lib/clubs';
-import { videoThumbnail, type Video } from '@/lib/videos';
+import { videoThumbnail } from '@/lib/videos';
+import type { FeedItem } from '@/lib/feed';
 import { TeamCrest } from '@/components/ui/TeamCrest';
 import { HeroSlider, type HeroSlide } from './HeroSlider';
 
-export interface HeroStory {
-  article: NewsArticle;
-  /** The match a report covers, for the scoreline */
-  match?: Match;
-}
+/** A feed item for the hero; match reports carry their match for the scoreline */
+export type HeroItem = FeedItem & { match?: Match };
 
 interface HeroSectionProps {
-  /** Latest stories with a cover, newest first */
-  stories?: HeroStory[];
-  /** Wydad TV videos to feature */
-  videos?: Video[];
+  /** Latest news items with a picture (articles, videos, Facebook posts), newest first */
+  items?: HeroItem[];
   locale: string;
 }
 
@@ -35,7 +31,7 @@ const titleClass =
 const primaryCta =
   'group inline-flex items-center gap-2 bg-white px-5 py-3 font-condensed text-lg font-bold uppercase leading-none text-black transition-colors hover:bg-wydad-logo hover:text-white';
 
-export function HeroSection({ stories = [], videos = [], locale }: HeroSectionProps) {
+export function HeroSection({ items = [], locale }: HeroSectionProps) {
   const t = useTranslations('home');
   const tNews = useTranslations('news');
   const tMatches = useTranslations('matches');
@@ -44,7 +40,7 @@ export function HeroSection({ stories = [], videos = [], locale }: HeroSectionPr
   const lang = (locale === 'ar' || locale === 'fr' ? locale : 'en') as 'ar' | 'fr' | 'en';
   const slides: HeroSlide[] = [];
 
-  for (const { article, match } of stories) {
+  const articleSlide = (article: NewsArticle, match?: Match) => {
     const played = match && (match.status === 'finished' || match.status === 'live');
     slides.push({
       id: `article-${article.id}`,
@@ -96,9 +92,9 @@ export function HeroSection({ stories = [], videos = [], locale }: HeroSectionPr
         </>
       ),
     });
-  }
+  };
 
-  for (const video of videos) {
+  const videoSlide = (video: Extract<FeedItem, { kind: 'video' }>['video']) => {
     slides.push({
       id: `video-${video.id}`,
       image: videoThumbnail(video.id),
@@ -126,6 +122,41 @@ export function HeroSection({ stories = [], videos = [], locale }: HeroSectionPr
         </>
       ),
     });
+  };
+
+  const facebookSlide = (post: Extract<FeedItem, { kind: 'facebook' }>['post']) => {
+    slides.push({
+      id: `facebook-${post.id}`,
+      image: post.image ?? FALLBACK_IMAGE,
+      imagePosition: 'center 30%',
+      label: 'Facebook',
+      content: (
+        <>
+          <div className="flex flex-wrap items-center gap-2 font-condensed text-sm font-bold uppercase tracking-wide text-white">
+            <span className="flex items-center gap-1.5 bg-wydad-logo px-2 py-1 leading-none">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <path d="M24 12.07C24 5.44 18.63.07 12 .07S0 5.44 0 12.07c0 5.99 4.39 10.95 10.13 11.85v-8.38H7.08v-3.47h3.05V9.43c0-3.01 1.79-4.67 4.53-4.67 1.31 0 2.69.24 2.69.24v2.95h-1.51c-1.49 0-1.96.93-1.96 1.87v2.25h3.33l-.53 3.47h-2.8v8.38C19.61 23.02 24 18.06 24 12.07z" />
+              </svg>
+              Facebook
+            </span>
+          </div>
+          <h2 className={titleClass}>{post.title}</h2>
+          {post.text && <p className="mt-4 line-clamp-3 max-w-2xl text-base leading-relaxed text-white/80 sm:text-lg">{post.text}</p>}
+          <div className="mt-7">
+            <a href={post.url} target="_blank" rel="noopener noreferrer" className={primaryCta}>
+              {t('see_post')}
+              <Chevron />
+            </a>
+          </div>
+        </>
+      ),
+    });
+  };
+
+  for (const item of items) {
+    if (item.kind === 'article') articleSlide(item.article, item.match);
+    else if (item.kind === 'video') videoSlide(item.video);
+    else facebookSlide(item.post);
   }
 
   if (slides.length === 0) {

@@ -22,7 +22,8 @@
     "ig_new_tab": "(إنستغرام، تفتح في علامة تبويب جديدة)",
     "ig_posts": "منشور",
     "ig_followers": "متابع",
-    "ig_follow_short": "متابعة"
+    "ig_follow_short": "متابعة",
+    "see_post": "مشاهدة المنشور"
   },
   "matches": {
     "matchday": "الجولة",
@@ -280,7 +281,8 @@
     "type_article": "مقالات",
     "type_video": "فيديوهات",
     "results_count": "{count, plural, one {محتوى واحد} other {{n} محتوى}}",
-    "empty": "لا يوجد محتوى لهذا الاختيار بعد."
+    "empty": "لا يوجد محتوى لهذا الاختيار بعد.",
+    "type_facebook": "فيسبوك"
   },
   "team": {
     "squad": "الفريق الأول",

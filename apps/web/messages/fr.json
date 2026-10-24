@@ -22,7 +22,8 @@
     "ig_new_tab": "(Instagram, nouvel onglet)",
     "ig_posts": "publications",
     "ig_followers": "abonnés",
-    "ig_follow_short": "Suivre"
+    "ig_follow_short": "Suivre",
+    "see_post": "Voir la publication"
   },
   "matches": {
     "matchday": "Journée",
@@ -280,7 +281,8 @@
     "type_article": "Articles",
     "type_video": "Vidéos",
     "results_count": "{count, plural, one {{n} contenu} other {{n} contenus}}",
-    "empty": "Aucun contenu pour cette sélection."
+    "empty": "Aucun contenu pour cette sélection.",
+    "type_facebook": "Facebook"
   },
   "team": {
     "squad": "Effectif",

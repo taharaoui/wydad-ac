@@ -22,7 +22,8 @@
     "ig_new_tab": "(Instagram, opens in a new tab)",
     "ig_posts": "posts",
     "ig_followers": "followers",
-    "ig_follow_short": "Follow"
+    "ig_follow_short": "Follow",
+    "see_post": "See the post"
   },
   "matches": {
     "matchday": "Matchday",
@@ -280,7 +281,8 @@
     "type_article": "Articles",
     "type_video": "Videos",
     "results_count": "{count, plural, one {{n} item} other {{n} items}}",
-    "empty": "Nothing here yet for this selection."
+    "empty": "Nothing here yet for this selection.",
+    "type_facebook": "Facebook"
   },
   "team": {
     "squad": "First Team Squad",

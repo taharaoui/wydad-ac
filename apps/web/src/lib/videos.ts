@@ -5,7 +5,7 @@ import { clubName } from '@/lib/clubs';
  * newer uploads from the channel's RSS feed, so new videos appear without editing this file.
  */
 export const WAC_CHANNEL_URL = 'https://www.youtube.com/@WACofficiel';
-const WAC_CHANNEL_ID = 'UCf65dQ8syRzRPpALKZQUcOQ';
+export const WAC_CHANNEL_ID = 'UCf65dQ8syRzRPpALKZQUcOQ';
 
 export type VideoCategory = 'training' | 'behind_the_scenes' | 'press_conference' | 'interview' | 'highlights';
 
@@ -71,10 +71,19 @@ const withCategory = (v: Raw): Video => ({ ...v, category: categorize(v.title) }
 /** The snapshot, for static generation */
 export const VIDEOS: Video[] = CHANNEL_VIDEOS.map(withCategory);
 
-/** Snapshot plus newer uploads from the channel RSS feed (refreshed every 3 hours), newest first. */
+/** Cache tag of the channel feed: the YouTube push notification (api/websub/youtube) revalidates it */
+export const YOUTUBE_TAG = 'youtube';
+export const WAC_CHANNEL_FEED = `https://www.youtube.com/feeds/videos.xml?channel_id=${WAC_CHANNEL_ID}`;
+/** Topic of the channel on YouTube's push hub (WebSub) */
+export const YOUTUBE_TOPIC = `https://www.youtube.com/xml/feeds/videos.xml?channel_id=${WAC_CHANNEL_ID}`;
+
+/**
+ * Snapshot plus newer uploads from the channel RSS feed, newest first. The feed is re-read every
+ * 10 minutes, and at once when YouTube notifies a new upload.
+ */
 export async function getVideos(): Promise<Video[]> {
   try {
-    const res = await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${WAC_CHANNEL_ID}`, { next: { revalidate: 3 * 3600 } });
+    const res = await fetch(WAC_CHANNEL_FEED, { next: { revalidate: 600, tags: [YOUTUBE_TAG] } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const xml = await res.text();
     const known = new Set(VIDEOS.map((v) => v.id));

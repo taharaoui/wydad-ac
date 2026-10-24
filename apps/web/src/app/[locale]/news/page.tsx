@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getLatestNews } from '@/services/news';
 import { getVideos, videoThumbnail } from '@/lib/videos';
+import { getFacebookPosts } from '@/lib/facebook';
 import { NewsFeed, type FeedItem } from '@/components/news/NewsFeed';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -22,7 +23,7 @@ export default async function NewsPage({ params }: { params: Promise<{ locale: s
   const date = (iso: string) =>
     new Intl.DateTimeFormat(dateLocale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Africa/Casablanca' }).format(new Date(iso));
 
-  const [articles, videos] = await Promise.all([getLatestNews(100), getVideos()]);
+  const [articles, videos, posts] = await Promise.all([getLatestNews(100), getVideos(), getFacebookPosts()]);
 
   const items: FeedItem[] = [
     ...articles.map((a) => ({
@@ -47,6 +48,18 @@ export default async function NewsPage({ params }: { params: Promise<{ locale: s
       image: videoThumbnail(v.id, 'hq'),
       published: v.published_at,
       dateLabel: v.published_at && date(v.published_at),
+    })),
+    ...posts.map((p) => ({
+      id: `facebook-${p.id}`,
+      kind: 'facebook' as const,
+      href: p.url,
+      title: p.title,
+      label: 'Facebook',
+      tags: ['football'],
+      image: p.image,
+      imagePosition: 'center 30%',
+      published: p.published_at,
+      dateLabel: date(p.published_at),
     })),
   ]
     // Newest first; undated items (e.g. videos without a date) go last
