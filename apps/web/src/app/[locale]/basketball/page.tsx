@@ -2,13 +2,13 @@ import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { clubShortName } from '@/lib/clubs';
 import { BASKETBALL_TICKETS, upcomingBasketball } from '@/lib/basketball';
-import { formatKickoffLong } from '@/lib/datetime';
 import { TeamCrest } from '@/components/ui/TeamCrest';
 import { NextMatchCountdown } from '@/components/home/NextMatchCountdown';
 import { FootballNav } from '@/components/team/FootballNav';
 import { getSection, getSectionFeed } from '@/lib/sections';
 import { InstagramFeedGrid } from '@/components/sections/InstagramFeedGrid';
 import { SectionHighlights } from '@/components/sections/SectionHighlights';
+import { LocalKickoff } from '@/components/ui/LocalKickoff';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -67,7 +67,7 @@ export default async function BasketballPage({ params }: { params: Promise<{ loc
             <dl className="grid border-t border-border sm:grid-cols-2">
               <div className="px-5 py-4 sm:px-8">
                 <dt className="text-sm text-fg-muted">{t('date')}</dt>
-                <dd className="mt-0.5 font-semibold text-fg">{formatKickoffLong(next.kickoff, locale)}</dd>
+                <dd className="mt-0.5 font-semibold text-fg"><LocalKickoff iso={next.kickoff} locale={locale} kind="long" /></dd>
               </div>
               <div className="border-t border-border px-5 py-4 sm:border-s sm:border-t-0 sm:px-8">
                 <dt className="text-sm text-fg-muted">{t('venue')}</dt>
@@ -99,7 +99,7 @@ export default async function BasketballPage({ params }: { params: Promise<{ loc
                 <span className="font-semibold text-fg" dir="ltr">
                   {clubShortName(m.home_team)} – {clubShortName(m.away_team)}
                 </span>
-                <span className="text-sm text-fg-muted">{formatKickoffLong(m.kickoff, locale)}</span>
+                <span className="text-sm text-fg-muted"><LocalKickoff iso={m.kickoff} locale={locale} kind="long" /></span>
               </li>
             ))}
           </ul>

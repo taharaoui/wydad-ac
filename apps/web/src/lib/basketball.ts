@@ -24,7 +24,7 @@ export const BASKETBALL_FIXTURES: Match[] = [
     home_team: { id: 'tm_805667', name: 'Wydad AC', short_name: 'WAC' },
     away_team: { id: 'tm_337870', name: 'FUS Rabat', short_name: 'FUS' },
     status: 'scheduled',
-    kickoff: '2026-10-26T18:00:00Z', // 19:00 in Casablanca
+    kickoff: '2026-10-26T19:00:00Z', // 19:00 in Casablanca (Morocco on UTC+0 at this date)
     matchday: 3,
     venue: 'Salle du complexe sportif Mohammed V, Casablanca',
     score_home: null,

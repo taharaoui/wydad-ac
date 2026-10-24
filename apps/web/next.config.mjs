@@ -6,6 +6,8 @@ const nextConfig = {
   // One build worker: pages share TheStatsAPI responses through the data cache instead of
   // fetching in parallel past the 12 requests/minute limit
   experimental: { cpus: 1 },
+  // A page may wait out the API rate limit (~65 s) during the build: give it room before Next retries
+  staticPageGenerationTimeout: 180,
   // Enable image optimization for external sources (club photos, etc.)
   images: {
     remotePatterns: [

@@ -2,15 +2,16 @@ import { useTranslations } from 'next-intl';
 import type { Match } from '@/types';
 import { isWydad, isBotola } from '@/lib/clubs';
 import type { Official } from '@/lib/match-notes';
+import { LocalKickoff } from '@/components/ui/LocalKickoff';
 
-export function MatchInfoCard({ match, dateLabel, officials = [], locale }: { match: Match; dateLabel: string; officials?: Official[]; locale: string }) {
+export function MatchInfoCard({ match, officials = [], locale }: { match: Match; officials?: Official[]; locale: string }) {
   const t = useTranslations('matches');
   const competition = isBotola(match.competition) ? 'Botola Pro' : match.competition.name;
   const venue = match.venue ?? (isWydad(match.home_team.id) ? t('home_game') : t('away_game'));
 
   const rows: [string, React.ReactNode][] = [
     [t('competition'), `${competition}${match.matchday ? ` · ${t('matchday')} ${match.matchday}` : ''}`],
-    [t('kickoff'), dateLabel],
+    [t('kickoff'), <LocalKickoff key="kickoff" iso={match.kickoff} locale={locale} kind="long" />],
     [t('venue'), venue],
   ];
   for (const o of officials) {

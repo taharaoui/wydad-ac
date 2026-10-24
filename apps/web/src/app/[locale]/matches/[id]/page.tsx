@@ -10,7 +10,6 @@ import { isWydadTeam } from '@/lib/stats-api';
 import { getPlayerOfTheMatch } from '@/lib/rating';
 import { buildMatchSummary, teamAverageRating } from '@/lib/match-summary';
 import { getPlayerPhotos } from '@/lib/player-photos';
-import { formatKickoff, formatKickoffLong } from '@/lib/datetime';
 import { findArryadiaHighlight, highlightsSearchUrl } from '@/lib/highlights';
 import { getVideos, matchVideos } from '@/lib/videos';
 import { BehindTheScenes } from '@/components/matches/centre/BehindTheScenes';
@@ -25,6 +24,7 @@ import { MiniStandings } from '@/components/matches/centre/MiniStandings';
 import { FormPills } from '@/components/matches/centre/FormGuide';
 import { H2HPanel } from '@/components/matches/centre/H2HPanel';
 import { TeamCrest } from '@/components/ui/TeamCrest';
+import { MatchAutoRefresh } from '@/components/matches/MatchAutoRefresh';
 
 /**
  * Rendered on first visit, then cached, instead of at build time: prerendering every page would
@@ -76,7 +76,6 @@ export default async function MatchDetailPage({
   const potm = getPlayerOfTheMatch(match.home_lineup, match.away_lineup);
   const playerIds = [...(match.home_lineup?.players ?? []), ...(match.away_lineup?.players ?? [])].map((p) => p.id);
   const photos = getPlayerPhotos(playerIds);
-  const dateLabel = formatKickoffLong(match.kickoff, locale);
   const wydadTeam = isWydad(match.home_team.id) ? match.home_team : match.away_team;
 
   const dateLocale = locale === 'ar' ? 'ar-MA' : locale === 'fr' ? 'fr-FR' : 'en-GB';
@@ -212,7 +211,7 @@ export default async function MatchDetailPage({
         )}
       </div>
       <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-5">
-        <MatchInfoCard match={match} dateLabel={dateLabel} officials={note?.officials} locale={locale} />
+        <MatchInfoCard match={match} officials={note?.officials} locale={locale} />
         <MiniStandings standings={standings} teamIds={[match.home_team.id, match.away_team.id]} />
         {formCard}
       </div>
@@ -272,10 +271,9 @@ export default async function MatchDetailPage({
 
   return (
     <div>
+      <MatchAutoRefresh kickoff={match.kickoff} finished={isFinished} />
       <MatchHeader
         match={match}
-        dateLabel={dateLabel}
-        timeLabel={formatKickoff(match.kickoff, locale).time}
         goals={summary.goals}
       />
 

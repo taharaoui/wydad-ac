@@ -1,19 +1,17 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { FootballNav } from '@/components/team/FootballNav';
 import { SeasonSchedule } from '@/components/matches/SeasonSchedule';
-import { formatKickoffLong } from '@/lib/datetime';
 import { getMatches, getStandings } from '@/services/matches';
 import { Link } from '@/i18n/navigation';
 import { StandingsPreview } from '@/components/home/StandingsPreview';
 import type { Match } from '@/types';
 import { isWydad } from '@/lib/clubs';
 import { TeamCrest } from '@/components/ui/TeamCrest';
+import { LocalKickoff } from '@/components/ui/LocalKickoff';
 
 function MatchRow({ match, locale }: { match: Match; locale: string }) {
   const isFinished = match.status === 'finished';
   const isLive = match.status === 'live';
-  const dateLocale = locale === 'ar' ? 'ar-MA' : locale === 'fr' ? 'fr-FR' : 'en-GB';
-  const dateObj = new Date(match.kickoff);
 
   const isWydadHome = isWydad(match.home_team.id);
   const wydadScore = isWydadHome ? match.score_home : match.score_away;
@@ -29,11 +27,11 @@ function MatchRow({ match, locale }: { match: Match; locale: string }) {
       {/* Date column */}
       <div className="w-16 shrink-0 text-center">
         <p className="text-xs text-fg-muted">
-          {dateObj.toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', timeZone: 'Africa/Casablanca' })}
+          <LocalKickoff iso={match.kickoff} locale={locale} kind="date" />
         </p>
         {!isFinished && !isLive && (
           <p className="mt-0.5 text-sm font-semibold text-fg">
-            {dateObj.toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'Africa/Casablanca' })}
+            <LocalKickoff iso={match.kickoff} locale={locale} kind="time" />
           </p>
         )}
         {isLive && (
@@ -135,7 +133,7 @@ export default async function MatchesPage({
       <p className="mt-3 font-condensed text-2xl font-bold text-fg">{tFootball('season')}</p>
 
       <div className="mt-10">
-        <SeasonSchedule matches={matches} dates={Object.fromEntries(matches.map((m) => [m.id, formatKickoffLong(m.kickoff, locale)]))} />
+        <SeasonSchedule matches={matches} />
       </div>
 
       <div className="mt-14 grid gap-8 lg:grid-cols-3">

@@ -1,15 +1,12 @@
 import { isBotola } from '@/lib/clubs';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import type { Match } from '@/types';
 import type { SummaryGoal } from '@/lib/match-summary';
 import { TeamCrest } from '@/components/ui/TeamCrest';
+import { LocalKickoff } from '@/components/ui/LocalKickoff';
 
 interface MatchHeaderProps {
   match: Match;
-  /** Long kick-off label, formatted on the server */
-  dateLabel: string;
-  /** Kick-off time only (HH:MM), for upcoming matches */
-  timeLabel: string;
   goals: SummaryGoal[];
 }
 
@@ -55,7 +52,8 @@ function TeamRow({ team, score, showScore, goals, penLabel }: { team: Match['hom
   );
 }
 
-export function MatchHeader({ match, dateLabel, timeLabel, goals }: MatchHeaderProps) {
+export function MatchHeader({ match, goals }: MatchHeaderProps) {
+  const locale = useLocale();
   const t = useTranslations('matches');
   const isFinished = match.status === 'finished';
   const isLive = match.status === 'live';
@@ -92,11 +90,11 @@ export function MatchHeader({ match, dateLabel, timeLabel, goals }: MatchHeaderP
             ) : isFinished ? (
               t('ft_badge')
             ) : (
-              <span dir="ltr">{timeLabel}</span>
+              <span dir="ltr"><LocalKickoff iso={match.kickoff} locale={locale} kind="time" /></span>
             )}
           </span>
           <div>
-            <p className="text-base font-bold sm:text-lg">{dateLabel}</p>
+            <p className="text-base font-bold sm:text-lg"><LocalKickoff iso={match.kickoff} locale={locale} kind="long" /></p>
             <p className="mt-0.5 text-sm text-white/75">
               {botola ? 'Botola Pro' : match.competition.name}
               {match.matchday && (

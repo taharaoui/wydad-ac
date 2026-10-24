@@ -7,12 +7,10 @@ import type { Match } from '@/types';
 import { clubShortName, isBotola } from '@/lib/clubs';
 import { TeamCrest } from '@/components/ui/TeamCrest';
 import { SmartLink } from '@/components/layout/header/SmartLink';
+import { LocalKickoff } from '@/components/ui/LocalKickoff';
 
 export interface FixtureItem {
   match: Match;
-  /** Kick-off text, formatted on the server (see formatKickoff) so it can't differ after hydration */
-  day: string;
-  time: string;
   /** Ticket page; when set, the card opens it and its call to action reads "Buy tickets" */
   ticketsUrl?: string;
 }
@@ -63,7 +61,8 @@ function TeamLine({ team, score, showScore }: { team: Match['home_team']; score:
   );
 }
 
-function FixtureCard({ match, day, time, ticketsUrl }: FixtureItem) {
+function FixtureCard({ match, ticketsUrl }: FixtureItem) {
+  const locale = useLocale();
   const t = useTranslations('matches');
   const isFinished = match.status === 'finished';
   const isLive = match.status === 'live';
@@ -112,7 +111,7 @@ function FixtureCard({ match, day, time, ticketsUrl }: FixtureItem) {
           <span>{t('full_time')}</span>
         ) : (
           <span>
-            <span className="text-[#6f7f92]">{day}</span> {time}
+            <span className="text-[#6f7f92]"><LocalKickoff iso={match.kickoff} locale={locale} kind="day" /></span> <LocalKickoff iso={match.kickoff} locale={locale} kind="time" />
           </span>
         )}
       </div>

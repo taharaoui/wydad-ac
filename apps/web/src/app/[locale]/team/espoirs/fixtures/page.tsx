@@ -1,10 +1,10 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getEspoirMatches } from '@/services/matches';
 import { clubShortName } from '@/lib/clubs';
-import { formatKickoffLong } from '@/lib/datetime';
 import { TeamCrest } from '@/components/ui/TeamCrest';
 import { FootballNav } from '@/components/team/FootballNav';
 import { PendingNotice } from '@/components/basketball/SectionPage';
+import { LocalKickoff } from '@/components/ui/LocalKickoff';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -44,7 +44,7 @@ export default async function EspoirsFixturesPage({ params }: { params: Promise<
                       <span className="block font-condensed text-xl font-extrabold tabular-nums text-fg" dir="ltr">
                         {played ? `${m.score_home}-${m.score_away}` : 'vs'}
                       </span>
-                      <span className="block text-xs text-fg-muted">{formatKickoffLong(m.kickoff, locale)}</span>
+                      <span className="block text-xs text-fg-muted"><LocalKickoff iso={m.kickoff} locale={locale} kind="long" /></span>
                     </span>
                     <span className="flex min-w-0 items-center gap-3 font-semibold text-fg">
                       <TeamCrest team={m.away_team} size={28} fallbackClassName="rounded-full bg-surface-secondary text-fg" />
