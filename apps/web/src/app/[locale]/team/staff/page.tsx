@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { FootballNav } from '@/components/team/FootballNav';
 import { StaffDirectory } from '@/components/team/StaffDirectory';
-import { STAFF } from '@/lib/staff';
+import { STAFF, STAFF_PHOTOS } from '@/lib/staff';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -72,6 +72,26 @@ export default async function StaffPage({ params }: { params: Promise<{ locale: 
           </div>
         </section>
       )}
+
+      <section aria-labelledby="staff-gallery-title" className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        <h2 id="staff-gallery-title" className="font-condensed text-4xl font-extrabold uppercase italic leading-none text-fg rtl:not-italic sm:text-5xl">
+          {t('staff_gallery_title')}
+        </h2>
+        <p className="mt-3 max-w-2xl text-fg-secondary">{t('staff_gallery_text')}</p>
+        <ul className="mt-8 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-3">
+          {STAFF_PHOTOS.map((p, i) => (
+            <li key={p.src} className={`relative overflow-hidden rounded-xl bg-surface-secondary ${i === 0 ? 'col-span-2 aspect-square lg:row-span-2 lg:aspect-auto' : 'aspect-[3/4]'}`}>
+              <Image
+                src={p.src}
+                alt={t('staff_gallery_alt')}
+                fill
+                sizes={i === 0 ? '(min-width: 1024px) 66vw, 100vw' : '(min-width: 1024px) 33vw, 50vw'}
+                className="object-cover object-top"
+              />
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
         {others.length > 0 ? (

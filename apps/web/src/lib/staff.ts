@@ -34,3 +34,16 @@ export const STAFF: StaffMember[] = [
     statement: '/news/nasreddine-nabi-entraineur',
   },
 ];
+
+/**
+ * Training-ground portraits of the new first-team staff (club photos, Oct 2026, WebP). Names are
+ * added to STAFF above once confirmed; until then they show as a gallery on the staff page.
+ */
+export const STAFF_PHOTOS: { src: string; width: number; height: number }[] = [
+  { src: '/images/staff/staff-1.webp', width: 1200, height: 1200 },
+  { src: '/images/staff/staff-2.webp', width: 900, height: 1200 },
+  { src: '/images/staff/staff-3.webp', width: 668, height: 668 },
+  { src: '/images/staff/staff-4.webp', width: 900, height: 1200 },
+  { src: '/images/staff/staff-5.webp', width: 668, height: 668 },
+  { src: '/images/staff/staff-6.webp', width: 668, height: 668 },
+];

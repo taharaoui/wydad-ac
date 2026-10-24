@@ -606,7 +606,10 @@
     "espoirs": "Espoirs (U23)",
     "team_choice": "Équipe",
     "espoirs_squad_pending": "L’effectif des Espoirs sera affiché ici dès sa publication.",
-    "espoirs_fixtures_pending": "Le calendrier des Espoirs (U23) n’est pas encore publié par la source de données. Les matchs s’afficheront ici automatiquement dès leur publication."
+    "espoirs_fixtures_pending": "Le calendrier des Espoirs (U23) n’est pas encore publié par la source de données. Les matchs s’afficheront ici automatiquement dès leur publication.",
+    "staff_gallery_title": "Le staff à l’entraînement",
+    "staff_gallery_text": "Le nouveau staff technique de l’équipe première au travail.",
+    "staff_gallery_alt": "Membre du staff technique du Wydad à l’entraînement"
   },
   "fans": {
     "title": "Fans",

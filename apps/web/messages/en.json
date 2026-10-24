@@ -606,7 +606,10 @@
     "espoirs": "Espoirs (U23)",
     "team_choice": "Team",
     "espoirs_squad_pending": "The Espoirs squad will appear here once published.",
-    "espoirs_fixtures_pending": "The Espoirs (U23) fixtures aren’t published by the data source yet. Matches will appear here automatically once they are."
+    "espoirs_fixtures_pending": "The Espoirs (U23) fixtures aren’t published by the data source yet. Matches will appear here automatically once they are.",
+    "staff_gallery_title": "The staff at training",
+    "staff_gallery_text": "The first team’s new coaching staff at work.",
+    "staff_gallery_alt": "Member of Wydad’s coaching staff at training"
   },
   "fans": {
     "title": "Fans",
