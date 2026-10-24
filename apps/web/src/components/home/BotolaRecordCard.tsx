@@ -6,7 +6,7 @@ export function BotolaRecordCard() {
   const t = useTranslations('matches');
   return (
     <Link
-      href="/standings"
+      href="/matches"
       className="group relative flex h-full min-h-[240px] flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br from-wydad-logo to-[#7d0f12] p-6 text-white"
     >
       <div className="flex items-center gap-4">
