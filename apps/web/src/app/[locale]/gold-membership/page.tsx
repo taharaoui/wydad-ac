@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { GoldCardStage } from '@/components/gold/GoldCardStage';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -102,6 +103,12 @@ export default async function GoldMembershipPage({ params }: { params: Promise<{
             {t('first_owner_name')}
           </h2>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/75">{t('first_owner_text')}</p>
+          <Link href="/gold-membership/yassine-bounou" className={`mt-6 inline-flex items-center gap-1.5 font-condensed text-lg font-bold uppercase ${GOLD} hover:underline`}>
+            {t('read_story')}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="rtl:rotate-180" aria-hidden>
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </Link>
         </div>
       </section>
     </div>

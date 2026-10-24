@@ -349,7 +349,8 @@
     "supporters": "Supporters",
     "supporters_text": "Les Ultras Winners, nés en 2005, ont été désignés meilleur public du monde par le collectif Ultras World en 2015 et en 2019.",
     "milestones": "Repères",
-    "source": "Sources : Wikipédia, « Wydad Athletic Club (football) », et communications du club."
+    "source": "Sources : Wikipédia, « Wydad Athletic Club (football) », et communications du club.",
+    "stadium_photo_alt": "Le stade Mohammed V comble, en rouge, vu du ciel, avec Casablanca et la mosquée Hassan II au loin"
   },
   "common": {
     "club_name": "Wydad Athletic Club",
@@ -652,7 +653,8 @@
     "hero_title_1": "Plus qu’un abonnement.",
     "hero_title_2": "Un privilège.",
     "cta": "Devenir membre Gold",
-    "card_alt": "La carte Gold Membership du Wydad Athletic Club, en or, tournant lentement sous la lumière"
+    "card_alt": "La carte Gold Membership du Wydad Athletic Club, en or, tournant lentement sous la lumière",
+    "read_story": "Son histoire : El Mítico"
   },
   "brand": {
     "kicker": "Boutique officielle",
@@ -749,5 +751,14 @@
       "academy_title": "École de basket du Wydad",
       "academy_text": "L’Académie de basketball du Wydad ouvre ses inscriptions. Infos : 06 62 71 56 85."
     }
+  },
+  "bounou": {
+    "title": "Yassine Bounou, El Mítico",
+    "kicker": "Gold Member n°1",
+    "intro": "Gardien international marocain, Yassine Bounou est le premier détenteur de la Gold Membership du Wydad Athletic Club.",
+    "tifo_text": "En 2025, lors de la rencontre face au FC Séville, son ancien club, les Winners 2005 lui ont dédié un tifo : « El Mítico ».",
+    "tifo_alt": "Le tifo « El Mítico » des Winners 2005 en l’honneur de Yassine Bounou, Wydad – FC Séville, 2025",
+    "tifo_caption": "Tifo des Winners 2005 · Wydad – FC Séville, 2025",
+    "back_to_gold": "Découvrir la Gold Membership"
   }
 }

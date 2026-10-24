@@ -172,7 +172,16 @@ export default async function ClubPage({ params }: { params: Promise<{ locale: s
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <h2 className="font-condensed text-4xl font-extrabold uppercase italic leading-none rtl:not-italic sm:text-5xl">{t('facilities')}</h2>
 
-          <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+          <div className="mt-10 grid items-start gap-10 lg:grid-cols-2">
+            <figure className="relative aspect-[1200/1179] overflow-hidden rounded-2xl ring-1 ring-white/10">
+              <Image
+                src="/images/club/stade-mohammed-v.webp"
+                alt={t('stadium_photo_alt')}
+                fill
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-cover"
+              />
+            </figure>
             <div>
               <p className={`${kicker} !text-white/75`}>{t('stadium')}</p>
               <h3 className="mt-2 font-condensed text-3xl font-bold uppercase">{t('stadium_name')}</h3>
@@ -187,9 +196,7 @@ export default async function ClubPage({ params }: { params: Promise<{ locale: s
                   <dd className="mt-1 font-semibold">{t('location_value')}</dd>
                 </div>
               </dl>
-            </div>
-            <div>
-              <h4 className="font-condensed text-sm font-bold uppercase tracking-[0.16em] text-white/50">{t('milestones')}</h4>
+              <h4 className="mt-10 font-condensed text-sm font-bold uppercase tracking-[0.16em] text-white/50">{t('milestones')}</h4>
               <ol className="mt-4 space-y-4">
                 {STADIUM_HISTORY.map((m) => (
                   <li key={m.year} className="grid grid-cols-[3.5rem_minmax(0,1fr)] gap-3">
@@ -201,18 +208,25 @@ export default async function ClubPage({ params }: { params: Promise<{ locale: s
             </div>
           </div>
 
-          <div className="mt-14 grid gap-6 md:grid-cols-2">
+          <div className="mt-14 grid items-start gap-6 md:grid-cols-2">
             {FACILITIES.map((f) => (
-              <div key={f.id} className="rounded-2xl bg-white/[0.04] p-6 ring-1 ring-white/10 sm:p-8">
-                <h3 className="font-condensed text-2xl font-bold uppercase">{f.name[lang]}</h3>
-                <ul className="mt-4 space-y-2.5">
-                  {f.facts.map((fact) => (
-                    <li key={fact.fr} className="flex gap-3 text-white/75">
-                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-white" aria-hidden />
-                      {fact[lang]}
-                    </li>
-                  ))}
-                </ul>
+              <div key={f.id} className="overflow-hidden rounded-2xl bg-white/[0.04] ring-1 ring-white/10">
+                {f.photo && (
+                  <div className="relative aspect-[16/9]">
+                    <Image src={f.photo.src} alt={f.photo.alt[lang]} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
+                  </div>
+                )}
+                <div className="p-6 sm:p-8">
+                  <h3 className="font-condensed text-2xl font-bold uppercase">{f.name[lang]}</h3>
+                  <ul className="mt-4 space-y-2.5">
+                    {f.facts.map((fact) => (
+                      <li key={fact.fr} className="flex gap-3 text-white/75">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-white" aria-hidden />
+                        {fact[lang]}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             ))}
           </div>

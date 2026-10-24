@@ -349,7 +349,8 @@
     "supporters": "Supporters",
     "supporters_text": "The Ultras Winners, founded in 2005, were named the best fan group in the world by the Ultras World collective in 2015 and 2019.",
     "milestones": "Milestones",
-    "source": "Sources: French Wikipedia, “Wydad Athletic Club (football)”, and club communications."
+    "source": "Sources: French Wikipedia, “Wydad Athletic Club (football)”, and club communications.",
+    "stadium_photo_alt": "An aerial view of a packed, red Mohammed V Stadium, with Casablanca and the Hassan II Mosque beyond"
   },
   "common": {
     "club_name": "Wydad Athletic Club",
@@ -652,7 +653,8 @@
     "hero_title_1": "More than a membership.",
     "hero_title_2": "A privilege.",
     "cta": "Become a Gold member",
-    "card_alt": "The Wydad Athletic Club Gold Membership card, in gold, turning slowly in the light"
+    "card_alt": "The Wydad Athletic Club Gold Membership card, in gold, turning slowly in the light",
+    "read_story": "His story: El Mítico"
   },
   "brand": {
     "kicker": "Official store",
@@ -749,5 +751,14 @@
       "academy_title": "Wydad basketball school",
       "academy_text": "Wydad’s basketball academy is open for registration. Info: +212 6 62 71 56 85."
     }
+  },
+  "bounou": {
+    "title": "Yassine Bounou, El Mítico",
+    "kicker": "Gold Member no. 1",
+    "intro": "Moroccan international goalkeeper Yassine Bounou is the first holder of the Wydad Athletic Club Gold Membership.",
+    "tifo_text": "In 2025, at the match against Sevilla FC, his former club, the Winners 2005 dedicated a tifo to him: “El Mítico”.",
+    "tifo_alt": "The Winners 2005 tifo “El Mítico” honouring Yassine Bounou, Wydad v Sevilla FC, 2025",
+    "tifo_caption": "Winners 2005 tifo · Wydad v Sevilla FC, 2025",
+    "back_to_gold": "Discover the Gold Membership"
   }
 }

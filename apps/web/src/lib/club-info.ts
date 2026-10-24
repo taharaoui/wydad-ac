@@ -269,6 +269,8 @@ export const FIGURES: Figure[] = [
 ];
 
 export interface Facility {
+  /** Photo of the site (public/images/club) */
+  photo?: { src: string; alt: L10n };
   id: string;
   name: L10n;
   facts: L10n[];
@@ -278,6 +280,10 @@ export const FACILITIES: Facility[] = [
   {
     id: 'complex',
     name: { fr: 'Complexe Mohamed Benjelloun', en: 'Mohamed Benjelloun Complex', ar: 'مركب محمد بنجلون' },
+    photo: {
+      src: '/images/club/complexe-benjelloun.webp',
+      alt: { fr: 'Le terrain principal et les tribunes rouge et blanc du complexe Mohamed Benjelloun', en: 'The main pitch and red-and-white stands of the Mohamed Benjelloun Complex', ar: 'الملعب الرئيسي والمدرجات الحمراء والبيضاء بمركب محمد بنجلون' },
+    },
     facts: [
       { fr: 'Siège du club et centre d’entraînement, quartier Oasis à Casablanca', en: 'Club headquarters and training centre, Oasis district, Casablanca', ar: 'مقر النادي ومركز التداريب، حي الواحة بالدار البيضاء' },
       { fr: 'Inauguré en 1982', en: 'Opened in 1982', ar: 'افتتح سنة 1982' },
