@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { NextMatchCountdown } from './NextMatchCountdown';
+import { NextMatchStatus } from './NextMatchStatus';
 import { useTranslations, useLocale } from 'next-intl';
 import type { Match } from '@/types';
 import { clubShortName, isBotola } from '@/lib/clubs';
@@ -17,8 +17,8 @@ export interface FixtureItem {
 
 interface FixturesCarouselProps {
   items: FixtureItem[];
-  /** Next Wydad kick-off, for the countdown in the header */
-  nextKickoff?: string;
+  /** Next or current Wydad game: countdown until kick-off, then its live status */
+  nextMatch?: Match;
   /** Extra card appended after the matches (e.g. the Botola record) */
   extra?: ReactNode;
 }
@@ -131,7 +131,7 @@ function FixtureCard({ match, ticketsUrl }: FixtureItem) {
   );
 }
 
-export function FixturesCarousel({ items, nextKickoff, extra }: FixturesCarouselProps) {
+export function FixturesCarousel({ items, nextMatch, extra }: FixturesCarouselProps) {
   const t = useTranslations('matches');
   const locale = useLocale();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -182,11 +182,8 @@ export function FixturesCarousel({ items, nextKickoff, extra }: FixturesCarousel
             <h2 className="font-condensed text-4xl font-extrabold uppercase italic leading-none text-white rtl:not-italic sm:text-5xl">
               {t('calendar')}
             </h2>
-            {nextKickoff && (
-              <div className="flex items-center gap-4">
-                <span className="font-condensed text-sm font-extrabold uppercase italic text-white/80 rtl:not-italic">{t('next_match')}</span>
-                <NextMatchCountdown kickoff={nextKickoff} tone="light" />
-              </div>
+            {nextMatch && (
+              <NextMatchStatus match={nextMatch} tone="light" label={t('next_match')} />
             )}
           </div>
           <div className="flex items-center gap-1.5">

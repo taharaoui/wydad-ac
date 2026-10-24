@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { clubShortName } from '@/lib/clubs';
 import { BASKETBALL_TICKETS, upcomingBasketball } from '@/lib/basketball';
 import { TeamCrest } from '@/components/ui/TeamCrest';
-import { NextMatchCountdown } from '@/components/home/NextMatchCountdown';
+import { NextMatchStatus } from '@/components/home/NextMatchStatus';
 import { FootballNav } from '@/components/team/FootballNav';
 import { getSection, getSectionFeed } from '@/lib/sections';
 import { InstagramFeedGrid } from '@/components/sections/InstagramFeedGrid';
@@ -60,7 +60,7 @@ export default async function BasketballPage({ params }: { params: Promise<{ loc
               ))}
               <div className="order-2 flex flex-col items-center gap-4">
                 <span className="font-condensed text-2xl font-bold uppercase text-fg-muted">vs</span>
-                <NextMatchCountdown kickoff={next.kickoff} />
+                <NextMatchStatus match={next} />
               </div>
             </div>
 

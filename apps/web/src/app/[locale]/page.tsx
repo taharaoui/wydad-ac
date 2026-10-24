@@ -65,7 +65,7 @@ export default async function HomePage({
           items={[...recentMatches, ...upcomingBasketball()]
             .sort((x, y) => x.kickoff.localeCompare(y.kickoff))
             .map((match) => ({ match, ticketsUrl: BASKETBALL_TICKETS[match.id] }))}
-          nextKickoff={upcoming[0]?.kickoff}
+          nextMatch={upcoming[0]}
           extra={<BotolaRecordCard />}
         />
       )}

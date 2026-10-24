@@ -217,11 +217,14 @@ export async function getRecentMatches(limit = 8): Promise<Match[]> {
   if (IS_MOCK) return mockMatches.slice(0, limit);
 
   try {
-    // Fetch both finished and scheduled to build the fixtures carousel
-    const [finished, scheduled] = await Promise.all([
+    // Latest results, and every game from yesterday on: the second list carries the game being
+    // played (status "live"), which neither a "finished" nor a "scheduled" filter would return
+    const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+    const [finished, fromYesterday] = await Promise.all([
       apiFetchMatches({ status: 'finished', sort: '-utc_date', limit }),
-      apiFetchMatches({ status: 'scheduled', sort: 'utc_date', limit }),
+      apiFetchMatches({ dateFrom: yesterday, sort: 'utc_date', limit: limit + 2 }),
     ]);
+    const scheduled = fromYesterday.filter((m) => m.status !== 'finished' && m.status !== 'cancelled');
 
     // Keep up to half the slots for upcoming games, fill the rest with the latest results,
     // then order oldest → newest so the carousel reads left to right through time
