@@ -5,6 +5,7 @@ import { getHomeFeed, hasPicture } from '@/lib/feed';
 import { BotolaRecordCard } from '@/components/home/BotolaRecordCard';
 import { StandingsPreview } from '@/components/home/StandingsPreview';
 import { NewsPreview } from '@/components/home/NewsPreview';
+import { NewsletterBand } from '@/components/newsletter/NewsletterBand';
 import { HeroSection } from '@/components/home/HeroSection';
 import { FixturesCarousel } from '@/components/home/FixturesCarousel';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
@@ -89,6 +90,13 @@ export default async function HomePage({
           <section className="mt-12 pb-16">
             <NewsPreview items={feed} locale={locale} />
           </section>
+        </ScrollReveal>
+
+        {/* Newsletter */}
+        <ScrollReveal delay={100}>
+          <div className="pb-16">
+            <NewsletterBand locale={locale} source="home" />
+          </div>
         </ScrollReveal>
 
         {/* Instagram */}

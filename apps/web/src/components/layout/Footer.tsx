@@ -64,6 +64,7 @@ export function Footer() {
     { key: 'football', href: '/team' },
     { key: 'basketball', href: '/basketball' },
     { key: 'wydad_tv', href: '/wydad-tv' },
+    { key: 'wydad_live', href: '/live' },
     { key: 'club', href: '/club' },
     { key: 'fans', href: '/fans' },
     { key: 'academy', href: ACADEMY_URL },
@@ -74,6 +75,9 @@ export function Footer() {
     { key: 'store', href: STORE_URL },
     { key: 'brand', href: BRAND_URL },
     { key: 'gold_membership', href: '/gold-membership' },
+    { key: 'community_hub', href: '/community' },
+    { key: 'quiz', href: '/quiz' },
+    { key: 'newsletter', href: '/newsletter' },
   ];
 
   const column = (title: string, links: NavLink[]) => (

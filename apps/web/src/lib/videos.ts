@@ -19,6 +19,8 @@ export interface Video {
   published_at: string;
   /** Match the video covers (behind the scenes, press conference) */
   match_id?: string;
+  /** View count from the channel feed (latest 15 uploads only) */
+  views?: number;
 }
 
 /** Category from the channel's title prefixes ("INSIDE THE MATCH |", "PRESS CONFERENCE |", …) */
@@ -88,15 +90,20 @@ export async function getVideos(): Promise<Video[]> {
     const xml = await res.text();
     const known = new Set(VIDEOS.map((v) => v.id));
     const fresh: Video[] = [];
+    const views = new Map<string, number>();
     for (const entry of xml.split('<entry>').slice(1)) {
       const id = entry.match(/<yt:videoId>([^<]+)</)?.[1];
+      const count = entry.match(/<media:statistics views="(\d+)"/)?.[1];
+      if (id && count) views.set(id, Number(count));
       const title = entry.match(/<title>([^<]+)</)?.[1];
       const published = entry.match(/<published>([^<]+)</)?.[1];
       if (!id || !title || !published || known.has(id) || /#shorts/i.test(title)) continue;
       const clean = clubName(title).replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
       fresh.push(withCategory({ id, title: clean, published_at: new Date(published).toISOString() }));
     }
-    return [...fresh, ...VIDEOS].sort((a, b) => b.published_at.localeCompare(a.published_at));
+    return [...fresh, ...VIDEOS]
+      .map((v) => (views.has(v.id) ? { ...v, views: views.get(v.id) } : v))
+      .sort((a, b) => b.published_at.localeCompare(a.published_at));
   } catch (err) {
     console.warn('[videos] channel feed unavailable:', err instanceof Error ? err.message : err);
     return VIDEOS;
