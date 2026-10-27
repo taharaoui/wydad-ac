@@ -12,7 +12,7 @@ import { FEATURED_COLLECTION, getBrandProducts } from '@/lib/brand-store';
 import { BrandRail } from '@/components/home/BrandRail';
 import { InstagramStories } from '@/components/home/InstagramStories';
 import { getInstagram } from '@/lib/instagram';
-import { BASKETBALL_TICKETS, upcomingBasketball } from '@/lib/basketball';
+import { BASKETBALL_TICKETS, recentBasketball, upcomingBasketball } from '@/lib/basketball';
 import { MatchAutoRefresh } from '@/components/matches/MatchAutoRefresh';
 
 export default async function HomePage({
@@ -61,7 +61,7 @@ export default async function HomePage({
       {/* Fixtures carousel — dark strip bridging hero to content */}
       {recentMatches.length > 0 && (
         <FixturesCarousel
-          items={[...recentMatches, ...upcomingBasketball()]
+          items={[...recentMatches, ...recentBasketball(), ...upcomingBasketball()]
             .sort((x, y) => x.kickoff.localeCompare(y.kickoff))
             .map((match) => ({ match, ticketsUrl: BASKETBALL_TICKETS[match.id] }))}
           nextMatch={upcoming[0]}

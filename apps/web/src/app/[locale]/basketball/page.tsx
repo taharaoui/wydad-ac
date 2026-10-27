@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { clubShortName } from '@/lib/clubs';
-import { BASKETBALL_TICKETS, upcomingBasketball } from '@/lib/basketball';
+import { BASKETBALL_TICKETS, basketballResults, upcomingBasketball } from '@/lib/basketball';
 import { TeamCrest } from '@/components/ui/TeamCrest';
 import { NextMatchStatus } from '@/components/home/NextMatchStatus';
 import { FootballNav } from '@/components/team/FootballNav';
@@ -22,6 +22,7 @@ export default async function BasketballPage({ params }: { params: Promise<{ loc
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'basketball' });
   const [next, ...later] = upcomingBasketball();
+  const results = basketballResults();
   const section = getSection('basketball')!;
   const [feed, tSections] = await Promise.all([getSectionFeed(section), getTranslations({ locale, namespace: 'sections' })]);
 
@@ -103,6 +104,38 @@ export default async function BasketballPage({ params }: { params: Promise<{ loc
               </li>
             ))}
           </ul>
+        )}
+
+        {results.length > 0 && (
+          <section aria-labelledby="bb-results" className="mt-14">
+            <h2 id="bb-results" className="font-condensed text-4xl font-extrabold uppercase italic leading-none text-fg rtl:not-italic sm:text-5xl">{t('results')}</h2>
+            <ul className="mt-6 divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface">
+              {results.map((m) => {
+                const wydadHome = m.home_team.id === 'tm_805667';
+                const won = (wydadHome ? m.score_home! > m.score_away! : m.score_away! > m.score_home!);
+                return (
+                  <li key={m.id} className="flex flex-wrap items-center gap-x-6 gap-y-2 px-5 py-4 sm:px-8">
+                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md font-condensed text-sm font-extrabold text-white ${won ? 'bg-emerald-600' : 'bg-fg-muted'}`}>
+                      {won ? t('win_short') : t('loss_short')}
+                    </span>
+                    <span className="flex min-w-0 flex-1 items-center gap-3 font-condensed text-2xl font-extrabold uppercase text-fg" dir="ltr">
+                      <TeamCrest team={m.home_team} size={28} fallbackClassName="rounded-full bg-surface-secondary text-fg" />
+                      {clubShortName(m.home_team)}
+                      <span className="tabular-nums text-wydad-red">
+                        {m.score_home} - {m.score_away}
+                      </span>
+                      {clubShortName(m.away_team)}
+                      <TeamCrest team={m.away_team} size={28} fallbackClassName="rounded-full bg-surface-secondary text-fg" />
+                    </span>
+                    <span className="text-sm text-fg-muted">
+                      {m.matchday ? `${t('matchday', { n: m.matchday })} · ` : ''}
+                      <LocalKickoff iso={m.kickoff} locale={locale} kind="long" />
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
         )}
 
         <div className="mt-14 flex items-center gap-4 rounded-2xl bg-surface-secondary/60 p-6 sm:p-8">

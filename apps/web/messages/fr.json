@@ -580,7 +580,10 @@
     "pos_power_forward": "Ailier fort",
     "pos_center": "Pivot",
     "buy_tickets": "Acheter des billets",
-    "new_tab": "(nouvel onglet)"
+    "new_tab": "(nouvel onglet)",
+    "results": "Résultats",
+    "win_short": "V",
+    "loss_short": "D"
   },
   "football": {
     "section": "Football masculin",

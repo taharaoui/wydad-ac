@@ -580,7 +580,10 @@
     "pos_power_forward": "جناح قوي",
     "pos_center": "لاعب ارتكاز",
     "buy_tickets": "اقتناء التذاكر",
-    "new_tab": "(تفتح في علامة تبويب جديدة)"
+    "new_tab": "(تفتح في علامة تبويب جديدة)",
+    "results": "النتائج",
+    "win_short": "ف",
+    "loss_short": "خ"
   },
   "football": {
     "section": "كرة القدم - رجال",

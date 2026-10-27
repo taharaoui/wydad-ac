@@ -580,7 +580,10 @@
     "pos_power_forward": "Power forward",
     "pos_center": "Center",
     "buy_tickets": "Buy tickets",
-    "new_tab": "(opens in a new tab)"
+    "new_tab": "(opens in a new tab)",
+    "results": "Results",
+    "win_short": "W",
+    "loss_short": "L"
   },
   "football": {
     "section": "Men’s football",
