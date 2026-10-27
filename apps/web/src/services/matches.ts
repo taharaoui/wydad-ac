@@ -20,7 +20,7 @@ import {
   type MappedStandingRow,
   type MappedLineup,
   type MappedPlayerMatchStats,
-} from '@/lib/stats-api';
+} from '@/lib/football-data';
 
 /** Log a warning and return mock data when the API is unreachable (e.g. during build). */
 function warnFallback(label: string, err: unknown): void {

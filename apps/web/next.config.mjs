@@ -12,6 +12,11 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
+        // Goal API crests and player photos
+        protocol: 'https',
+        hostname: 'media.goal-api.com',
+      },
+      {
         protocol: 'https',
         hostname: '**.supabase.co',
       },

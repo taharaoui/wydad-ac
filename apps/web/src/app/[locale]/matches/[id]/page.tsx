@@ -6,7 +6,7 @@ import { MatchStatsPanel } from '@/components/matches/MatchStats';
 import { MatchPitch } from '@/components/matches/MatchPitch';
 import { PlayerOfTheMatch } from '@/components/matches/PlayerOfTheMatch';
 import { PlayerStatsTable } from '@/components/matches/PlayerStatsTable';
-import { isWydadTeam } from '@/lib/stats-api';
+import { fetchMatchReferee, isWydadTeam } from '@/lib/football-data';
 import { getPlayerOfTheMatch } from '@/lib/rating';
 import { buildMatchSummary, teamAverageRating } from '@/lib/match-summary';
 import { getPlayerPhotos } from '@/lib/player-photos';
@@ -66,6 +66,8 @@ export default async function MatchDetailPage({
   const summary = buildMatchSummary(match);
   // Hand-entered scorers/venue when the source has none
   const note = MATCH_NOTES[match.id];
+  // Officials entered by hand win; otherwise the referee published by the data provider
+  const referee = note?.officials ? null : await fetchMatchReferee(match.id);
   if (note?.goals) {
     summary.goals = note.goals.map((g) => ({ side: g.side, player: g.player, count: 1, assists: [], minute: g.minute, penalty: g.penalty }));
   }
@@ -211,7 +213,7 @@ export default async function MatchDetailPage({
         )}
       </div>
       <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-5">
-        <MatchInfoCard match={match} officials={note?.officials} locale={locale} />
+        <MatchInfoCard match={match} officials={note?.officials ?? (referee ? [{ role: 'referee', name: referee, name_ar: referee }] : undefined)} locale={locale} />
         <MiniStandings standings={standings} teamIds={[match.home_team.id, match.away_team.id]} />
         {formCard}
       </div>
