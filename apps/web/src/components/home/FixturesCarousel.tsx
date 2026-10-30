@@ -49,7 +49,7 @@ function TeamLine({ team, score, showScore }: { team: Match['home_team']; score:
   return (
     <div className="flex min-w-0 items-center gap-3">
       <TeamCrest team={team} size={34} fallbackClassName="rounded-full bg-[#d9dce1] text-[#1b2533]" />
-      <span className="min-w-0 truncate font-condensed text-[30px] font-extrabold uppercase italic leading-none tracking-tight text-[#0f1620] rtl:not-italic sm:text-[34px]">
+      <span className="min-w-0 truncate py-[0.06em] pe-[0.14em] font-condensed text-[30px] font-extrabold uppercase italic leading-none tracking-tight text-[#0f1620] rtl:not-italic sm:text-[34px]">
         {clubShortName(team)}
       </span>
       {showScore && (
