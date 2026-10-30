@@ -23,7 +23,11 @@
     "ig_posts": "publications",
     "ig_followers": "abonnés",
     "ig_follow_short": "Suivre",
-    "see_post": "Voir la publication"
+    "see_post": "Voir la publication",
+    "gold_title_1": "Le cercle le plus exclusif",
+    "gold_title_2": "du Wydad.",
+    "gold_text": "Une carte d’or numérotée, réservée à quelques membres : loge privée, hospitalité premium et accès au cœur de l’équipe.",
+    "gold_cta": "Découvrir la Gold Membership"
   },
   "matches": {
     "matchday": "Journée",

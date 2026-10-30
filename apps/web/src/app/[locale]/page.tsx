@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { getStandings, getRecentMatches, getMatchById } from '@/services/matches';
 import { getHomeFeed, hasPicture } from '@/lib/feed';
 import { BotolaRecordCard } from '@/components/home/BotolaRecordCard';
+import { GoldShowcase } from '@/components/home/GoldShowcase';
 import { StandingsPreview } from '@/components/home/StandingsPreview';
 import { NewsPreview } from '@/components/home/NewsPreview';
 import { HeroSection } from '@/components/home/HeroSection';
@@ -53,12 +54,12 @@ export default async function HomePage({
 
   return (
     <div>
-      {/* Hero — full-bleed, outside the container */}
+      {/* 1. Hero — full-bleed, outside the container */}
       {/* Score refresh at kick-off, half-time and full time of the next Wydad game */}
       {upcoming[0] && <MatchAutoRefresh kickoff={upcoming[0].kickoff} finished={false} />}
       <HeroSection items={heroItems} locale={locale} />
 
-      {/* Fixtures carousel — dark strip bridging hero to content */}
+      {/* 2. Latest news & fixtures: the calendar strip, then the news right below it */}
       {recentMatches.length > 0 && (
         <FixturesCarousel
           items={[...recentMatches, ...recentBasketball(), ...upcomingBasketball()]
@@ -68,6 +69,13 @@ export default async function HomePage({
           extra={<BotolaRecordCard />}
         />
       )}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <ScrollReveal delay={150}>
+          <section className="py-12 sm:py-16">
+            <NewsPreview items={feed} locale={locale} />
+          </section>
+        </ScrollReveal>
+      </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Standings */}
@@ -83,17 +91,17 @@ export default async function HomePage({
             <BrandRail products={brandProducts} />
           </div>
         </ScrollReveal>
+      </div>
 
-        {/* News */}
-        <ScrollReveal delay={150}>
-          <section className="mt-12 pb-16">
-            <NewsPreview items={feed} locale={locale} />
-          </section>
-        </ScrollReveal>
+      {/* Gold Membership showcase, under the brand (same card film as the membership page) */}
+      <div className="mt-16">
+        <GoldShowcase locale={locale} />
+      </div>
 
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Instagram */}
         <ScrollReveal delay={100}>
-          <div className="pb-16">
+          <div className="py-16">
             <InstagramStories profile={instagram.profile} posts={instagram.posts} />
           </div>
         </ScrollReveal>
