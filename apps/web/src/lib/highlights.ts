@@ -7,10 +7,10 @@ import { isWydad } from '@/lib/clubs';
  * channel automatically (findArryadiaHighlight); if nothing matches, the card links to a search.
  */
 export const MATCH_HIGHLIGHTS: Record<string, string> = {
-  mt_982767800: 'ssMGrjnyS-M', // MD1 Wydad – Widad Temara
-  mt_735424375: '0jEgZ9axZYE', // MD2 DHJ – Wydad
-  mt_982177608: 'Mz03u1pYHjo', // MD3 Wydad – CODM
-  mt_371866534: 'aLrIrXx9368', // MD4 Wydad – Amal Tiznit
+  cmtwihhyf5ec6qs07aa74zwqo: 'ssMGrjnyS-M', // MD1 Wydad – Widad Temara
+  cmu9exfop16wikm08sjxacs94: '0jEgZ9axZYE', // MD2 DHJ – Wydad
+  cmuuzned3tv2vti07yy6v9d7j: 'Mz03u1pYHjo', // MD3 Wydad – CODM
+  cmuuzodrtu4noti07roj377su: 'aLrIrXx9368', // MD4 Wydad – Amal Tiznit
 };
 
 export const ARRYADIA_CHANNEL = 'https://www.youtube.com/@ArryadiaTv';

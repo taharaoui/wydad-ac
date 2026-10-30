@@ -1,5 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import { redirect } from '@/i18n/navigation';
+import { LEGACY_MATCH_IDS } from '@/lib/legacy-match-ids';
 import { getMatchById, getMatchContext, getStandings } from '@/services/matches';
 import { MatchHeader } from '@/components/matches/MatchHeader';
 import { MatchStatsPanel } from '@/components/matches/MatchStats';
@@ -41,6 +43,8 @@ export default async function MatchDetailPage({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
+  // Links shared before the switch to Goal API
+  if (LEGACY_MATCH_IDS[id]) redirect(`/matches/${LEGACY_MATCH_IDS[id]}`);
 
   const [match, standings] = await Promise.all([getMatchById(id), getStandings()]);
   if (!match) notFound();

@@ -34,17 +34,17 @@ type Raw = Omit<Video, 'category'>;
 
 /** Snapshot of the channel, newest first (22 Oct 2026) */
 const CHANNEL_VIDEOS: Raw[] = [
-  { id: 'zd4sEN4mlUo', title: 'Inside The Match | Close-Up Action, Player Focus & Match Reaction', published_at: '2026-10-20T21:00:11Z', match_id: 'mt_371866534' },
+  { id: 'zd4sEN4mlUo', title: 'Inside The Match | Close-Up Action, Player Focus & Match Reaction', published_at: '2026-10-20T21:00:11Z', match_id: 'cmuuzodrtu4noti07roj377su' },
   { id: 'bq6fVyJh7r4', title: 'Game Day Ready | Saturday Pitch Work at Benjelloun Complex Headquarters', published_at: '2026-10-17T21:40:59Z' },
   { id: 'kPmj2TOKleI', title: 'INSIDE TRAINING | Pushing Beyond Limits: Relentless Work Rate at Benjelloun!', published_at: '2026-10-16T17:00:08Z' },
   { id: '6IBAoneZBCc', title: 'Inside Training | Squad Intensifies Preparation Ahead of Sunday Fixture', published_at: '2026-10-14T17:00:10Z' },
-  { id: 'CE5LqqbSu9E', title: 'INSIDE THE MATCH | Raw Pitchside & Tunnel Access! Wydad AC 0-0 CODM', published_at: '2026-10-12T22:00:06Z', match_id: 'mt_982177608' },
-  { id: 'sYtb7tVYnN0', title: 'Press Conference | Paulo Sérgio Post-Match Reaction: Wydad AC 0-0 CODM', published_at: '2026-10-12T00:21:28Z', match_id: 'mt_982177608' },
+  { id: 'CE5LqqbSu9E', title: 'INSIDE THE MATCH | Raw Pitchside & Tunnel Access! Wydad AC 0-0 CODM', published_at: '2026-10-12T22:00:06Z', match_id: 'cmuuzned3tv2vti07yy6v9d7j' },
+  { id: 'sYtb7tVYnN0', title: 'Press Conference | Paulo Sérgio Post-Match Reaction: Wydad AC 0-0 CODM', published_at: '2026-10-12T00:21:28Z', match_id: 'cmuuzned3tv2vti07yy6v9d7j' },
   { id: 'DjYxQz87jIA', title: 'MATCHDAY -1! | Final Session at Benjelloun Before Tomorrow Clash vs CODM!', published_at: '2026-10-10T23:15:00Z' },
   { id: 'JpxJYFtdStw', title: 'Friday Session | Squad Prepares for Sunday Botola Pro Fixture vs CODM', published_at: '2026-10-09T17:00:07Z' },
   { id: 'DEmax-JdwTE', title: 'INSIDE TRAINING | Light Work & Smiles: Squad Recharges After 2-0 Victory!', published_at: '2026-10-05T17:00:11Z' },
-  { id: 'UyOLu18csys', title: 'INSIDE THE MATCH | Away Day Glory! DHJ 0-2 Wydad AC | Ganvoula & Zemraoui Strike!', published_at: '2026-10-04T21:00:10Z', match_id: 'mt_735424375' },
-  { id: 'yeoRRsP74Cw', title: 'PRESS CONFERENCE | Paulo Sérgio Reacts to 2-0 Win vs DHJ!', published_at: '2026-10-03T22:00:08Z', match_id: 'mt_735424375' },
+  { id: 'UyOLu18csys', title: 'INSIDE THE MATCH | Away Day Glory! DHJ 0-2 Wydad AC | Ganvoula & Zemraoui Strike!', published_at: '2026-10-04T21:00:10Z', match_id: 'cmu9exfop16wikm08sjxacs94' },
+  { id: 'yeoRRsP74Cw', title: 'PRESS CONFERENCE | Paulo Sérgio Reacts to 2-0 Win vs DHJ!', published_at: '2026-10-03T22:00:08Z', match_id: 'cmu9exfop16wikm08sjxacs94' },
   { id: 'kvQMEPEesOM', title: 'MATCHDAY -1! | Final Session at Benjelloun before tomorrow Matchday 02 Clash vs DHJ!', published_at: '2026-10-02T21:00:11Z' },
   { id: 'Fzc1Oh81Vgg', title: 'FIRST INTERVIEW | Yahya Attiat Allah: "A Special Feeling Remains!"', published_at: '2026-10-01T21:40:08Z' },
   { id: '4AoNMGKwM-w', title: 'BEHIND THE SCENES | Inside the Official 26/27 Home Kit Reveal Shoot!', published_at: '2026-09-30T18:00:08Z' },
