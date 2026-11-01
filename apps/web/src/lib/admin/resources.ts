@@ -61,7 +61,7 @@ export const RESOURCES: ResourceDef[] = [
       { name: 'cover_url', label: 'Image de couverture', type: 'image', bucket: 'news', section: 'Image' },
       { name: 'cover_position', label: 'Cadrage de l’image', type: 'text', half: true, help: 'Position CSS, ex. « center 30% » pour remonter le cadrage.', max: 40 },
       { name: 'cover_orientation', label: 'Format de l’image', type: 'select', half: true, options: [{ value: 'landscape', label: 'Paysage (pleine largeur)' }, { value: 'portrait', label: 'Portrait (affiche)' }] },
-      { name: 'match_id', label: 'Match lié', type: 'text', half: true, pattern: '^(mt_[0-9]+|[a-z0-9-]+)$', patternMessage: 'Identifiant TheStatsAPI (mt_…) ou d’un match saisi ici', help: 'Pour un compte rendu : ouvre le centre de match.', section: 'Détails' },
+      { name: 'match_id', label: 'Match lié', type: 'text', half: true, pattern: '^(mt_[0-9]+|[a-z0-9-]+)$', patternMessage: 'Identifiant du match (visible dans l’URL du centre de match) ou d’un match saisi ici', help: 'Pour un compte rendu : ouvre le centre de match.', section: 'Détails' },
       { name: 'author', label: 'Auteur', type: 'text', half: true, max: 120 },
       { name: 'read_time_minutes', label: 'Temps de lecture (min)', type: 'number', min: 1, max: 60, required: true, half: true },
       status,
@@ -376,7 +376,7 @@ export const RESOURCES: ResourceDef[] = [
       { column: 'updated_at', label: 'Modifiée', type: 'datetime' },
     ],
     fields: [
-      { name: 'external_match_id', label: 'Identifiant du match TheStatsAPI', type: 'text', required: true, pattern: '^mt_[0-9]+$', patternMessage: 'Format mt_123456 (visible dans l’URL du centre de match)' },
+      { name: 'external_match_id', label: 'Identifiant du match', type: 'text', required: true, pattern: '^(mt_[0-9]+|[a-z0-9]{20,32})$', patternMessage: 'L’identifiant visible dans l’URL du centre de match (ex. cmvgff319ojujnv07n48jhibs)' },
       { name: 'venue', label: 'Lieu', type: 'text', max: 200 },
       {
         name: 'officials',

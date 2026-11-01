@@ -109,7 +109,8 @@ for (const a of mockNews) {
       published_at: a.published_at,
     },
     '(legacy_id)',
-    { category_id: `(select id from public.categories where slug = ${q(a.category)})` },
+    // Bundled stories are all first-team news (taxonomy of the editorial CMS migration)
+    { category_id: `coalesce((select id from public.categories where slug = 'first_team'), (select id from public.categories where slug = ${q(a.category)}))` },
   );
 }
 

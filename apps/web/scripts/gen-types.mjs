@@ -15,7 +15,7 @@ const out = path.join(root, 'apps', 'web', 'src', 'types', 'database.ts');
 const db = new PGlite();
 await db.exec(`
   create role anon nologin; create role authenticated nologin;
-  create schema auth; create table auth.users (id uuid primary key);
+  create schema auth; create table auth.users (id uuid primary key, email text);
   create function auth.uid() returns uuid language sql stable as $$ select null::uuid $$;
   create schema storage;
   create table storage.buckets (id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);

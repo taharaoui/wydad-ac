@@ -79,7 +79,12 @@ async function userId(email) {
 
 async function grantAdmin(email) {
   const id = await userId(email);
-  await client.query(`insert into public.admin_users (user_id, note) values ($1, $2) on conflict (user_id) do nothing`, [id, `granted from the CLI on ${new Date().toISOString().slice(0, 10)}`]);
+  await client.query(
+    `insert into public.admin_users (user_id, note, role, can_publish, active, email)
+     values ($1, $2, 'admin', true, true, (select email from auth.users where id = $1))
+     on conflict (user_id) do update set role = 'admin', can_publish = true, active = true`,
+    [id, `granted from the CLI on ${new Date().toISOString().slice(0, 10)}`],
+  );
   console.log(`${email} is an administrator`);
 }
 

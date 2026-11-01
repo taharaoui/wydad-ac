@@ -10,16 +10,40 @@ export type Database = {
           user_id: string;
           note: string | null;
           created_at: string;
+          role: string;
+          can_publish: boolean;
+          display_name: string | null;
+          email: string | null;
+          active: boolean;
+          onboarded_at: string | null;
+          invited_by: string | null;
+          updated_at: string;
         };
         Insert: {
           user_id: string;
           note?: string | null;
           created_at?: string;
+          role?: string;
+          can_publish?: boolean;
+          display_name?: string | null;
+          email?: string | null;
+          active?: boolean;
+          onboarded_at?: string | null;
+          invited_by?: string | null;
+          updated_at?: string;
         };
         Update: {
           user_id?: string;
           note?: string | null;
           created_at?: string;
+          role?: string;
+          can_publish?: boolean;
+          display_name?: string | null;
+          email?: string | null;
+          active?: boolean;
+          onboarded_at?: string | null;
+          invited_by?: string | null;
+          updated_at?: string;
         };
         Relationships: [];
       };
@@ -62,6 +86,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      article_previews: {
+        Row: {
+          id: string;
+          article_id: string | null;
+          created_by: string;
+          content: Json;
+          content_hash: string;
+          report: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          article_id?: string | null;
+          created_by?: string;
+          content: Json;
+          content_hash: string;
+          report?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          article_id?: string | null;
+          created_by?: string;
+          content?: Json;
+          content_hash?: string;
+          report?: Json | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       categories: {
         Row: {
           id: string;
@@ -70,6 +124,11 @@ export type Database = {
           sort: number;
           created_at: string;
           updated_at: string;
+          kind: string;
+          parent_id: string | null;
+          sport: Database['public']['Enums']['sport'] | null;
+          description: Json | null;
+          active: boolean;
         };
         Insert: {
           id?: string;
@@ -78,6 +137,11 @@ export type Database = {
           sort?: number;
           created_at?: string;
           updated_at?: string;
+          kind?: string;
+          parent_id?: string | null;
+          sport?: Database['public']['Enums']['sport'] | null;
+          description?: Json | null;
+          active?: boolean;
         };
         Update: {
           id?: string;
@@ -86,6 +150,11 @@ export type Database = {
           sort?: number;
           created_at?: string;
           updated_at?: string;
+          kind?: string;
+          parent_id?: string | null;
+          sport?: Database['public']['Enums']['sport'] | null;
+          description?: Json | null;
+          active?: boolean;
         };
         Relationships: [];
       };
@@ -122,6 +191,36 @@ export type Database = {
           logo_url?: string | null;
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      editorial_activity: {
+        Row: {
+          id: number;
+          article_id: string | null;
+          article_title: string | null;
+          action: string;
+          actor_id: string | null;
+          actor_name: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          article_id?: string | null;
+          article_title?: string | null;
+          action: string;
+          actor_id?: string | null;
+          actor_name?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          article_id?: string | null;
+          article_title?: string | null;
+          action?: string;
+          actor_id?: string | null;
+          actor_name?: string | null;
+          created_at?: string;
         };
         Relationships: [];
       };
@@ -471,6 +570,18 @@ export type Database = {
           published_at: string | null;
           created_at: string;
           updated_at: string;
+          language: string | null;
+          body_format: string;
+          featured: boolean;
+          cover_alt: string | null;
+          cover_mobile_url: string | null;
+          cover_width: number | null;
+          cover_height: number | null;
+          created_by: string | null;
+          updated_by: string | null;
+          submitted_at: string | null;
+          responsive_report: Json | null;
+          content_hash: string | null;
         };
         Insert: {
           id?: string;
@@ -493,6 +604,18 @@ export type Database = {
           published_at?: string | null;
           created_at?: string;
           updated_at?: string;
+          language?: string | null;
+          body_format?: string;
+          featured?: boolean;
+          cover_alt?: string | null;
+          cover_mobile_url?: string | null;
+          cover_width?: number | null;
+          cover_height?: number | null;
+          created_by?: string | null;
+          updated_by?: string | null;
+          submitted_at?: string | null;
+          responsive_report?: Json | null;
+          content_hash?: string | null;
         };
         Update: {
           id?: string;
@@ -515,6 +638,18 @@ export type Database = {
           published_at?: string | null;
           created_at?: string;
           updated_at?: string;
+          language?: string | null;
+          body_format?: string;
+          featured?: boolean;
+          cover_alt?: string | null;
+          cover_mobile_url?: string | null;
+          cover_width?: number | null;
+          cover_height?: number | null;
+          created_by?: string | null;
+          updated_by?: string | null;
+          submitted_at?: string | null;
+          responsive_report?: Json | null;
+          content_hash?: string | null;
         };
         Relationships: [];
       };
@@ -852,7 +987,7 @@ export type Database = {
       media_usage: { Args: { target_url: string }; Returns: { table_name: string; row_count: number }[] };
     };
     Enums: {
-      content_status: 'draft' | 'published' | 'archived';
+      content_status: 'draft' | 'review' | 'published' | 'archived';
       match_status: 'scheduled' | 'live' | 'finished' | 'postponed' | 'cancelled';
       sport: 'football' | 'basketball' | 'handball' | 'swimming' | 'boxing' | 'fencing' | 'other';
     };
