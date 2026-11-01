@@ -22,7 +22,12 @@
     "ig_new_tab": "(Instagram, nouvel onglet)",
     "ig_posts": "publications",
     "ig_followers": "abonnés",
-    "ig_follow_short": "Suivre"
+    "ig_follow_short": "Suivre",
+    "see_post": "Voir la publication",
+    "gold_title_1": "Le cercle le plus exclusif",
+    "gold_title_2": "du Wydad.",
+    "gold_text": "Une carte d’or numérotée, réservée à quelques membres : loge privée, hospitalité premium et accès au cœur de l’équipe.",
+    "gold_cta": "Découvrir la Gold Membership"
   },
   "matches": {
     "matchday": "Journée",
@@ -280,7 +285,8 @@
     "type_article": "Articles",
     "type_video": "Vidéos",
     "results_count": "{count, plural, one {{n} contenu} other {{n} contenus}}",
-    "empty": "Aucun contenu pour cette sélection."
+    "empty": "Aucun contenu pour cette sélection.",
+    "type_facebook": "Facebook"
   },
   "team": {
     "squad": "Effectif",
@@ -578,7 +584,10 @@
     "pos_power_forward": "Ailier fort",
     "pos_center": "Pivot",
     "buy_tickets": "Acheter des billets",
-    "new_tab": "(nouvel onglet)"
+    "new_tab": "(nouvel onglet)",
+    "results": "Résultats",
+    "win_short": "V",
+    "loss_short": "D"
   },
   "football": {
     "section": "Football masculin",

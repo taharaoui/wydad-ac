@@ -1,23 +1,23 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getStandings, getRecentMatches, getMatchById } from '@/services/matches';
-import { getLatestNews } from '@/services/news';
+import { getHomeFeed, hasPicture } from '@/lib/feed';
 import { BotolaRecordCard } from '@/components/home/BotolaRecordCard';
+import { GoldShowcase } from '@/components/home/GoldShowcase';
 import { StandingsPreview } from '@/components/home/StandingsPreview';
 import { NewsPreview } from '@/components/home/NewsPreview';
 import { HeroSection } from '@/components/home/HeroSection';
 import { FixturesCarousel } from '@/components/home/FixturesCarousel';
-import { formatKickoff } from '@/lib/datetime';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
-import { getVideos } from '@/lib/videos';
 import { FEATURED_COLLECTION, getBrandProducts } from '@/lib/brand-store';
 import { BrandRail } from '@/components/home/BrandRail';
 import { InstagramStories } from '@/components/home/InstagramStories';
 import { getInstagram } from '@/lib/instagram';
-import { getManualFixtures, upcoming as upcomingOf } from '@/lib/cms/club';
+import { getManualFixtures, recent as recentOf, upcoming as upcomingOf } from '@/lib/cms/club';
 import { getHomeSections } from '@/lib/cms/site';
 import type { HomeSectionKey } from '@/lib/site-defaults';
 import type { ReactNode } from 'react';
+import { MatchAutoRefresh } from '@/components/matches/MatchAutoRefresh';
 
 export default async function HomePage({
   params,
@@ -29,9 +29,9 @@ export default async function HomePage({
   const t = await getTranslations({ locale, namespace: 'home' });
   const tCommon = await getTranslations({ locale, namespace: 'common' });
 
-  const [standings, news, recentMatches, brandProducts, instagram, basketball, sections] = await Promise.all([
+  const [standings, feed, recentMatches, brandProducts, instagram, basketball, sections] = await Promise.all([
     getStandings(),
-    getLatestNews(9, locale),
+    getHomeFeed(9, locale),
     getRecentMatches(8),
     getBrandProducts(FEATURED_COLLECTION),
     getInstagram(),
@@ -44,17 +44,17 @@ export default async function HomePage({
     .filter((m) => m.status === 'scheduled' || m.status === 'live')
     .sort((a, b) => a.kickoff.localeCompare(b.kickoff));
 
-  // Hero stories: the two latest articles with a cover (e.g. today's statement, then the match report)
-  const heroStories = await Promise.all(
-    news
-      .filter((a) => a.cover_image_url)
-      .slice(0, 2)
-      .map(async (article) => ({
-        article,
-        match: article.match_id
-          ? recentMatches.find((m) => m.id === article.match_id) ?? (await getMatchById(article.match_id)) ?? undefined
-          : undefined,
-      })),
+  // Hero: the three latest news items with a picture (article, YouTube video or Facebook post), so a
+  // new upload or post leads it as soon as it appears; match reports bring their scoreline
+  const heroItems = await Promise.all(
+    feed
+      .filter(hasPicture)
+      .slice(0, 3)
+      .map(async (item) => {
+        const matchId = item.kind === 'article' ? item.article.match_id : undefined;
+        const match = matchId ? recentMatches.find((m) => m.id === matchId) ?? (await getMatchById(matchId)) ?? undefined : undefined;
+        return { ...item, match };
+      }),
   );
 
 
@@ -64,10 +64,10 @@ export default async function HomePage({
       recentMatches.length > 0 && (
         <FixturesCarousel
           title={title}
-          items={[...recentMatches, ...upcomingOf(basketball.matches)]
+          items={[...recentMatches, ...recentOf(basketball.matches), ...upcomingOf(basketball.matches)]
             .sort((x, y) => x.kickoff.localeCompare(y.kickoff))
-            .map((match) => ({ match, ...formatKickoff(match.kickoff, locale), ticketsUrl: basketball.tickets[match.id] }))}
-          nextKickoff={upcoming[0]?.kickoff}
+            .map((match) => ({ match, ticketsUrl: basketball.tickets[match.id] }))}
+          nextMatch={upcoming[0]}
           extra={<BotolaRecordCard />}
         />
       ),
@@ -78,17 +78,25 @@ export default async function HomePage({
         </section>
       </ScrollReveal>
     ),
+    // Gold Membership showcase right under the brand (same card film as the membership page)
     brand: (title) => (
-      <ScrollReveal delay={100}>
-        <div className="mt-16">
-          <BrandRail products={brandProducts} title={title} />
+      <>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <ScrollReveal delay={100}>
+            <div className="mt-16">
+              <BrandRail products={brandProducts} title={title} />
+            </div>
+          </ScrollReveal>
         </div>
-      </ScrollReveal>
+        <div className="mt-16">
+          <GoldShowcase locale={locale} />
+        </div>
+      </>
     ),
     news: (title) => (
       <ScrollReveal delay={150}>
-        <section className="mt-12 pb-16">
-          <NewsPreview articles={news} locale={locale} title={title} />
+        <section className="py-12 sm:py-16">
+          <NewsPreview items={feed} locale={locale} title={title} />
         </section>
       </ScrollReveal>
     ),
@@ -103,8 +111,10 @@ export default async function HomePage({
 
   return (
     <div>
-      {/* Hero — full-bleed, outside the container */}
-      <HeroSection stories={heroStories} videos={(await getVideos()).slice(0, 1)} locale={locale} />
+      {/* 1. Hero — full-bleed, outside the container */}
+      {/* Score refresh at kick-off, half-time and full time of the next Wydad game */}
+      {upcoming[0] && <MatchAutoRefresh kickoff={upcoming[0].kickoff} finished={false} />}
+      <HeroSection items={heroItems} locale={locale} />
 
       {sections.map(({ key, title }) => (
         <HomeBlock key={key} id={key}>
@@ -118,5 +128,7 @@ export default async function HomePage({
 /** The fixtures strip is full-bleed; the other sections sit in the page container */
 function HomeBlock({ id, children }: { id: HomeSectionKey; children: ReactNode }) {
   if (id === 'fixtures') return <>{children}</>;
+  // The Gold showcase under the brand is full-bleed: only the rail sits in the container
+  if (id === 'brand') return <>{children}</>;
   return <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">{children}</div>;
 }

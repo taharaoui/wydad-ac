@@ -1,12 +1,14 @@
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { Match } from '@/types';
 import { isWydad, clubShortName } from '@/lib/clubs';
 import { SEASON_SCHEDULE } from '@/lib/season-schedule';
 import { TeamCrest } from '@/components/ui/TeamCrest';
+import { LocalKickoff } from '@/components/ui/LocalKickoff';
 
 /** Grid of the season's matchdays, after the club's fixtures poster: matchday, crest, home/away, result or date. */
-export function SeasonSchedule({ matches, dates }: { matches: Match[]; dates: Record<string, string> }) {
+export function SeasonSchedule({ matches }: { matches: Match[] }) {
+  const locale = useLocale();
   const t = useTranslations('matches');
 
   return (
@@ -49,7 +51,7 @@ export function SeasonSchedule({ matches, dates }: { matches: Match[]; dates: Re
                     </span>
                   </>
                 ) : match ? (
-                  dates[match.id]
+                  <LocalKickoff iso={match.kickoff} locale={locale} kind="long" />
                 ) : (
                   t('date_tbc')
                 )}

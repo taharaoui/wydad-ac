@@ -105,6 +105,16 @@ export function upcoming(matches: Match[], now = new Date()): Match[] {
     .sort((a, b) => a.kickoff.localeCompare(b.kickoff));
 }
 
+/** Results, latest first */
+export function results(matches: Match[]): Match[] {
+  return matches.filter((m) => m.status === 'finished').sort((a, b) => b.kickoff.localeCompare(a.kickoff));
+}
+
+/** Results of the last two weeks, for the home calendar */
+export function recent(matches: Match[], now = new Date(), days = 14): Match[] {
+  return results(matches).filter((m) => now.getTime() - new Date(m.kickoff).getTime() < days * 86_400_000);
+}
+
 // ── Notes added to TheStatsAPI matches ──
 
 export interface MatchExtras extends MatchNote {

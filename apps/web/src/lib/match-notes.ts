@@ -27,14 +27,14 @@ export interface MatchNote {
 
 export const MATCH_NOTES: Record<string, MatchNote> = {
   // Union Touarga Sport vs Wydad, Botola Pro matchday 5 (24 Oct 2026): officials as announced
-  mt_468151508: {
+  cmvgff319ojujnv07n48jhibs: {
     officials: [
       { role: 'referee', name: 'Hicham Temsamani', name_ar: 'هشام التمسماني' },
       { role: 'var', name: 'Soulaimane El Atifi', name_ar: 'سليمان العاطفي' },
     ],
   },
   // Wydad 1-1 Amal Tiznit, Botola Pro matchday 4 (18 Oct 2026)
-  mt_371866534: {
+  cmuuzodrtu4noti07roj377su: {
     venue: 'Complexe Mohammed V, Casablanca',
     goals: [
       { side: 'away', player: 'Zakaria Salhi', minute: 53, penalty: true },

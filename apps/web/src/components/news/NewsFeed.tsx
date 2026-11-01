@@ -6,10 +6,11 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { RelativeTime } from '@/components/ui/RelativeTime';
 
-/** One card of the feed: an article or a Wydad TV video, prepared on the server. */
+/** One card of the feed: an article, a Wydad TV video or a Facebook post, prepared on the server. */
 export interface FeedItem {
   id: string;
-  kind: 'article' | 'video';
+  kind: 'article' | 'video' | 'facebook';
+  /** Site path, or the post's URL for Facebook (opens in a new tab) */
   href: string;
   title: string;
   /** Label above the title (category or "Wydad TV") */
@@ -23,7 +24,19 @@ export interface FeedItem {
   dateLabel?: string;
 }
 
-type Kind = 'all' | 'article' | 'video';
+type Kind = 'all' | 'article' | 'video' | 'facebook';
+
+function CardLink({ href, external, children }: { href: string; external: boolean; children: React.ReactNode }) {
+  return external ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="group block">
+      {children}
+    </a>
+  ) : (
+    <Link href={href} className="group block">
+      {children}
+    </Link>
+  );
+}
 
 /** psg.fr-style news index: topic pills, content-type tabs, 4-column card grid. */
 export function NewsFeed({ items, topics, locale }: { items: FeedItem[]; topics: { key: string; label: string }[]; locale: string }) {
@@ -35,7 +48,7 @@ export function NewsFeed({ items, topics, locale }: { items: FeedItem[]; topics:
     () => items.filter((i) => (topic === 'all' || i.tags.includes(topic)) && (kind === 'all' || i.kind === kind)),
     [items, topic, kind],
   );
-  const kinds: Kind[] = ['all', 'article', ...(items.some((i) => i.kind === 'video') ? (['video'] as Kind[]) : [])];
+  const kinds: Kind[] = ['all', 'article', ...(['video', 'facebook'] as const).filter((k) => items.some((i) => i.kind === k))];
 
   return (
     <div>
@@ -82,7 +95,7 @@ export function NewsFeed({ items, topics, locale }: { items: FeedItem[]; topics:
         <ul className="mt-10 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
           {shown.map((item) => (
             <li key={item.id}>
-              <Link href={item.href} className="group block">
+              <CardLink href={item.href} external={item.kind === 'facebook'}>
                 <div className="relative aspect-[16/9] overflow-hidden bg-surface-secondary">
                   {item.image ? (
                     <Image
@@ -111,7 +124,7 @@ export function NewsFeed({ items, topics, locale }: { items: FeedItem[]; topics:
                 {item.published && item.dateLabel && (
                   <RelativeTime iso={item.published} locale={locale} fallback={item.dateLabel} className="mt-2 block text-sm text-fg-muted" />
                 )}
-              </Link>
+              </CardLink>
             </li>
           ))}
         </ul>

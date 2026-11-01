@@ -26,7 +26,7 @@ export default async function EspoirsSquadPage({ params }: { params: Promise<{ l
   const photos = { ...getPlayerPhotos(ids), ...(await getCmsPlayerPhotos(ids)) };
   const players = [...squad]
     .sort((a, b) => POSITION_ORDER.indexOf(a.position) - POSITION_ORDER.indexOf(b.position) || (a.number ?? 999) - (b.number ?? 999))
-    .map((p) => ({ id: p.id, name: p.name, number: p.number, position: p.position, photo: photos[p.id] }));
+    .map((p) => ({ id: p.id, name: p.name, number: p.number, position: p.position, photo: photos[p.id] ?? p.photo_url }));
 
   return (
     <div>

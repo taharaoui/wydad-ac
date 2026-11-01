@@ -1,26 +1,24 @@
 'use client';
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { NextMatchCountdown } from './NextMatchCountdown';
+import { NextMatchStatus } from './NextMatchStatus';
 import { useTranslations, useLocale } from 'next-intl';
 import type { Match } from '@/types';
 import { clubShortName, isBotola } from '@/lib/clubs';
 import { TeamCrest } from '@/components/ui/TeamCrest';
 import { SmartLink } from '@/components/layout/header/SmartLink';
+import { LocalKickoff } from '@/components/ui/LocalKickoff';
 
 export interface FixtureItem {
   match: Match;
-  /** Kick-off text, formatted on the server (see formatKickoff) so it can't differ after hydration */
-  day: string;
-  time: string;
   /** Ticket page; when set, the card opens it and its call to action reads "Buy tickets" */
   ticketsUrl?: string;
 }
 
 interface FixturesCarouselProps {
   items: FixtureItem[];
-  /** Next Wydad kick-off, for the countdown in the header */
-  nextKickoff?: string;
+  /** Next or current Wydad game: countdown until kick-off, then its live status */
+  nextMatch?: Match;
   /** Extra card appended after the matches (e.g. the Botola record) */
   extra?: ReactNode;
   /** Title set in the CMS (home_sections); "Calendar" otherwise */
@@ -53,7 +51,7 @@ function TeamLine({ team, score, showScore }: { team: Match['home_team']; score:
   return (
     <div className="flex min-w-0 items-center gap-3">
       <TeamCrest team={team} size={34} fallbackClassName="rounded-full bg-[#d9dce1] text-[#1b2533]" />
-      <span className="min-w-0 truncate font-condensed text-[30px] font-extrabold uppercase italic leading-none tracking-tight text-[#0f1620] rtl:not-italic sm:text-[34px]">
+      <span className="min-w-0 truncate py-[0.06em] pe-[0.14em] font-condensed text-[30px] font-extrabold uppercase italic leading-none tracking-tight text-[#0f1620] rtl:not-italic sm:text-[34px]">
         {clubShortName(team)}
       </span>
       {showScore && (
@@ -65,7 +63,8 @@ function TeamLine({ team, score, showScore }: { team: Match['home_team']; score:
   );
 }
 
-function FixtureCard({ match, day, time, ticketsUrl }: FixtureItem) {
+function FixtureCard({ match, ticketsUrl }: FixtureItem) {
+  const locale = useLocale();
   const t = useTranslations('matches');
   const isFinished = match.status === 'finished';
   const isLive = match.status === 'live';
@@ -114,7 +113,7 @@ function FixtureCard({ match, day, time, ticketsUrl }: FixtureItem) {
           <span>{t('full_time')}</span>
         ) : (
           <span>
-            <span className="text-[#6f7f92]">{day}</span> {time}
+            <span className="text-[#6f7f92]"><LocalKickoff iso={match.kickoff} locale={locale} kind="day" /></span> <LocalKickoff iso={match.kickoff} locale={locale} kind="time" />
           </span>
         )}
       </div>
@@ -134,7 +133,7 @@ function FixtureCard({ match, day, time, ticketsUrl }: FixtureItem) {
   );
 }
 
-export function FixturesCarousel({ items, nextKickoff, extra, title }: FixturesCarouselProps) {
+export function FixturesCarousel({ items, nextMatch, extra, title }: FixturesCarouselProps) {
   const t = useTranslations('matches');
   const locale = useLocale();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -185,11 +184,8 @@ export function FixturesCarousel({ items, nextKickoff, extra, title }: FixturesC
             <h2 className="font-condensed text-4xl font-extrabold uppercase italic leading-none text-white rtl:not-italic sm:text-5xl">
               {title ?? t('calendar')}
             </h2>
-            {nextKickoff && (
-              <div className="flex items-center gap-4">
-                <span className="font-condensed text-sm font-extrabold uppercase italic text-white/80 rtl:not-italic">{t('next_match')}</span>
-                <NextMatchCountdown kickoff={nextKickoff} tone="light" />
-              </div>
+            {nextMatch && (
+              <NextMatchStatus match={nextMatch} tone="light" label={t('next_match')} />
             )}
           </div>
           <div className="flex items-center gap-1.5">

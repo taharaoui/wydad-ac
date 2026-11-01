@@ -22,7 +22,12 @@
     "ig_new_tab": "(إنستغرام، تفتح في علامة تبويب جديدة)",
     "ig_posts": "منشور",
     "ig_followers": "متابع",
-    "ig_follow_short": "متابعة"
+    "ig_follow_short": "متابعة",
+    "see_post": "مشاهدة المنشور",
+    "gold_title_1": "الدائرة الأكثر حصرية",
+    "gold_title_2": "في الوداد.",
+    "gold_text": "بطاقة ذهبية مرقمة لعدد محدود جدا من الأعضاء: مقصورة خاصة، ضيافة راقية، وقرب من قلب الفريق.",
+    "gold_cta": "اكتشف Gold Membership"
   },
   "matches": {
     "matchday": "الجولة",
@@ -280,7 +285,8 @@
     "type_article": "مقالات",
     "type_video": "فيديوهات",
     "results_count": "{count, plural, one {محتوى واحد} other {{n} محتوى}}",
-    "empty": "لا يوجد محتوى لهذا الاختيار بعد."
+    "empty": "لا يوجد محتوى لهذا الاختيار بعد.",
+    "type_facebook": "فيسبوك"
   },
   "team": {
     "squad": "الفريق الأول",
@@ -578,7 +584,10 @@
     "pos_power_forward": "جناح قوي",
     "pos_center": "لاعب ارتكاز",
     "buy_tickets": "اقتناء التذاكر",
-    "new_tab": "(تفتح في علامة تبويب جديدة)"
+    "new_tab": "(تفتح في علامة تبويب جديدة)",
+    "results": "النتائج",
+    "win_short": "ف",
+    "loss_short": "خ"
   },
   "football": {
     "section": "كرة القدم - رجال",

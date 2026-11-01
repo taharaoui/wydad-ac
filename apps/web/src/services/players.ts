@@ -8,7 +8,7 @@ import {
   fetchPlayerStats,
   type MappedPlayer,
   type MappedPlayerStats,
-} from '@/lib/stats-api';
+} from '@/lib/football-data';
 
 // ── Mappers ──
 

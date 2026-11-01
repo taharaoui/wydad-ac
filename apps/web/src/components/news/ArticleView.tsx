@@ -4,7 +4,7 @@ import type { NewsArticle } from '@/types';
 import { getMatchById } from '@/services/matches';
 import { Link } from '@/i18n/navigation';
 import { clubShortName } from '@/lib/clubs';
-import { formatKickoffLong } from '@/lib/datetime';
+import { LocalKickoff } from '@/components/ui/LocalKickoff';
 import { TeamCrest } from '@/components/ui/TeamCrest';
 
 /** An article as shown on its page; also used by the admin preview (drafts included). */
@@ -107,7 +107,7 @@ export async function ArticleView({ article, locale }: { article: NewsArticle; l
                     ))}
                   </ul>
                 )}
-                <p className="mt-4 text-xs text-fg-muted">{formatKickoffLong(match.kickoff, locale)}</p>
+                <p className="mt-4 text-xs text-fg-muted"><LocalKickoff iso={match.kickoff} locale={locale} kind="long" /></p>
                 <span className="mt-3 flex items-center justify-between font-condensed text-lg font-bold uppercase text-fg group-hover:text-wydad-red">
                   {t('match_centre')}
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="rtl:rotate-180">

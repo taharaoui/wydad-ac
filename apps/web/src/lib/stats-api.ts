@@ -47,6 +47,12 @@ const IS_BUILD = process.env.NEXT_PHASE === 'phase-production-build';
 const IS_PROD_RUNTIME = !IS_BUILD && process.env.VERCEL_ENV === 'production';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * Shortest cache for a response (seconds). Only the match itself and the current season's list ask
+ * for 60 s, so scores refresh during a game; everything else keeps 5 minutes or more.
+ */
+const MIN_CACHE = 60;
+
 async function apiFetch<T>(
   path: string,
   options?: { revalidate?: number },
@@ -59,7 +65,7 @@ async function apiFetch<T>(
       headers: { Authorization: `Bearer ${API_KEY}` },
       // Responses are shared by every page through Next's data cache; keep them long enough to
       // stay well under the per-minute limit
-      next: { revalidate: Math.max(options?.revalidate ?? 300, 300) },
+      next: { revalidate: Math.max(options?.revalidate ?? 300, MIN_CACHE) },
     });
     // On 429, wait for the rate-limit window to reset instead of falling back to demo data: up to
     // four times (~1 min each) during the build, twice in production. Production pages are
@@ -71,7 +77,7 @@ async function apiFetch<T>(
       await sleep(Math.min(IS_BUILD ? 65_000 : 30_000, Math.max(2_000, (reset || Date.now() + 60_000) - Date.now() + 500)));
       res = await fetch(url, {
         headers: { Authorization: `Bearer ${API_KEY}` },
-        next: { revalidate: Math.max(options?.revalidate ?? 300, 300) },
+        next: { revalidate: Math.max(options?.revalidate ?? 300, MIN_CACHE) },
       });
     }
   } catch (err) {

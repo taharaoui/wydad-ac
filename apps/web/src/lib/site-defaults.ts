@@ -19,10 +19,10 @@ export interface Partner {
 }
 
 export const SOCIAL_LINKS: SocialLink[] = [
-  { network: 'youtube', url: 'https://youtube.com/@WydadAC' },
-  { network: 'instagram', url: 'https://instagram.com/wydad.official' },
+  { network: 'youtube', url: 'https://www.youtube.com/@WACofficiel' },
+  { network: 'instagram', url: 'https://www.instagram.com/wacofficiel/' },
   { network: 'x', url: 'https://x.com/WACofficiel' },
-  { network: 'facebook', url: 'https://facebook.com/WydadAC' },
+  { network: 'facebook', url: 'https://www.facebook.com/WACofficiel/' },
 ];
 
 export const PARTNERS: Partner[] = [
@@ -51,5 +51,5 @@ export const FOOTER_SERVICE_LINKS: NavLink[] = [
 ];
 
 /** Home page sections in their default order (home_sections in the CMS) */
-export const HOME_SECTION_KEYS = ['fixtures', 'standings', 'brand', 'news', 'instagram'] as const;
+export const HOME_SECTION_KEYS = ['fixtures', 'news', 'standings', 'brand', 'instagram'] as const;
 export type HomeSectionKey = (typeof HOME_SECTION_KEYS)[number];

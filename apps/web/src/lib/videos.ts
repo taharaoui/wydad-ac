@@ -5,7 +5,7 @@ import { clubName } from '@/lib/clubs';
  * newer uploads from the channel's RSS feed, so new videos appear without editing this file.
  */
 export const WAC_CHANNEL_URL = 'https://www.youtube.com/@WACofficiel';
-const WAC_CHANNEL_ID = 'UCf65dQ8syRzRPpALKZQUcOQ';
+export const WAC_CHANNEL_ID = 'UCf65dQ8syRzRPpALKZQUcOQ';
 
 export type VideoCategory = 'training' | 'behind_the_scenes' | 'press_conference' | 'interview' | 'highlights';
 
@@ -34,17 +34,17 @@ type Raw = Omit<Video, 'category'>;
 
 /** Snapshot of the channel, newest first (22 Oct 2026) */
 const CHANNEL_VIDEOS: Raw[] = [
-  { id: 'zd4sEN4mlUo', title: 'Inside The Match | Close-Up Action, Player Focus & Match Reaction', published_at: '2026-10-20T21:00:11Z', match_id: 'mt_371866534' },
+  { id: 'zd4sEN4mlUo', title: 'Inside The Match | Close-Up Action, Player Focus & Match Reaction', published_at: '2026-10-20T21:00:11Z', match_id: 'cmuuzodrtu4noti07roj377su' },
   { id: 'bq6fVyJh7r4', title: 'Game Day Ready | Saturday Pitch Work at Benjelloun Complex Headquarters', published_at: '2026-10-17T21:40:59Z' },
   { id: 'kPmj2TOKleI', title: 'INSIDE TRAINING | Pushing Beyond Limits: Relentless Work Rate at Benjelloun!', published_at: '2026-10-16T17:00:08Z' },
   { id: '6IBAoneZBCc', title: 'Inside Training | Squad Intensifies Preparation Ahead of Sunday Fixture', published_at: '2026-10-14T17:00:10Z' },
-  { id: 'CE5LqqbSu9E', title: 'INSIDE THE MATCH | Raw Pitchside & Tunnel Access! Wydad AC 0-0 CODM', published_at: '2026-10-12T22:00:06Z', match_id: 'mt_982177608' },
-  { id: 'sYtb7tVYnN0', title: 'Press Conference | Paulo Sérgio Post-Match Reaction: Wydad AC 0-0 CODM', published_at: '2026-10-12T00:21:28Z', match_id: 'mt_982177608' },
+  { id: 'CE5LqqbSu9E', title: 'INSIDE THE MATCH | Raw Pitchside & Tunnel Access! Wydad AC 0-0 CODM', published_at: '2026-10-12T22:00:06Z', match_id: 'cmuuzned3tv2vti07yy6v9d7j' },
+  { id: 'sYtb7tVYnN0', title: 'Press Conference | Paulo Sérgio Post-Match Reaction: Wydad AC 0-0 CODM', published_at: '2026-10-12T00:21:28Z', match_id: 'cmuuzned3tv2vti07yy6v9d7j' },
   { id: 'DjYxQz87jIA', title: 'MATCHDAY -1! | Final Session at Benjelloun Before Tomorrow Clash vs CODM!', published_at: '2026-10-10T23:15:00Z' },
   { id: 'JpxJYFtdStw', title: 'Friday Session | Squad Prepares for Sunday Botola Pro Fixture vs CODM', published_at: '2026-10-09T17:00:07Z' },
   { id: 'DEmax-JdwTE', title: 'INSIDE TRAINING | Light Work & Smiles: Squad Recharges After 2-0 Victory!', published_at: '2026-10-05T17:00:11Z' },
-  { id: 'UyOLu18csys', title: 'INSIDE THE MATCH | Away Day Glory! DHJ 0-2 Wydad AC | Ganvoula & Zemraoui Strike!', published_at: '2026-10-04T21:00:10Z', match_id: 'mt_735424375' },
-  { id: 'yeoRRsP74Cw', title: 'PRESS CONFERENCE | Paulo Sérgio Reacts to 2-0 Win vs DHJ!', published_at: '2026-10-03T22:00:08Z', match_id: 'mt_735424375' },
+  { id: 'UyOLu18csys', title: 'INSIDE THE MATCH | Away Day Glory! DHJ 0-2 Wydad AC | Ganvoula & Zemraoui Strike!', published_at: '2026-10-04T21:00:10Z', match_id: 'cmu9exfop16wikm08sjxacs94' },
+  { id: 'yeoRRsP74Cw', title: 'PRESS CONFERENCE | Paulo Sérgio Reacts to 2-0 Win vs DHJ!', published_at: '2026-10-03T22:00:08Z', match_id: 'cmu9exfop16wikm08sjxacs94' },
   { id: 'kvQMEPEesOM', title: 'MATCHDAY -1! | Final Session at Benjelloun before tomorrow Matchday 02 Clash vs DHJ!', published_at: '2026-10-02T21:00:11Z' },
   { id: 'Fzc1Oh81Vgg', title: 'FIRST INTERVIEW | Yahya Attiat Allah: "A Special Feeling Remains!"', published_at: '2026-10-01T21:40:08Z' },
   { id: '4AoNMGKwM-w', title: 'BEHIND THE SCENES | Inside the Official 26/27 Home Kit Reveal Shoot!', published_at: '2026-09-30T18:00:08Z' },
@@ -71,10 +71,19 @@ const withCategory = (v: Raw): Video => ({ ...v, category: categorize(v.title) }
 /** The snapshot, for static generation */
 export const VIDEOS: Video[] = CHANNEL_VIDEOS.map(withCategory);
 
-/** Snapshot plus newer uploads from the channel RSS feed (refreshed every 3 hours), newest first. */
+/** Cache tag of the channel feed: the YouTube push notification (api/websub/youtube) revalidates it */
+export const YOUTUBE_TAG = 'youtube';
+export const WAC_CHANNEL_FEED = `https://www.youtube.com/feeds/videos.xml?channel_id=${WAC_CHANNEL_ID}`;
+/** Topic of the channel on YouTube's push hub (WebSub) */
+export const YOUTUBE_TOPIC = `https://www.youtube.com/xml/feeds/videos.xml?channel_id=${WAC_CHANNEL_ID}`;
+
+/**
+ * Snapshot plus newer uploads from the channel RSS feed, newest first. The feed is re-read every
+ * 10 minutes, and at once when YouTube notifies a new upload.
+ */
 export async function getVideos(): Promise<Video[]> {
   try {
-    const res = await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${WAC_CHANNEL_ID}`, { next: { revalidate: 3 * 3600 } });
+    const res = await fetch(WAC_CHANNEL_FEED, { next: { revalidate: 600, tags: [YOUTUBE_TAG] } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const xml = await res.text();
     const known = new Set(VIDEOS.map((v) => v.id));

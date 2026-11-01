@@ -1,0 +1,3 @@
+{
+  "crons": [{ "path": "/api/websub/subscribe", "schedule": "0 5 * * *" }]
+}

@@ -1,16 +1,17 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import { redirect } from '@/i18n/navigation';
+import { LEGACY_MATCH_IDS } from '@/lib/legacy-match-ids';
 import { getMatchById, getMatchContext, getStandings } from '@/services/matches';
 import { MatchHeader } from '@/components/matches/MatchHeader';
 import { MatchStatsPanel } from '@/components/matches/MatchStats';
 import { MatchPitch } from '@/components/matches/MatchPitch';
 import { PlayerOfTheMatch } from '@/components/matches/PlayerOfTheMatch';
 import { PlayerStatsTable } from '@/components/matches/PlayerStatsTable';
-import { isWydadTeam } from '@/lib/stats-api';
+import { fetchMatchReferee, isWydadTeam } from '@/lib/football-data';
 import { getPlayerOfTheMatch } from '@/lib/rating';
 import { buildMatchSummary, teamAverageRating } from '@/lib/match-summary';
 import { getPlayerPhotos } from '@/lib/player-photos';
-import { formatKickoff, formatKickoffLong } from '@/lib/datetime';
 import { findArryadiaHighlight, highlightsSearchUrl } from '@/lib/highlights';
 import { getVideos, matchVideos } from '@/lib/videos';
 import { BehindTheScenes } from '@/components/matches/centre/BehindTheScenes';
@@ -26,6 +27,7 @@ import { MiniStandings } from '@/components/matches/centre/MiniStandings';
 import { FormPills } from '@/components/matches/centre/FormGuide';
 import { H2HPanel } from '@/components/matches/centre/H2HPanel';
 import { TeamCrest } from '@/components/ui/TeamCrest';
+import { MatchAutoRefresh } from '@/components/matches/MatchAutoRefresh';
 
 /**
  * Rendered on first visit, then cached, instead of at build time: prerendering every page would
@@ -42,6 +44,8 @@ export default async function MatchDetailPage({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
+  // Links shared before the switch to Goal API
+  if (LEGACY_MATCH_IDS[id]) redirect(`/matches/${LEGACY_MATCH_IDS[id]}`);
 
   const [match, standings] = await Promise.all([getMatchById(id), getStandings()]);
   if (!match) notFound();
@@ -67,6 +71,8 @@ export default async function MatchDetailPage({
   const summary = buildMatchSummary(match);
   // Hand-entered scorers/venue when the source has none
   const note = await getMatchNote(match.id);
+  // Officials entered by hand win; otherwise the referee published by the data provider
+  const referee = note?.officials ? null : await fetchMatchReferee(match.id);
   if (note?.goals?.length) {
     summary.goals = note.goals.map((g) => ({ side: g.side, player: g.player, count: 1, assists: [], minute: g.minute, penalty: g.penalty }));
   }
@@ -78,7 +84,6 @@ export default async function MatchDetailPage({
   const playerIds = [...(match.home_lineup?.players ?? []), ...(match.away_lineup?.players ?? [])].map((p) => p.id);
   // Photos set in the CMS win over the files in public/assets/players
   const photos = { ...getPlayerPhotos(playerIds), ...(await getCmsPlayerPhotos(playerIds)) };
-  const dateLabel = formatKickoffLong(match.kickoff, locale);
   const wydadTeam = isWydad(match.home_team.id) ? match.home_team : match.away_team;
 
   const dateLocale = locale === 'ar' ? 'ar-MA' : locale === 'fr' ? 'fr-FR' : 'en-GB';
@@ -217,7 +222,7 @@ export default async function MatchDetailPage({
         )}
       </div>
       <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-5">
-        <MatchInfoCard match={match} dateLabel={dateLabel} officials={note?.officials} locale={locale} />
+        <MatchInfoCard match={match} officials={note?.officials ?? (referee ? [{ role: 'referee', name: referee, name_ar: referee }] : undefined)} locale={locale} />
         <MiniStandings standings={standings} teamIds={[match.home_team.id, match.away_team.id]} />
         {formCard}
       </div>
@@ -277,10 +282,9 @@ export default async function MatchDetailPage({
 
   return (
     <div>
+      <MatchAutoRefresh kickoff={match.kickoff} finished={isFinished} />
       <MatchHeader
         match={match}
-        dateLabel={dateLabel}
-        timeLabel={formatKickoff(match.kickoff, locale).time}
         goals={summary.goals}
       />
 

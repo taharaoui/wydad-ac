@@ -22,7 +22,12 @@
     "ig_new_tab": "(Instagram, opens in a new tab)",
     "ig_posts": "posts",
     "ig_followers": "followers",
-    "ig_follow_short": "Follow"
+    "ig_follow_short": "Follow",
+    "see_post": "See the post",
+    "gold_title_1": "Wydad’s most exclusive",
+    "gold_title_2": "circle.",
+    "gold_text": "A numbered gold card for a very few members: a private box, premium hospitality and access to the heart of the team.",
+    "gold_cta": "Discover the Gold Membership"
   },
   "matches": {
     "matchday": "Matchday",
@@ -280,7 +285,8 @@
     "type_article": "Articles",
     "type_video": "Videos",
     "results_count": "{count, plural, one {{n} item} other {{n} items}}",
-    "empty": "Nothing here yet for this selection."
+    "empty": "Nothing here yet for this selection.",
+    "type_facebook": "Facebook"
   },
   "team": {
     "squad": "First Team Squad",
@@ -578,7 +584,10 @@
     "pos_power_forward": "Power forward",
     "pos_center": "Center",
     "buy_tickets": "Buy tickets",
-    "new_tab": "(opens in a new tab)"
+    "new_tab": "(opens in a new tab)",
+    "results": "Results",
+    "win_short": "W",
+    "loss_short": "L"
   },
   "football": {
     "section": "Men’s football",
