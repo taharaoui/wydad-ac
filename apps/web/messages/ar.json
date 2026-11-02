@@ -286,7 +286,13 @@
     "type_video": "فيديوهات",
     "results_count": "{count, plural, one {محتوى واحد} other {{n} محتوى}}",
     "empty": "لا يوجد محتوى لهذا الاختيار بعد.",
-    "type_facebook": "فيسبوك"
+    "type_facebook": "فيسبوك",
+    "first_team": "الفريق الأول",
+    "espoirs": "الأمل",
+    "women": "كرة القدم النسوية",
+    "club_news": "أخبار النادي",
+    "academy": "الأكاديمية",
+    "official": "بلاغات رسمية"
   },
   "team": {
     "squad": "الفريق الأول",

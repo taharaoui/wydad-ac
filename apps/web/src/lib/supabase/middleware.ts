@@ -8,7 +8,8 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL, isSupabaseConfigured } from './config'
  * every action) and by RLS; this is only the first gate.
  */
 export async function adminMiddleware(request: NextRequest) {
-  const isLogin = request.nextUrl.pathname === '/admin/login';
+  // Pages open without a session: sign-in and invitation acceptance
+  const isLogin = request.nextUrl.pathname === '/admin/login' || request.nextUrl.pathname === '/admin/accept';
   if (!isSupabaseConfigured()) return isLogin ? NextResponse.next() : NextResponse.redirect(new URL('/admin/login', request.url));
 
   let response = NextResponse.next({ request });

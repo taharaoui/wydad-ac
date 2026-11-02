@@ -984,7 +984,10 @@ export type Database = {
     Views: { [_ in never]: never };
     Functions: {
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      is_staff: { Args: Record<PropertyKey, never>; Returns: boolean };
+      mark_onboarded: { Args: Record<PropertyKey, never>; Returns: unknown };
       media_usage: { Args: { target_url: string }; Returns: { table_name: string; row_count: number }[] };
+      staff_can_publish: { Args: Record<PropertyKey, never>; Returns: boolean };
     };
     Enums: {
       content_status: 'draft' | 'review' | 'published' | 'archived';

@@ -1,153 +1,160 @@
 import Link from 'next/link';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { requireAdminPage } from '@/lib/admin/auth';
-import { getResource } from '@/lib/admin/resources';
+import { requireStaffPage } from '@/lib/admin/auth';
+import { articleTitle } from '@/lib/editorial/data';
+import { StatusBadge } from '@/components/admin/editorial/StatusBadge';
+import { Onboarding } from '@/components/admin/editorial/Onboarding';
 import { isCmsLive } from '@/lib/supabase/config';
-import { getRecentMatches } from '@/services/matches';
-import { pick } from '@/lib/cms/l10n';
 
 export const metadata = { title: 'Tableau de bord' };
 
 const fmt = (iso: string) =>
   new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Casablanca' }).format(new Date(iso));
 
-/** Tables whose latest edits are listed, with the column naming each row */
-const RECENT: { resource: string; label: string; l10n?: boolean }[] = [
-  { resource: 'news', label: 'title', l10n: true },
-  { resource: 'pages', label: 'title', l10n: true },
-  { resource: 'highlights', label: 'title', l10n: true },
-  { resource: 'staff', label: 'name' },
-  { resource: 'galleries', label: 'title', l10n: true },
-  { resource: 'matches', label: 'slug' },
-  { resource: 'announcements', label: 'message', l10n: true },
-  { resource: 'memberships', label: 'name', l10n: true },
-];
+const ACTIONS: Record<string, string> = {
+  created: 'a créé',
+  updated: 'a modifié',
+  submitted: 'a soumis pour relecture',
+  published: 'a publié',
+  scheduled: 'a programmé',
+  unpublished: 'a retiré du site',
+  deleted: 'a supprimé',
+};
 
-export default async function Dashboard() {
-  const { supabase } = await requireAdminPage();
-  const db = supabase as unknown as SupabaseClient;
-  const count = async (table: string, filter?: [string, string]) => {
-    let q = db.from(table).select('*', { count: 'exact', head: true });
-    if (filter) q = q.eq(filter[0], filter[1]);
-    const { count: n } = await q;
-    return n ?? 0;
-  };
-
+export default async function Dashboard({ searchParams }: { searchParams: { error?: string; tour?: string } }) {
+  const { supabase, member } = await requireStaffPage();
+  const isAdmin = member.role === 'admin';
   const now = new Date().toISOString();
-  const [published, drafts, players, staff, pages, media, manualMatches, botola, recentLists] = await Promise.all([
-    count('news_articles', ['status', 'published']),
-    count('news_articles', ['status', 'draft']),
-    count('players'),
-    count('staff_members', ['status', 'published']),
-    count('pages', ['status', 'published']),
-    count('media'),
-    db.from('matches').select('id, slug, kickoff, sport, status').gte('kickoff', now).order('kickoff').limit(5),
-    getRecentMatches(8).catch(() => []),
-    Promise.all(
-      RECENT.map(async (r) => {
-        const def = getResource(r.resource)!;
-        const { data } = await db.from(def.table).select(`id, updated_at, ${r.label}` as '*').order('updated_at', { ascending: false }).limit(5);
-        return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
-          href: `/admin/${def.key}/${row.id}`,
-          module: def.label,
-          label: (r.l10n ? pick(row[r.label] as never, 'fr') : String(row[r.label] ?? '')) || '(sans titre)',
-          updated: String(row.updated_at),
-        }));
-      }),
-    ),
-  ]);
-  const recent = recentLists.flat().sort((a, b) => b.updated.localeCompare(a.updated)).slice(0, 8);
-  const nextBotola = botola.filter((m) => m.status === 'scheduled' || m.status === 'live').sort((a, b) => a.kickoff.localeCompare(b.kickoff)).slice(0, 3);
+  const count = async (build: (q: ReturnType<typeof base>) => ReturnType<typeof base>) => (await build(base())).count ?? 0;
+  const base = () => supabase.from('news_articles').select('id', { count: 'exact', head: true });
 
-  const stats = [
-    { label: 'Articles publiés', value: published, href: '/admin/news?status=published' },
-    { label: 'Brouillons', value: drafts, href: '/admin/news?status=draft' },
-    { label: 'Joueurs enregistrés', value: players, href: '/admin/players' },
-    { label: 'Membres du staff', value: staff, href: '/admin/staff' },
-    { label: 'Pages publiées', value: pages, href: '/admin/pages' },
-    { label: 'Médias', value: media, href: '/admin/media' },
+  const [published, scheduled, drafts, review, mine, recent, toReview, activity] = await Promise.all([
+    count((q) => q.eq('status', 'published').lte('published_at', now)),
+    count((q) => q.eq('status', 'published').gt('published_at', now)),
+    count((q) => q.eq('status', 'draft')),
+    count((q) => q.eq('status', 'review')),
+    supabase.from('news_articles').select('id, title, language, status, updated_at').eq('created_by', member.userId).in('status', ['draft', 'review']).order('updated_at', { ascending: false }).limit(5),
+    supabase.from('news_articles').select('id, slug, title, language, published_at, cover_url').eq('status', 'published').lte('published_at', now).order('published_at', { ascending: false }).limit(5),
+    supabase.from('news_articles').select('id, title, language, author, submitted_at').eq('status', 'review').order('submitted_at', { ascending: true }).limit(5),
+    supabase.from('editorial_activity').select('*').order('created_at', { ascending: false }).limit(10),
+  ]);
+
+  const tiles = [
+    { label: 'Publiés', value: published, href: '/admin/articles?status=published', tone: 'text-emerald-700' },
+    { label: 'Programmés', value: scheduled, href: '/admin/articles?status=scheduled', tone: 'text-sky-700' },
+    { label: 'À relire', value: review, href: '/admin/articles?status=review', tone: 'text-amber-700' },
+    { label: 'Brouillons', value: drafts, href: '/admin/articles?status=draft', tone: 'text-fg' },
   ];
 
   return (
     <div className="space-y-8">
-      <header>
-        <h1 className="font-condensed text-4xl font-extrabold uppercase italic">Tableau de bord</h1>
-        <p className="mt-1 text-fg-secondary">Contenus du site enregistrés dans Supabase.</p>
-      </header>
-
-      {!isCmsLive() && (
-        <div className="rounded-xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-900">
-          <p className="font-semibold">Le site public affiche encore le contenu intégré au code.</p>
-          <p className="mt-1">
-            Vos modifications sont bien enregistrées. Pour que le site les affiche, vérifiez l’import puis définissez <code className="rounded bg-white px-1">CMS_SOURCE=supabase</code> sur Vercel (voir docs/ADMIN.md).
-          </p>
-        </div>
+      {(!member.onboarded || searchParams.tour) && <Onboarding name={member.displayName.includes('@') ? '' : member.displayName} />}
+      {searchParams.error === 'admin-only' && (
+        <p role="alert" className="rounded-xl bg-wydad-red/10 px-4 py-3 text-sm font-medium text-wydad-red">Cette page est réservée aux administrateurs.</p>
+      )}
+      {isAdmin && !isCmsLive() && (
+        <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Le site public affiche encore le contenu intégré : les articles publiés ici n’y apparaîtront qu’une fois <code>CMS_SOURCE=supabase</code> activé (voir docs/ADMIN.md).
+        </p>
       )}
 
-      <section aria-label="Raccourcis" className="flex flex-wrap gap-2">
-        {[
-          ['/admin/news/new', 'Nouvel article'],
-          ['/admin/highlights/new', 'Actualité de section'],
-          ['/admin/announcements/new', 'Annonce'],
-          ['/admin/pages/new', 'Nouvelle page'],
-          ['/admin/media', 'Importer des images'],
-        ].map(([href, label]) => (
-          <Link key={href} href={href} className="rounded-lg bg-wydad-logo px-4 py-2.5 text-sm font-semibold text-white hover:bg-wydad-red-hover">
-            + {label}
-          </Link>
-        ))}
-      </section>
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-condensed text-4xl font-extrabold uppercase italic">Tableau de bord</h1>
+          <p className="mt-1 text-fg-secondary">
+            {isAdmin ? 'Administrateur' : member.canPublish ? 'Rédacteur · autorisé à publier' : 'Rédacteur · vos articles sont relus avant publication'}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/admin?tour=1" className="inline-flex min-h-11 items-center rounded-lg border border-border bg-white px-4 font-semibold text-fg hover:border-wydad-logo">Revoir le guide</Link>
+          <Link href="/admin/articles/new" className="inline-flex min-h-11 items-center rounded-lg bg-wydad-logo px-5 font-semibold text-white hover:bg-wydad-red-hover">+ Créer un article</Link>
+        </div>
+      </header>
 
-      <section aria-label="Chiffres" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        {stats.map((s) => (
-          <Link key={s.label} href={s.href} className="rounded-xl border border-border bg-white p-4 shadow-sm hover:border-wydad-logo">
-            <p className="font-condensed text-4xl font-extrabold tabular-nums text-wydad-red">{s.value}</p>
-            <p className="mt-1 text-sm text-fg-secondary">{s.label}</p>
-          </Link>
+      <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {tiles.map((t) => (
+          <li key={t.label}>
+            <Link href={t.href} className="block rounded-2xl border border-border bg-white p-5 shadow-sm transition-colors hover:border-wydad-logo">
+              <span className={`block font-condensed text-5xl font-extrabold leading-none ${t.tone}`}>{t.value}</span>
+              <span className="mt-2 block text-sm font-semibold text-fg-secondary">{t.label}</span>
+            </Link>
+          </li>
         ))}
-      </section>
+      </ul>
 
       <div className="grid gap-6 lg:grid-cols-2">
+        {(isAdmin || member.canPublish) && (
+          <section className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+            <h2 className="font-condensed text-2xl font-extrabold uppercase">En attente de relecture</h2>
+            {(toReview.data ?? []).length === 0 ? (
+              <p className="mt-3 text-sm text-fg-muted">Aucun article à relire.</p>
+            ) : (
+              <ul className="mt-3 divide-y divide-border">
+                {toReview.data!.map((a) => (
+                  <li key={a.id} className="flex items-center justify-between gap-3 py-2.5">
+                    <Link href={`/admin/articles/${a.id}`} className="min-w-0 truncate font-semibold text-fg hover:text-wydad-logo" dir={a.language === 'ar' ? 'rtl' : undefined}>{articleTitle(a)}</Link>
+                    <span className="shrink-0 text-xs text-fg-muted">{a.author ?? ''}{a.submitted_at ? ` · ${fmt(a.submitted_at)}` : ''}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
+
         <section className="rounded-2xl border border-border bg-white p-5 shadow-sm">
-          <h2 className="font-condensed text-2xl font-bold uppercase">Prochains matchs</h2>
-          <ul className="mt-4 divide-y divide-border">
-            {nextBotola.map((m) => (
-              <li key={m.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
-                <span className="font-medium">
-                  {m.home_team.short_name || m.home_team.name} – {m.away_team.short_name || m.away_team.name}
-                  <span className="ms-2 rounded bg-surface-secondary px-1.5 py-0.5 text-xs text-fg-muted">Botola · TheStatsAPI</span>
-                </span>
-                <span className="shrink-0 text-fg-muted">{fmt(m.kickoff)}</span>
+          <h2 className="font-condensed text-2xl font-extrabold uppercase">Mes articles en cours</h2>
+          {(mine.data ?? []).length === 0 ? (
+            <p className="mt-3 text-sm text-fg-muted">Aucun brouillon. <Link href="/admin/articles/new" className="font-semibold text-wydad-logo underline">Écrire un article</Link></p>
+          ) : (
+            <ul className="mt-3 divide-y divide-border">
+              {mine.data!.map((a) => (
+                <li key={a.id} className="flex items-center justify-between gap-3 py-2.5">
+                  <Link href={`/admin/articles/${a.id}`} className="min-w-0 truncate font-semibold text-fg hover:text-wydad-logo" dir={a.language === 'ar' ? 'rtl' : undefined}>{articleTitle(a) || '(sans titre)'}</Link>
+                  <StatusBadge status={a.status === 'review' ? 'review' : 'draft'} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+          <h2 className="font-condensed text-2xl font-extrabold uppercase">Récemment publiés</h2>
+          <ul className="mt-3 divide-y divide-border">
+            {(recent.data ?? []).map((a) => (
+              <li key={a.id} className="flex items-center gap-3 py-2.5">
+                {a.cover_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={a.cover_url} alt="" className="aspect-video w-16 shrink-0 rounded object-cover" />
+                ) : (
+                  <span className="aspect-video w-16 shrink-0 rounded bg-surface-secondary" />
+                )}
+                <Link href={`/admin/articles/${a.id}`} className="min-w-0 flex-1 truncate font-semibold text-fg hover:text-wydad-logo" dir={a.language === 'ar' ? 'rtl' : undefined}>{articleTitle(a)}</Link>
+                <span className="shrink-0 text-xs text-fg-muted">{a.published_at ? fmt(a.published_at) : ''}</span>
               </li>
             ))}
-            {(manualMatches.data ?? []).map((m) => (
-              <li key={m.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
-                <Link href={`/admin/matches/${m.id}`} className="font-medium hover:text-wydad-red">
-                  {m.slug}
-                  <span className="ms-2 rounded bg-surface-secondary px-1.5 py-0.5 text-xs text-fg-muted">{m.sport}</span>
-                </Link>
-                <span className="shrink-0 text-fg-muted">{fmt(m.kickoff)}</span>
-              </li>
-            ))}
-            {nextBotola.length === 0 && !(manualMatches.data ?? []).length && <li className="py-2.5 text-sm text-fg-muted">Aucun match à venir.</li>}
           </ul>
         </section>
 
         <section className="rounded-2xl border border-border bg-white p-5 shadow-sm">
-          <h2 className="font-condensed text-2xl font-bold uppercase">Dernières modifications</h2>
-          <ul className="mt-4 divide-y divide-border">
-            {recent.map((r) => (
-              <li key={r.href} className="flex items-center justify-between gap-3 py-2.5 text-sm">
-                <Link href={r.href} className="min-w-0 truncate font-medium hover:text-wydad-red">
-                  {r.label}
-                </Link>
-                <span className="shrink-0 text-xs text-fg-muted">
-                  {r.module} · {fmt(r.updated)}
-                </span>
-              </li>
-            ))}
-            {recent.length === 0 && <li className="py-2.5 text-sm text-fg-muted">Rien pour l’instant.</li>}
-          </ul>
+          <h2 className="font-condensed text-2xl font-extrabold uppercase">Activité de la rédaction</h2>
+          {(activity.data ?? []).length === 0 ? (
+            <p className="mt-3 text-sm text-fg-muted">Rien pour l’instant.</p>
+          ) : (
+            <ul className="mt-3 space-y-2.5 text-sm">
+              {activity.data!.map((e) => (
+                <li key={e.id} className="flex gap-3">
+                  <span className="w-24 shrink-0 text-xs text-fg-muted">{fmt(e.created_at)}</span>
+                  <span className="min-w-0 text-fg-secondary">
+                    <b className="text-fg">{e.actor_name ?? 'Quelqu’un'}</b> {ACTIONS[e.action] ?? e.action}{' '}
+                    {e.action !== 'deleted' && e.article_id ? (
+                      <Link href={`/admin/articles/${e.article_id}`} className="font-semibold text-fg hover:text-wydad-logo">« {e.article_title} »</Link>
+                    ) : (
+                      <span>« {e.article_title} »</span>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       </div>
     </div>

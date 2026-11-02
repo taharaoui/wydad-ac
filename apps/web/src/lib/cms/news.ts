@@ -3,7 +3,7 @@ import type { NewsArticle } from '@/types';
 import type { Tables } from '@/types/database';
 import { mockNews } from '@/lib/mock-data';
 import { cmsRead, unwrap } from './read';
-import { full, pick } from './l10n';
+import { full, pick, toLang } from './l10n';
 
 type Client = Parameters<Parameters<typeof cmsRead>[2]>[0];
 
@@ -32,15 +32,29 @@ export function toArticle(row: Tables<'news_articles'>, categories: Map<string, 
     author: row.author ?? undefined,
     seo_title: pick(row.seo_title, locale) || undefined,
     seo_description: pick(row.seo_description, locale) || undefined,
+    language: (row.language as NewsArticle['language']) ?? undefined,
+    body_html: row.body_format === 'html' ? pick(row.body, row.language ?? locale) : undefined,
+    cover_alt: row.cover_alt ?? undefined,
+    cover_mobile_url: row.cover_mobile_url ?? undefined,
+    cover_wide: !!row.cover_width,
+    featured: row.featured,
   };
 }
 
-/** Published articles, newest first (RLS hides drafts and articles scheduled for later) */
+/**
+ * Published articles, newest first (RLS hides drafts and articles scheduled for later): those
+ * written in the page language, and the older ones written in all three.
+ */
 export async function cmsLatestNews(limit: number, locale = 'fr', category?: string): Promise<NewsArticle[]> {
   const bundled = mockNews.filter((n) => !category || n.category === category).slice(0, limit);
   return cmsRead('news_articles', bundled, async (db) => {
     const categories = await categoryMap(db, locale);
-    let query = db.from('news_articles').select('*').order('published_at', { ascending: false }).limit(limit);
+    let query = db
+      .from('news_articles')
+      .select('*')
+      .or(`language.is.null,language.eq.${toLang(locale)}`)
+      .order('published_at', { ascending: false })
+      .limit(limit);
     if (category) {
       const id = [...categories].find(([, c]) => c.slug === category)?.[0];
       if (!id) return [];

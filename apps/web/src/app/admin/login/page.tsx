@@ -1,14 +1,14 @@
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
-import { getAdmin } from '@/lib/admin/auth';
+import { getStaff } from '@/lib/admin/auth';
 import { LoginForm } from './LoginForm';
 
 export const metadata = { title: 'Connexion' };
 export const dynamic = 'force-dynamic';
 
 export default async function LoginPage({ searchParams }: { searchParams: { next?: string; error?: string } }) {
-  const admin = await getAdmin();
-  if (admin.status === 'admin') redirect('/admin');
+  const admin = await getStaff();
+  if (admin.status === 'staff') redirect('/admin');
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-12">
@@ -34,7 +34,7 @@ export default async function LoginPage({ searchParams }: { searchParams: { next
             />
           )}
         </div>
-        <p className="mt-6 text-center text-xs text-fg-muted">Accès réservé aux administrateurs désignés par le club.</p>
+        <p className="mt-6 text-center text-xs text-fg-muted">Accès réservé à la rédaction et aux administrateurs du club. Vous avez reçu une invitation ? Ouvrez le lien qu’elle contient.</p>
       </div>
     </main>
   );

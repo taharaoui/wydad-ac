@@ -32,62 +32,7 @@ const seo: FieldDef[] = [
 
 export const RESOURCES: ResourceDef[] = [
   // ── Contenu ──
-  {
-    key: 'news',
-    table: 'news_articles',
-    label: 'Actualités',
-    singular: 'article',
-    description: 'Articles, communiqués et comptes rendus publiés sur le site.',
-    group: 'content',
-    statusFilter: true,
-    search: { column: 'title', l10n: true },
-    order: [{ column: 'published_at', ascending: false }, { column: 'created_at', ascending: false }],
-    publicPath: '/fr/news/{slug}',
-    preview: 'news',
-    list: [
-      { column: 'cover_url', label: '', type: 'image' },
-      { column: 'title', label: 'Titre', type: 'l10n' },
-      { column: 'category_id', label: 'Catégorie', type: 'relation', relation: { table: 'categories', labelColumn: 'name', l10n: true } },
-      { column: 'status', label: 'Statut', type: 'status' },
-      { column: 'published_at', label: 'Publication', type: 'datetime' },
-    ],
-    fields: [
-      { name: 'title', label: 'Titre', type: 'l10n', required: true, section: 'Article' },
-      { name: 'slug', label: 'Adresse (slug)', type: 'slug', from: 'title', required: true, pattern: KEBAB, patternMessage: KEBAB_MSG, help: 'Apparaît dans l’URL : /news/<slug>. Ne pas changer après publication.' },
-      { name: 'excerpt', label: 'Résumé', type: 'l10n-long', required: true, help: 'Chapô affiché en tête d’article et dans les listes.' },
-      { name: 'body', label: 'Texte', type: 'l10n-long', required: true, help: 'Séparez les paragraphes par une ligne vide.' },
-      { name: 'category_id', label: 'Catégorie', type: 'relation', relation: { table: 'categories', labelColumn: 'name', l10n: true }, required: true, half: true },
-      { name: 'sport', label: 'Section', type: 'select', options: SPORTS, required: true, half: true },
-      { name: 'cover_url', label: 'Image de couverture', type: 'image', bucket: 'news', section: 'Image' },
-      { name: 'cover_position', label: 'Cadrage de l’image', type: 'text', half: true, help: 'Position CSS, ex. « center 30% » pour remonter le cadrage.', max: 40 },
-      { name: 'cover_orientation', label: 'Format de l’image', type: 'select', half: true, options: [{ value: 'landscape', label: 'Paysage (pleine largeur)' }, { value: 'portrait', label: 'Portrait (affiche)' }] },
-      { name: 'match_id', label: 'Match lié', type: 'text', half: true, pattern: '^(mt_[0-9]+|[a-z0-9-]+)$', patternMessage: 'Identifiant du match (visible dans l’URL du centre de match) ou d’un match saisi ici', help: 'Pour un compte rendu : ouvre le centre de match.', section: 'Détails' },
-      { name: 'author', label: 'Auteur', type: 'text', half: true, max: 120 },
-      { name: 'read_time_minutes', label: 'Temps de lecture (min)', type: 'number', min: 1, max: 60, required: true, half: true },
-      status,
-      { name: 'published_at', label: 'Date de publication', type: 'datetime', half: true, help: 'Obligatoire pour publier. Une date future programme l’article.' },
-      ...seo,
-    ],
-  },
-  {
-    key: 'categories',
-    table: 'categories',
-    label: 'Catégories',
-    singular: 'catégorie',
-    description: 'Catégories des actualités.',
-    group: 'content',
-    order: [{ column: 'sort' }],
-    list: [
-      { column: 'name', label: 'Nom', type: 'l10n' },
-      { column: 'slug', label: 'Identifiant' },
-      { column: 'sort', label: 'Ordre' },
-    ],
-    fields: [
-      { name: 'name', label: 'Nom', type: 'l10n', required: true },
-      { name: 'slug', label: 'Identifiant', type: 'slug', from: 'name', required: true, pattern: '^[a-z0-9]+(_[a-z0-9]+)*$', patternMessage: 'Minuscules, chiffres et _ (ex. match_report)' },
-      sort,
-    ],
-  },
+  // Articles and categories have their own editorial pages (/admin/articles, /admin/categories)
   {
     key: 'pages',
     table: 'pages',
@@ -575,7 +520,7 @@ export const RESOURCES: ResourceDef[] = [
     ],
   },
   {
-    key: 'settings',
+    key: 'site-settings',
     table: 'site_settings',
     label: 'Paramètres du site',
     singular: 'paramètres',

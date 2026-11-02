@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { getNewsBySlug, getLatestNews } from '@/services/news';
 import { ArticleView } from '@/components/news/ArticleView';
 
@@ -8,9 +8,10 @@ import { ArticleView } from '@/components/news/ArticleView';
 export const revalidate = 300;
 
 export async function generateStaticParams() {
-  const articles = await getLatestNews(50);
+  // Each language lists its own articles (plus the older ones written in all three)
   const locales = ['ar', 'fr', 'en'];
-  return locales.flatMap((locale) => articles.map((article) => ({ locale, slug: article.slug })));
+  const lists = await Promise.all(locales.map((locale) => getLatestNews(50, locale)));
+  return locales.flatMap((locale, i) => lists[i].map((article) => ({ locale, slug: article.slug })));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
@@ -32,5 +33,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ locale
   setRequestLocale(locale);
   const article = await getNewsBySlug(slug, locale);
   if (!article) notFound();
+  // An article written in one language is only shown in that language
+  if (article.language && article.language !== locale) redirect(`${article.language === 'ar' ? '' : `/${article.language}`}/news/${article.slug}`);
   return <ArticleView article={article} locale={locale} />;
 }

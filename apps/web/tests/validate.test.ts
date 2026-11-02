@@ -3,13 +3,37 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { validateForm, isSafeUrl } from '../src/lib/admin/validate';
 import { getResource, RESOURCES } from '../src/lib/admin/resources';
+import { STATUS_OPTIONS, type ResourceDef } from '../src/lib/admin/types';
 
 const form = (entries: Record<string, string>) => {
   const f = new FormData();
   for (const [k, v] of Object.entries(entries)) f.set(k, v);
   return f;
 };
-const news = getResource('news')!;
+// The generic form engine, tested on an article-shaped resource (articles themselves now have their
+// own editor, tested in editorial.test.ts)
+const news: ResourceDef = {
+  key: 'test-news',
+  table: 'news_articles',
+  label: 'Articles',
+  singular: 'article',
+  description: '',
+  group: 'content',
+  order: [],
+  list: [],
+  fields: [
+    { name: 'title', label: 'Titre', type: 'l10n', required: true },
+    { name: 'slug', label: 'Adresse', type: 'slug', from: 'title', required: true, pattern: '^[a-z0-9]+(-[a-z0-9]+)*$', patternMessage: 'Minuscules, chiffres et tirets uniquement' },
+    { name: 'excerpt', label: 'Résumé', type: 'l10n-long', required: true },
+    { name: 'body', label: 'Texte', type: 'l10n-long', required: true },
+    { name: 'category_id', label: 'Catégorie', type: 'relation', relation: { table: 'categories', labelColumn: 'name', l10n: true }, required: true },
+    { name: 'sport', label: 'Section', type: 'select', options: [{ value: 'football', label: 'Football' }, { value: 'basketball', label: 'Basket' }], required: true },
+    { name: 'cover_url', label: 'Image', type: 'image', bucket: 'news' },
+    { name: 'read_time_minutes', label: 'Lecture', type: 'number', min: 1, max: 60, required: true },
+    { name: 'status', label: 'Statut', type: 'select', options: STATUS_OPTIONS, required: true },
+    { name: 'published_at', label: 'Date', type: 'datetime' },
+  ],
+};
 const validNews = {
   'title.fr': 'Victoire face au Raja',
   slug: 'victoire-face-au-raja',

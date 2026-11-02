@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 /** Topic filters in display order; only those with at least one story are shown */
-const TOPICS = ['football', 'basketball', 'match_report', 'club', 'transfer', 'interview', 'youth', 'wydad_tv'] as const;
+const TOPICS = ['football', 'basketball', 'first_team', 'espoirs', 'women', 'club_news', 'academy', 'official', 'match_report', 'club', 'transfer', 'interview', 'youth', 'wydad_tv'] as const;
 
 export default async function NewsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

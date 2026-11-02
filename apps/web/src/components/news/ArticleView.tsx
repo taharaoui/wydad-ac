@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation';
 import { clubShortName } from '@/lib/clubs';
 import { LocalKickoff } from '@/components/ui/LocalKickoff';
 import { TeamCrest } from '@/components/ui/TeamCrest';
+import { sanitizeArticleHtml } from '@/lib/editorial/sanitize';
 
 /** An article as shown on its page; also used by the admin preview (drafts included). */
 export async function ArticleView({ article, locale }: { article: NewsArticle; locale: string }) {
@@ -23,50 +24,83 @@ export async function ArticleView({ article, locale }: { article: NewsArticle; l
   });
   const paragraphs = article.body[lang].split(/(?:\r?\n\s*){2,}/);
   const goals = (match?.events ?? []).filter((e) => e.type === 'goal' || e.type === 'penalty_scored' || e.type === 'own_goal');
+  const alt = article.cover_alt || article.title[lang];
+  // Newsroom covers (16:9, 1200 × 675) are shown whole, above the text; older club graphics stay in the side column
+  const wide = !!article.cover_wide && !!article.cover_image_url;
+
+  const header = (
+    <>
+      <h1 className="break-words font-condensed text-5xl font-extrabold uppercase italic leading-[0.95] text-fg [overflow-wrap:anywhere] rtl:not-italic sm:text-6xl lg:text-[64px]">
+        {article.title[lang]}
+      </h1>
+      <p className="mt-5 flex flex-wrap items-center gap-2 font-condensed text-sm font-bold uppercase tracking-wide text-fg-muted">
+        <span className="text-wydad-red">{article.category_label ?? t(article.category)}</span>
+        <span aria-hidden>•</span>
+        <span>{published}</span>
+        <span aria-hidden>•</span>
+        <span>{article.read_time_minutes} {t('min_read')}</span>
+      </p>
+      <p className="mt-8 text-xl leading-relaxed text-fg [overflow-wrap:anywhere] sm:text-2xl sm:leading-relaxed">{article.excerpt[lang]}</p>
+    </>
+  );
+
+  const body = article.body_html ? (
+    // Sanitised on save (allow-list of tags, no attributes but safe links) and again when read
+    <div data-article-body className="article-body mt-10 max-w-2xl text-lg leading-relaxed text-fg-secondary" dangerouslySetInnerHTML={{ __html: sanitizeArticleHtml(article.body_html) }} />
+  ) : (
+    <div data-article-body className="mt-10 max-w-2xl space-y-5 text-lg leading-relaxed text-fg-secondary">
+      {paragraphs.map((p, i) => (
+        <p key={i}>{p}</p>
+      ))}
+    </div>
+  );
+
+  const byline = article.author && <p className="mt-10 border-t border-border pt-5 text-sm text-fg-muted">{article.author}</p>;
 
   return (
-    <article className="mx-auto max-w-7xl px-4 pb-20 pt-10 sm:px-6 lg:px-8 lg:pt-16">
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)] lg:gap-14">
+    <article data-article lang={article.language ?? locale} className="mx-auto max-w-7xl px-4 pb-20 pt-10 sm:px-6 lg:px-8 lg:pt-16">
+      {wide && (
+        <header className="max-w-4xl">
+          {header}
+          <figure className="relative mt-8 overflow-hidden bg-surface-secondary">
+            {article.cover_mobile_url ? (
+              <>
+                <div className="relative aspect-[4/5] sm:hidden">
+                  <Image src={article.cover_mobile_url} alt={alt} fill priority sizes="100vw" className="object-cover" />
+                </div>
+                <div className="relative hidden aspect-video sm:block">
+                  <Image src={article.cover_image_url!} alt={alt} fill priority sizes="(min-width: 1024px) 896px, 100vw" className="object-cover" />
+                </div>
+              </>
+            ) : (
+              <div className="relative aspect-video">
+                <Image src={article.cover_image_url!} alt={alt} fill priority sizes="(min-width: 1024px) 896px, 100vw" className="object-cover" />
+              </div>
+            )}
+          </figure>
+        </header>
+      )}
+      <div className={`grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)] lg:gap-14 ${wide ? 'mt-2' : ''}`}>
         {/* Story */}
         <div className="min-w-0">
-          <h1 className="font-condensed text-5xl font-extrabold uppercase italic leading-[0.95] text-fg rtl:not-italic sm:text-6xl lg:text-[64px]">
-            {article.title[lang]}
-          </h1>
-          <p className="mt-5 flex flex-wrap items-center gap-2 font-condensed text-sm font-bold uppercase tracking-wide text-fg-muted">
-            <span className="text-wydad-red">{article.category_label ?? t(article.category)}</span>
-            <span aria-hidden>•</span>
-            <span>{published}</span>
-            <span aria-hidden>•</span>
-            <span>{article.read_time_minutes} {t('min_read')}</span>
-          </p>
-
-          <p className="mt-8 text-xl leading-relaxed text-fg sm:text-2xl sm:leading-relaxed">
-            {article.excerpt[lang]}
-          </p>
+          {!wide && header}
 
           {/* Photo inline on small screens; in the side column on desktop */}
-          {article.cover_image_url && (
+          {!wide && article.cover_image_url && (
             <div className="relative mt-8 aspect-[4/5] overflow-hidden bg-surface-secondary sm:aspect-[4/3] lg:hidden">
-              <Image src={article.cover_image_url} alt={article.title[lang]} fill sizes="100vw" className="object-cover" style={{ objectPosition: article.cover_position ?? 'center 75%' }} />
+              <Image src={article.cover_image_url} alt={alt} fill sizes="100vw" className="object-cover" style={{ objectPosition: article.cover_position ?? 'center 75%' }} />
             </div>
           )}
 
-          <div className="mt-10 max-w-2xl space-y-5 text-lg leading-relaxed text-fg-secondary">
-            {paragraphs.map((p, i) => (
-              <p key={i}>{p}</p>
-            ))}
-          </div>
-
-          {article.author && (
-            <p className="mt-10 border-t border-border pt-5 text-sm text-fg-muted">{article.author}</p>
-          )}
+          {body}
+          {byline}
         </div>
 
         {/* Side column: photo + "in this article" */}
         <aside className="min-w-0">
-          {article.cover_image_url && (
+          {!wide && article.cover_image_url && (
             <div className="relative hidden aspect-[4/5] overflow-hidden bg-surface-secondary lg:block">
-              <Image src={article.cover_image_url} alt={article.title[lang]} fill priority sizes="460px" className="object-cover" style={{ objectPosition: article.cover_position ?? 'center 75%' }} />
+              <Image src={article.cover_image_url} alt={alt} fill priority sizes="460px" className="object-cover" style={{ objectPosition: article.cover_position ?? 'center 75%' }} />
             </div>
           )}
 

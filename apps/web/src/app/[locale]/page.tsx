@@ -49,6 +49,8 @@ export default async function HomePage({
   const heroItems = await Promise.all(
     feed
       .filter(hasPicture)
+      // An article marked "featured" in the newsroom leads the hero
+      .sort((a, b) => Number(b.kind === 'article' && !!b.article.featured) - Number(a.kind === 'article' && !!a.article.featured))
       .slice(0, 3)
       .map(async (item) => {
         const matchId = item.kind === 'article' ? item.article.match_id : undefined;

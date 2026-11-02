@@ -15,7 +15,8 @@
     "db:seed": "node scripts/db.mjs seed",
     "db:status": "node scripts/db.mjs status",
     "admin:grant": "node scripts/db.mjs grant-admin",
-    "test:unit": "node --import tsx --test tests/*.test.ts"
+    "test:unit": "node --import tsx --test tests/*.test.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -43,6 +44,8 @@
     "@types/react-dom": "^18.3.0",
     "@types/sanitize-html": "^2.16.2",
     "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.35",
     "pg": "^8.13.1",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",

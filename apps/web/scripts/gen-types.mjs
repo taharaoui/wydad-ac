@@ -40,7 +40,7 @@ const columns = (await db.query(`
 const functions = (await db.query(`
   select p.proname as name, pg_get_function_arguments(p.oid) as args, pg_get_function_result(p.oid) as result
   from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-  where n.nspname = 'public' and p.proname in ('is_admin', 'media_usage') order by 1`)).rows;
+  where n.nspname = 'public' and p.proname in ('is_admin', 'is_staff', 'staff_can_publish', 'mark_onboarded', 'media_usage') order by 1`)).rows;
 
 const SQL_TS = { text: 'string', uuid: 'string', boolean: 'boolean', bigint: 'number', integer: 'number', jsonb: 'Json' };
 const sqlToTs = (type) => SQL_TS[type.trim()] ?? 'unknown';

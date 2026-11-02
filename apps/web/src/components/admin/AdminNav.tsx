@@ -4,17 +4,26 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-export interface NavGroup {
+export interface NavItem {
+  href: string;
   label: string;
-  items: { href: string; label: string }[];
+  /** Highlighted call to action (Create article) */
+  primary?: boolean;
+  badge?: number;
+}
+export interface NavGroup {
+  label?: string;
+  items: NavItem[];
 }
 
-/** Admin sidebar: grouped modules; a drawer on small screens */
-export function AdminNav({ groups, email, signOut }: { groups: NavGroup[]; email: string; signOut: () => Promise<void> }) {
+/** Admin sidebar: newsroom first, then administration; a drawer on small screens */
+export function AdminNav({ groups, email, role, signOut }: { groups: NavGroup[]; email: string; role: string; signOut: () => Promise<void> }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [pathname]);
-  const active = (href: string) => (href === '/admin' ? pathname === '/admin' : pathname === href || pathname.startsWith(`${href}/`));
+  const all = groups.flatMap((g) => g.items.map((i) => i.href));
+  // The most specific item matching the address is the current one
+  const current = all.filter((href) => (href === '/admin' ? pathname === '/admin' : pathname === href || pathname.startsWith(`${href}/`))).sort((a, b) => b.length - a.length)[0];
 
   const nav = (
     <nav aria-label="Administration" className="flex h-full flex-col">
@@ -22,30 +31,26 @@ export function AdminNav({ groups, email, signOut }: { groups: NavGroup[]; email
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/wydad-crest-white.svg" alt="" className="h-10 w-auto" />
         <span className="font-condensed text-xl font-extrabold uppercase italic leading-none text-white">
-          Admin
+          Rédaction
           <span className="block text-xs font-bold not-italic tracking-wide text-white/70">Wydad Athletic Club</span>
         </span>
       </Link>
       <div className="flex-1 space-y-5 overflow-y-auto px-3 pb-6">
-        <ul>
-          <li>
-            <Link href="/admin" aria-current={active('/admin') ? 'page' : undefined} className={`block rounded-lg px-3 py-2 text-[15px] font-medium ${active('/admin') ? 'bg-white text-wydad-logo' : 'text-white/90 hover:bg-white/10'}`}>
-              Tableau de bord
-            </Link>
-          </li>
-        </ul>
-        {groups.map((g) => (
-          <div key={g.label}>
-            <p className="px-3 pb-1.5 font-condensed text-xs font-bold uppercase tracking-[0.16em] text-white/60">{g.label}</p>
+        {groups.map((g, n) => (
+          <div key={g.label ?? n}>
+            {g.label && <p className="px-3 pb-1.5 font-condensed text-xs font-bold uppercase tracking-[0.16em] text-white/60">{g.label}</p>}
             <ul className="space-y-0.5">
               {g.items.map((i) => (
                 <li key={i.href}>
                   <Link
                     href={i.href}
-                    aria-current={active(i.href) ? 'page' : undefined}
-                    className={`block rounded-lg px-3 py-1.5 text-[15px] font-medium ${active(i.href) ? 'bg-white text-wydad-logo' : 'text-white/90 hover:bg-white/10'}`}
+                    aria-current={current === i.href ? 'page' : undefined}
+                    className={`flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-[15px] font-medium ${
+                      current === i.href ? 'bg-white text-wydad-logo' : i.primary ? 'bg-white/15 text-white hover:bg-white/25' : 'text-white/90 hover:bg-white/10'
+                    }`}
                   >
-                    {i.label}
+                    <span>{i.primary ? `+ ${i.label}` : i.label}</span>
+                    {!!i.badge && <span className="rounded-full bg-amber-400 px-2 text-xs font-bold text-black">{i.badge}</span>}
                   </Link>
                 </li>
               ))}
@@ -57,6 +62,7 @@ export function AdminNav({ groups, email, signOut }: { groups: NavGroup[]; email
         <p className="truncate text-sm text-white/75" title={email}>
           {email}
         </p>
+        <p className="text-xs text-white/55">{role === 'admin' ? 'Administrateur' : 'Rédacteur'}</p>
         <div className="mt-2 flex items-center gap-4 text-sm">
           <a href="/fr" target="_blank" rel="noopener" className="font-semibold text-white hover:underline">
             Voir le site
@@ -74,7 +80,7 @@ export function AdminNav({ groups, email, signOut }: { groups: NavGroup[]; email
   return (
     <>
       <div className="sticky top-0 z-40 flex items-center justify-between bg-wydad-logo px-4 py-3 text-white lg:hidden">
-        <span className="font-condensed text-lg font-extrabold uppercase italic">Admin Wydad</span>
+        <span className="font-condensed text-lg font-extrabold uppercase italic">Rédaction Wydad</span>
         <button type="button" onClick={() => setOpen(true)} aria-expanded={open} aria-controls="admin-drawer" className="min-h-11 rounded-lg px-3 font-semibold hover:bg-white/10">
           Menu
         </button>

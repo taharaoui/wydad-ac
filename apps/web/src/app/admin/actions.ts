@@ -6,7 +6,8 @@ import { redirect } from 'next/navigation';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createSessionClient } from '@/lib/supabase/server';
 import { CMS_TAG, isSupabaseConfigured } from '@/lib/supabase/config';
-import { requireAdminAction } from '@/lib/admin/auth';
+import { requireAdminAction, requireStaffAction } from '@/lib/admin/auth';
+import { MAX_IMAGE_BYTES } from '@/lib/editorial/spec';
 import { getResource } from '@/lib/admin/resources';
 import { validateForm, type FieldErrors } from '@/lib/admin/validate';
 import type { Bucket } from '@/lib/admin/types';
@@ -47,13 +48,40 @@ export async function signIn(_: FormState, form: FormData): Promise<FormState> {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { message: 'E-mail ou mot de passe incorrect.' };
 
-  const { data: isAdmin } = await supabase.rpc('is_admin');
-  if (!isAdmin) {
+  const { data: isStaff } = await supabase.rpc('is_staff');
+  if (!isStaff) {
     await supabase.auth.signOut();
     return { message: 'Ce compte n’a pas accès à l’administration.' };
   }
   const next = String(form.get('next') ?? '');
   redirect(/^\/admin(\/[\w/-]*)?$/.test(next) && next !== '/admin/login' ? next : '/admin');
+}
+
+/**
+ * Invitation (or new access link): checks the one-time token from the link, signs the person in and
+ * sets the password they chose. A form, not a page load, so mail scanners opening the link don't
+ * use the token up.
+ */
+export async function acceptInvite(_: FormState, form: FormData): Promise<FormState> {
+  const tokenHash = String(form.get('token_hash') ?? '');
+  const type = form.get('type') === 'recovery' ? 'recovery' : 'invite';
+  const password = String(form.get('password') ?? '');
+  const confirm = String(form.get('confirm') ?? '');
+  if (!tokenHash) return { message: 'Lien incomplet : ouvrez le lien reçu en entier.' };
+  if (password.length < 10) return { message: 'Le mot de passe doit faire au moins 10 caractères.', errors: { password: 'Trop court' } };
+  if (password !== confirm) return { message: 'Les deux mots de passe ne sont pas identiques.', errors: { confirm: 'Différent' } };
+
+  const supabase = createSessionClient();
+  const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
+  if (error) return { message: 'Ce lien n’est plus valable (déjà utilisé ou expiré). Demandez un nouveau lien à un administrateur.' };
+  const { error: pwError } = await supabase.auth.updateUser({ password });
+  if (pwError) return { message: `Mot de passe refusé : ${pwError.message}` };
+  const { data: isStaff } = await supabase.rpc('is_staff');
+  if (!isStaff) {
+    await supabase.auth.signOut();
+    return { message: 'Votre compte est créé mais n’a pas (ou plus) accès à la rédaction. Contactez un administrateur.' };
+  }
+  redirect('/admin');
 }
 
 export async function signOut() {
@@ -157,15 +185,25 @@ export interface UploadResult {
   error?: string;
 }
 
+/**
+ * Uploads an image to Storage and records it in the media library. Editors may only add article
+ * images (bucket "news"); article covers follow the newsroom standard (WebP or JPEG, 2 MB max).
+ */
 export async function uploadMedia(form: FormData): Promise<UploadResult> {
-  const { supabase, user } = await requireAdminAction();
+  const { supabase, user, member } = await requireStaffAction();
   const file = form.get('file');
   const bucket = String(form.get('bucket') ?? '') as Bucket;
+  const purpose = String(form.get('purpose') ?? '');
   if (!(file instanceof File) || file.size === 0) return { error: 'Choisissez un fichier.' };
   if (!BUCKETS.includes(bucket)) return { error: 'Dossier inconnu.' };
+  if (member.role !== 'admin' && bucket !== 'news') return { error: 'Vous pouvez seulement ajouter des images d’articles.' };
   if (file.size > MAX_BYTES) return { error: 'Fichier trop lourd (8 Mo maximum).' };
   const type = await sniff(file);
   if (!type || !TYPES[type]) return { error: 'Format refusé : JPEG, PNG, WebP, AVIF ou SVG uniquement.' };
+  if (purpose === 'cover') {
+    if (type !== 'image/webp' && type !== 'image/jpeg') return { error: 'Image d’article : WebP ou JPEG uniquement.' };
+    if (file.size > MAX_IMAGE_BYTES) return { error: 'Image d’article trop lourde (2 Mo maximum).' };
+  }
   if (type === 'image/svg+xml' && (bucket !== 'site-assets' || (await unsafeSvg(file)))) return { error: 'SVG refusé (logos uniquement, sans script).' };
 
   const base = file.name.replace(/\.[^.]+$/, '').normalize('NFD').replace(/[^\w-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 60) || 'image';
@@ -226,10 +264,10 @@ export async function deleteMedia(id: string): Promise<FormState> {
 }
 
 /** Latest uploads, for the image picker in forms */
-export async function listMedia(bucket?: string): Promise<{ id: string; url: string; bucket: string }[]> {
-  const { supabase } = await requireAdminAction();
-  let query = supabase.from('media').select('id, public_url, bucket').order('created_at', { ascending: false }).limit(60);
+export async function listMedia(bucket?: string): Promise<{ id: string; url: string; bucket: string; width: number | null; height: number | null }[]> {
+  const { supabase } = await requireStaffAction();
+  let query = supabase.from('media').select('id, public_url, bucket, width, height').order('created_at', { ascending: false }).limit(60);
   if (bucket) query = query.eq('bucket', bucket);
   const { data } = await query;
-  return (data ?? []).map((m) => ({ id: m.id, url: m.public_url, bucket: m.bucket }));
+  return (data ?? []).map((m) => ({ id: m.id, url: m.public_url, bucket: m.bucket, width: m.width, height: m.height }));
 }

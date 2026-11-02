@@ -13,7 +13,7 @@ const BUCKETS = [
 ];
 const ACCEPT = 'image/jpeg,image/png,image/webp,image/avif,image/svg+xml';
 
-export function UploadPanel() {
+export function UploadPanel({ newsOnly = false }: { newsOnly?: boolean }) {
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
   const [bucket, setBucket] = useState('news');
@@ -47,7 +47,7 @@ export function UploadPanel() {
             Dossier
           </label>
           <select id="bucket" value={bucket} onChange={(e) => setBucket(e.target.value)} className="min-h-11 rounded-lg border border-border bg-white px-3">
-            {BUCKETS.map((b) => (
+            {BUCKETS.filter((b) => !newsOnly || b.value === 'news').map((b) => (
               <option key={b.value} value={b.value}>
                 {b.label}
               </option>
@@ -83,7 +83,7 @@ export function UploadPanel() {
   );
 }
 
-export function MediaCard({ media }: { media: { id: string; url: string; bucket: string; mime: string; size: number; width: number | null; height: number | null; created: string } }) {
+export function MediaCard({ media, canManage = true }: { media: { id: string; url: string; bucket: string; mime: string; size: number; width: number | null; height: number | null; created: string }; canManage?: boolean }) {
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
   const [pending, start] = useTransition();
@@ -137,12 +137,16 @@ export function MediaCard({ media }: { media: { id: string; url: string; bucket:
           >
             {copied ? 'Copié' : 'Copier le lien'}
           </button>
-          <button type="button" disabled={pending} onClick={() => input.current?.click()} className="rounded-md border border-border px-2 py-1 font-semibold hover:border-wydad-logo disabled:opacity-50">
-            Remplacer
-          </button>
-          <button type="button" disabled={pending} onClick={remove} className="rounded-md px-2 py-1 font-semibold text-wydad-red hover:bg-wydad-red/10 disabled:opacity-50">
-            Supprimer
-          </button>
+          {canManage && (
+            <>
+              <button type="button" disabled={pending} onClick={() => input.current?.click()} className="rounded-md border border-border px-2 py-1 font-semibold hover:border-wydad-logo disabled:opacity-50">
+                Remplacer
+              </button>
+              <button type="button" disabled={pending} onClick={remove} className="rounded-md px-2 py-1 font-semibold text-wydad-red hover:bg-wydad-red/10 disabled:opacity-50">
+                Supprimer
+              </button>
+            </>
+          )}
         </div>
         {message && (
           <p role={message.ok ? 'status' : 'alert'} className={message.ok ? 'text-emerald-700' : 'text-wydad-red'}>

@@ -286,7 +286,13 @@
     "type_video": "Vidéos",
     "results_count": "{count, plural, one {{n} contenu} other {{n} contenus}}",
     "empty": "Aucun contenu pour cette sélection.",
-    "type_facebook": "Facebook"
+    "type_facebook": "Facebook",
+    "first_team": "Équipe première",
+    "espoirs": "Espoirs",
+    "women": "Football féminin",
+    "club_news": "Vie du club",
+    "academy": "Académie",
+    "official": "Communiqués"
   },
   "team": {
     "squad": "Effectif",

@@ -38,5 +38,15 @@ export const NewsArticleSchema = z.object({
   author: z.string().optional(),
   seo_title: z.string().optional(),
   seo_description: z.string().optional(),
+  /** Articles written in the CMS editor are in one language; omitted for stories in all three */
+  language: z.enum(['ar', 'fr', 'en']).optional(),
+  /** Sanitised rich text (CMS editor); `body` keeps the plain text of older articles */
+  body_html: z.string().optional(),
+  cover_alt: z.string().optional(),
+  /** Portrait (4:5) crop of the cover for phones */
+  cover_mobile_url: z.string().optional(),
+  /** 16:9 cover made to the newsroom standard (1200 × 675): shown whole instead of cropped */
+  cover_wide: z.boolean().optional(),
+  featured: z.boolean().optional(),
 });
 export type NewsArticle = z.infer<typeof NewsArticleSchema>;

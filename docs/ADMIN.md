@@ -128,3 +128,56 @@ Tant que `CMS_SOURCE` n'est pas défini, le site public garde le contenu intégr
 ## Mise à jour du site après une modification
 
 Chaque enregistrement ou suppression dans l'admin invalide le tag de cache `cms` et le layout. Les pages publiques affichent la nouvelle version à la visite suivante, sans redéploiement. Sans action de l'admin, le cache se renouvelle au plus tard toutes les 5 minutes.
+
+## Rédaction (CMS éditorial)
+
+Espace de publication des actualités pour la rédaction : `/admin`. Interface en français, pensée pour une personne sans compétence technique.
+
+### Rôles
+
+| | Administrateur | Rédacteur | Rédacteur « autorisé à publier » |
+|---|---|---|---|
+| Créer des articles, importer des images | oui | oui | oui |
+| Modifier ses brouillons / articles à relire | oui | oui | oui |
+| Modifier les articles des autres | oui | non | non |
+| Publier, programmer, retirer du site | oui | non (« Soumettre pour relecture ») | oui (ses articles) |
+| Catégories, utilisateurs, réglages, autres modules | oui | non | non |
+
+Les droits sont appliqués à trois niveaux : pages (`requireStaffPage` / `requireAdminPage`), actions serveur (`requireStaffAction` / `requireAdminAction`) et Row Level Security (`is_admin()`, `is_staff()`, `staff_can_publish()`). Il reste toujours au moins un administrateur actif (trigger `keep_one_admin`).
+
+### Inviter un rédacteur
+
+1. `/admin/users` › « Inviter un membre » : nom, e-mail, rôle, droit de publier.
+2. Le compte Supabase est créé sans mot de passe et un **lien à usage unique** s’affiche : envoyez-le à la personne (e-mail, WhatsApp).
+3. La personne ouvre le lien, choisit son mot de passe sur `/admin/accept`, puis arrive sur le tableau de bord avec un guide de démarrage.
+4. Lien expiré ou mot de passe oublié : « Nouveau lien d’accès » dans la liste.
+
+Nécessite `SUPABASE_SERVICE_ROLE_KEY` côté serveur (jamais dans le navigateur). La durée de validité des liens se règle dans Supabase › Authentication › Email (« Email OTP Expiration », 1 h par défaut ; 24 h conseillé).
+
+### Article
+
+- **Une langue par article** (`language` = fr / ar / en) : il n’apparaît que dans la version du site de cette langue ; une autre langue redirige vers la sienne. Les anciens articles trilingues ont `language = null`.
+- **Catégorie** dans la taxonomie Groupe › Catégorie (`categories.kind`, `parent_id`) ; le sport est déduit de la catégorie. Les administrateurs ajoutent, renomment, décrivent ou désactivent sur `/admin/categories`.
+- **Texte enrichi** (Tiptap) : paragraphes, intertitres, gras, italique, listes, citations, liens. Le HTML est filtré par liste blanche au serveur (`lib/editorial/sanitize.ts`) à l’enregistrement et à l’affichage.
+- **Image principale** 1200 × 675 (16:9), WebP/JPEG ≤ 2 Mo : recadrage dans le navigateur, jamais d’agrandissement (une source trop petite bloque la publication). Version mobile 4:5 facultative. Texte alternatif obligatoire.
+- **Enregistrement automatique** des brouillons toutes les 20 s, copie locale de secours, alerte en quittant la page.
+
+### Publication et vérification responsive
+
+1. Contrôles de contenu (`lib/editorial/checks.ts`), les mêmes dans l’éditeur et au serveur : erreurs bloquantes, conseils.
+2. « Prévisualiser et vérifier » : la version en cours est enregistrée dans `article_previews`, puis la **vraie page publique** (`/[locale]/news/preview/[id]`, réservée à la rédaction) est chargée à 1280, 768 et 375 px. Chaque cadre est contrôlé (`lib/editorial/responsive.ts`) : défilement horizontal, débordements, mots trop longs, images cassées/déformées/agrandies, zones tactiles, sens de lecture arabe.
+3. Liste de contrôle en 7 points.
+4. Publication : le serveur revérifie tout et exige un rapport réussi pour **cette version exacte** (empreinte `content_hash`). La base refuse aussi toute publication sans image, texte alternatif, catégorie active ni rapport valide (trigger `news_articles_editorial`), même par l’API directe.
+
+Statuts : brouillon, à relire, publié, programmé (publié avec une date future). Historique dans `editorial_activity` (tableau de bord).
+
+Limite connue : les contrôles d’affichage s’exécutent dans le navigateur du rédacteur ; un membre malveillant pourrait forger un rapport via l’API. Les tests Playwright (`npm run test:e2e -w apps/web`) rejouent les mêmes contrôles sur les pages publiées.
+
+### Commandes
+
+```bash
+npm run db:migrate -w apps/web      # migrations 20261101* (rôles, taxonomie, règles de publication)
+npm run test:db -w apps/web         # RLS, rôles, règles de publication (PGlite)
+npm run test:unit -w apps/web       # contrôles éditoriaux
+npm run test:e2e -w apps/web        # rendu responsive fr/ar/en à 1280/768/375 px (Playwright)
+```

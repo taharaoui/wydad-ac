@@ -1,12 +1,14 @@
 import Link from 'next/link';
-import { requireAdminPage } from '@/lib/admin/auth';
+import { requireStaffPage } from '@/lib/admin/auth';
+import { COVER, MAX_IMAGE_BYTES } from '@/lib/editorial/spec';
 import { MediaCard, UploadPanel } from '@/components/admin/MediaLibrary';
 
 export const metadata = { title: 'Médiathèque' };
 const PER_PAGE = 48;
 
 export default async function MediaPage({ searchParams }: { searchParams: { bucket?: string; page?: string } }) {
-  const { supabase } = await requireAdminPage();
+  const { supabase, member } = await requireStaffPage();
+  const isAdmin = member.role === 'admin';
   const page = Math.max(1, Number(searchParams.page) || 1);
   let query = supabase.from('media').select('*', { count: 'exact' }).order('created_at', { ascending: false });
   if (searchParams.bucket) query = query.eq('bucket', searchParams.bucket);
@@ -18,17 +20,18 @@ export default async function MediaPage({ searchParams }: { searchParams: { buck
       <header>
         <h1 className="font-condensed text-4xl font-extrabold uppercase italic">Médiathèque</h1>
         <p className="mt-1 max-w-2xl text-fg-secondary">
-          Images stockées dans Supabase Storage. Un fichier encore utilisé par un contenu ne peut pas être supprimé ; « Remplacer » met à jour l’image partout où elle apparaît.
+          Toutes les images du site. Pour un article, passez plutôt par l’éditeur : il recadre et compresse l’image au bon format ({COVER.label}, {MAX_IMAGE_BYTES / 1024 / 1024} Mo max).
+          {isAdmin && ' Un fichier encore utilisé par un contenu ne peut pas être supprimé ; « Remplacer » met à jour l’image partout où elle apparaît.'}
         </p>
       </header>
-      <UploadPanel />
+      <UploadPanel newsOnly={!isAdmin} />
       {error && <p className="text-sm text-wydad-red">Chargement impossible : {error.message}</p>}
       {(data ?? []).length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border bg-white px-6 py-12 text-center text-fg-secondary">Aucun média pour l’instant.</p>
       ) : (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {(data ?? []).map((m) => (
-            <MediaCard key={m.id} media={{ id: m.id, url: m.public_url, bucket: m.bucket, mime: m.mime_type, size: m.size_bytes, width: m.width, height: m.height, created: m.created_at }} />
+            <MediaCard key={m.id} canManage={isAdmin} media={{ id: m.id, url: m.public_url, bucket: m.bucket, mime: m.mime_type, size: m.size_bytes, width: m.width, height: m.height, created: m.created_at }} />
           ))}
         </ul>
       )}

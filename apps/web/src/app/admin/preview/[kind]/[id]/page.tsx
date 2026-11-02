@@ -2,9 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { requireAdminPage } from '@/lib/admin/auth';
-import { categoryMap, toArticle } from '@/lib/cms/news';
 import { toCmsPage } from '@/lib/cms/club';
-import { ArticleView } from '@/components/news/ArticleView';
 import { PageView } from '@/components/cms/PageView';
 
 export const dynamic = 'force-dynamic';
@@ -16,7 +14,7 @@ const LANGS = [
   { code: 'en', label: 'English' },
 ] as const;
 
-/** Draft preview for administrators: the article or page as the site will show it, in any language */
+/** Draft preview for administrators: the CMS page (articles have their own preview, news/preview) as the site will show it, in any language */
 export default async function Preview({ params, searchParams }: { params: { kind: string; id: string }; searchParams: { lang?: string } }) {
   const { supabase } = await requireAdminPage();
   const lang = LANGS.some((l) => l.code === searchParams.lang) ? (searchParams.lang as 'fr' | 'ar' | 'en') : 'fr';
@@ -25,15 +23,7 @@ export default async function Preview({ params, searchParams }: { params: { kind
   let content: React.ReactNode;
   let status = '';
   let editHref = '';
-  if (params.kind === 'news') {
-    const { data: row } = await supabase.from('news_articles').select('*').eq('id', params.id).maybeSingle();
-    if (!row) notFound();
-    // The session client reads drafts too (admin RLS)
-    const article = toArticle(row, await categoryMap(supabase as never, lang), lang);
-    content = <ArticleView article={article} locale={lang} />;
-    status = row.status;
-    editHref = `/admin/news/${row.id}`;
-  } else if (params.kind === 'page') {
+  if (params.kind === 'page') {
     const { data: row } = await supabase.from('pages').select('*').eq('id', params.id).maybeSingle();
     if (!row) notFound();
     content = <PageView page={toCmsPage(row, lang)} />;
