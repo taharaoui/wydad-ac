@@ -7,6 +7,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { AnnouncementBar } from '@/components/layout/AnnouncementBar';
 import { getSiteSettings } from '@/lib/cms/site';
+import { SITE_URL } from '@/lib/links';
 import { Analytics } from '@vercel/analytics/next';
 import '@/app/globals.css';
 
@@ -19,6 +20,7 @@ export async function generateMetadata({
   const [t, settings] = await Promise.all([getTranslations({ locale, namespace: 'common' }), getSiteSettings(locale)]);
 
   return {
+    metadataBase: new URL(SITE_URL),
     title: {
       template: `%s | ${t('club_name')}`,
       default: settings.seoTitle ?? t('club_name'),

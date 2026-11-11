@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache';
 import { clubName } from '@/lib/clubs';
+import { clipText } from '@/lib/text';
 
 /**
  * Posts from the club's official Facebook page (facebook.com/WACofficiel), refreshed every 15 minutes.
@@ -30,7 +31,7 @@ function split(message: string): { title: string; text: string } {
     .replace(/\n{3,}/g, '\n\n')
     .trim();
   const [first, ...rest] = clean.split('\n');
-  return { title: first.trim().slice(0, 160), text: rest.join('\n').trim().slice(0, 600) };
+  return { title: clipText(first.trim(), 160), text: clipText(rest.join('\n').trim(), 600) };
 }
 
 async function fromGraphApi(pageId: string, token: string): Promise<FacebookPost[]> {

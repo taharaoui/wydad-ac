@@ -1,4 +1,5 @@
 import { clubName } from './clubs';
+import { clipText } from './text';
 
 /**
  * Profile and latest posts from the club's Instagram (@wacofficiel), read from the public profile embed
@@ -96,7 +97,7 @@ export async function fetchInstagramFeed(username: string): Promise<InstagramFee
     const posts = media.map(({ shortcode_media: n }) => ({
       shortcode: n.shortcode,
       kind: KIND[n.__typename] ?? 'image',
-      caption: clubName(n.edge_media_to_caption?.edges[0]?.node.text ?? '').split('\n')[0].replace(/\*+/g, '').trim().slice(0, 140),
+      caption: clipText(clubName(n.edge_media_to_caption?.edges[0]?.node.text ?? '').split('\n')[0].replace(/\*+/g, '').trim(), 140),
       image: n.display_url,
       width: n.dimensions.width,
       height: n.dimensions.height,

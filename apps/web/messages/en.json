@@ -937,5 +937,11 @@
     "c_stadium": "Stadium and facilities",
     "c_supporters": "Supporter culture",
     "sources_note": "Questions checked against the site’s Club page (sources: Wikipedia and club communications)."
+  },
+  "not_found": {
+    "title": "Page not found",
+    "text": "This page doesn’t exist or has moved.",
+    "home": "Back to home",
+    "news": "News"
   }
 }

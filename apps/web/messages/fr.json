@@ -937,5 +937,11 @@
     "c_stadium": "Stade et installations",
     "c_supporters": "Culture des supporters",
     "sources_note": "Questions vérifiées à partir de la page Le Club du site (sources : Wikipédia et communications du club)."
+  },
+  "not_found": {
+    "title": "Page introuvable",
+    "text": "Cette page n’existe pas ou a été déplacée.",
+    "home": "Retour à l’accueil",
+    "news": "Actualités"
   }
 }
