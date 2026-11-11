@@ -2,9 +2,6 @@ import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 
-/** Discord invite, once the club opens its server */
-const DISCORD_URL = process.env.NEXT_PUBLIC_DISCORD_URL;
-
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'fans' });
@@ -20,10 +17,10 @@ export default async function FansPage({ params }: { params: Promise<{ locale: s
   const t = await getTranslations({ locale, namespace: 'fans' });
 
   const blocks: Block[] = [
-    { id: 'podcasts', key: 'podcasts', live: false },
+    { id: 'podcasts', key: 'podcasts', live: true, href: '/live' },
     { id: 'ultras', key: 'ultras', live: true },
     { id: 'historic-members', key: 'historic_members', live: false },
-    { id: 'community', key: 'community', live: !!DISCORD_URL, href: DISCORD_URL },
+    { id: 'community', key: 'community', live: true, href: '/community' },
   ];
 
   return (
@@ -82,14 +79,12 @@ export default async function FansPage({ params }: { params: Promise<{ locale: s
             </div>
             <p className={`relative mt-4 max-w-xl leading-relaxed ${b.key === 'ultras' ? 'text-white/85' : 'text-fg-secondary'}`}>{t(`${b.key}_text`)}</p>
             {b.href && (
-              <a
+              <Link
                 href={b.href}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="mt-6 inline-flex min-h-11 w-fit items-center rounded bg-wydad-logo px-5 font-condensed text-lg font-bold uppercase text-white hover:bg-wydad-red-hover"
               >
-                {t('community_cta')}
-              </a>
+                {b.key === 'podcasts' ? 'Wydad Live' : t('community_cta')}
+              </Link>
             )}
           </section>
         ))}

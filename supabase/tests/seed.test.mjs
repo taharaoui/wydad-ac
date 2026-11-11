@@ -35,7 +35,7 @@ test('the seed loads the bundled content', async () => {
   const c = await counts();
   for (const t of TABLES) assert.ok(c[t] > 0, `${t} has rows`);
   assert.equal(c.site_settings, 1);
-  assert.equal(c.home_sections, 5);
+  assert.equal(c.home_sections, 6);
   // Menu tree keeps its nesting: Football > First team > Squad
   const { rows } = await db.query(`
     select c.href from public.navigation_items c
@@ -54,4 +54,28 @@ test('running the seed again adds nothing and keeps admin edits', async () => {
   assert.deepEqual(await counts(), before);
   const { rows } = await db.query(`select price_amount from public.membership_offers where slug = 'gold'`);
   assert.equal(Number(rows[0].price_amount), 1234, 'edit kept');
+});
+
+test('the ecosystem migration upgrades an already seeded database without undoing edits', async () => {
+  const migration = fs.readFileSync(path.join(supabaseDir, 'migrations', '20261111000100_ecosystem_navigation.sql'), 'utf8');
+  // A database seeded before Live, Community, Quiz and the newsletter existed, with the old Fans links
+  await db.exec(`
+    delete from public.home_sections where key = 'newsletter';
+    delete from public.navigation_items where label_key in ('wydad_live', 'community_hub', 'quiz', 'newsletter');
+    insert into public.navigation_items (id, menu, label_key, href, sort, visible, parent_id) values
+      (md5('nav:main:nav:main:/fans/podcasts')::uuid, 'main', 'podcasts', '/fans#podcasts', 10, true, md5('nav:main:/fans')::uuid),
+      (md5('nav:main:nav:main:/fans/community')::uuid, 'main', 'community', '/fans#community', 40, true, md5('nav:main:/fans')::uuid);
+    update public.home_sections set sort = 99 where key = 'instagram';
+  `);
+  await db.exec(migration);
+  await db.exec(migration); // runs twice harmlessly
+
+  const sections = await db.query(`select key, sort from public.home_sections order by sort`);
+  assert.deepEqual(sections.rows.map((r) => r.key).slice(-2), ['newsletter', 'instagram'], 'band added, admin order kept');
+  const nav = await db.query(`select menu, label_key, visible from public.navigation_items where label_key in ('wydad_live', 'community_hub', 'quiz', 'newsletter', 'podcasts', 'community') order by menu, label_key`);
+  const shown = nav.rows.filter((r) => r.visible).map((r) => `${r.menu}:${r.label_key}`);
+  for (const item of ['bar:wydad_live', 'footer_club:wydad_live', 'footer_services:community_hub', 'footer_services:quiz', 'footer_services:newsletter', 'main:wydad_live', 'main:community_hub', 'main:quiz', 'main:newsletter']) {
+    assert.ok(shown.includes(item), `${item} visible`);
+  }
+  assert.ok(!shown.includes('main:podcasts') && !shown.includes('main:community'), 'old Fans anchors hidden');
 });

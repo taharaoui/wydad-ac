@@ -39,6 +39,7 @@ export const isExternal = (href: string) => /^https?:\/\//.test(href);
 export const BAR_LINKS: NavLink[] = [
   { key: 'news', href: '/news' },
   { key: 'wydad_tv', href: '/wydad-tv' },
+  { key: 'wydad_live', href: '/live' },
 ];
 
 /** Account and commerce links (for search; the bar renders them itself) */
@@ -126,10 +127,12 @@ export const MENU: MenuNode[] = [
     key: 'fans',
     children: [
       { key: 'gold_membership', href: '/gold-membership' },
-      { key: 'podcasts', href: '/fans#podcasts' },
+      { key: 'wydad_live', href: '/live' },
       { key: 'ultras', href: '/fans#ultras' },
       { key: 'historic_members', href: '/fans#historic-members' },
-      { key: 'community', href: '/fans#community' },
+      { key: 'community_hub', href: '/community' },
+      { key: 'quiz', href: '/quiz' },
+      { key: 'newsletter', href: '/newsletter' },
     ],
   },
   {

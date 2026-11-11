@@ -6,6 +6,7 @@ import { BotolaRecordCard } from '@/components/home/BotolaRecordCard';
 import { GoldShowcase } from '@/components/home/GoldShowcase';
 import { StandingsPreview } from '@/components/home/StandingsPreview';
 import { NewsPreview } from '@/components/home/NewsPreview';
+import { NewsletterBand } from '@/components/newsletter/NewsletterBand';
 import { HeroSection } from '@/components/home/HeroSection';
 import { FixturesCarousel } from '@/components/home/FixturesCarousel';
 import { ScrollReveal } from '@/components/ui/ScrollReveal';
@@ -100,6 +101,13 @@ export default async function HomePage({
         <section className="py-12 sm:py-16">
           <NewsPreview items={feed} locale={locale} title={title} />
         </section>
+      </ScrollReveal>
+    ),
+    newsletter: (title) => (
+      <ScrollReveal delay={100}>
+        <div className="pb-16">
+          <NewsletterBand locale={locale} source="home" title={title} />
+        </div>
       </ScrollReveal>
     ),
     instagram: (title) => (

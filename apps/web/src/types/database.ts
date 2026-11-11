@@ -653,6 +653,96 @@ export type Database = {
         };
         Relationships: [];
       };
+      newsletter_events: {
+        Row: {
+          id: number;
+          kind: string;
+          ip_hash: string | null;
+          email_hash: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          kind: string;
+          ip_hash?: string | null;
+          email_hash?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          kind?: string;
+          ip_hash?: string | null;
+          email_hash?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      newsletter_subscribers: {
+        Row: {
+          id: string;
+          email: string;
+          email_normalized: string | null;
+          status: string;
+          topics: string[];
+          locale: string;
+          source: string | null;
+          consent_at: string;
+          consent_text: string;
+          confirmed_at: string | null;
+          unsubscribed_at: string | null;
+          confirm_token_hash: string | null;
+          confirm_expires_at: string | null;
+          confirm_sent_at: string | null;
+          unsubscribe_token: string;
+          ip_hash: string | null;
+          user_agent: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          email_normalized?: string | null;
+          status?: string;
+          topics?: string[];
+          locale?: string;
+          source?: string | null;
+          consent_at: string;
+          consent_text: string;
+          confirmed_at?: string | null;
+          unsubscribed_at?: string | null;
+          confirm_token_hash?: string | null;
+          confirm_expires_at?: string | null;
+          confirm_sent_at?: string | null;
+          unsubscribe_token: string;
+          ip_hash?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          email_normalized?: string | null;
+          status?: string;
+          topics?: string[];
+          locale?: string;
+          source?: string | null;
+          consent_at?: string;
+          consent_text?: string;
+          confirmed_at?: string | null;
+          unsubscribed_at?: string | null;
+          confirm_token_hash?: string | null;
+          confirm_expires_at?: string | null;
+          confirm_sent_at?: string | null;
+          unsubscribe_token?: string;
+          ip_hash?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       pages: {
         Row: {
           id: string;
@@ -747,6 +837,90 @@ export type Database = {
           photo_url?: string | null;
           status?: Database['public']['Enums']['content_status'];
           sort?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      quiz_attempts: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          mode: string;
+          category: string | null;
+          difficulty: string | null;
+          score: number;
+          correct: number;
+          total: number;
+          duration_ms: number | null;
+          played_on: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          mode: string;
+          category?: string | null;
+          difficulty?: string | null;
+          score: number;
+          correct: number;
+          total: number;
+          duration_ms?: number | null;
+          played_on?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          mode?: string;
+          category?: string | null;
+          difficulty?: string | null;
+          score?: number;
+          correct?: number;
+          total?: number;
+          duration_ms?: number | null;
+          played_on?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      quiz_questions: {
+        Row: {
+          id: string;
+          category: string;
+          difficulty: string;
+          prompt: Json;
+          choices: Json;
+          answer_index: number;
+          explanation: Json | null;
+          source: string;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          category: string;
+          difficulty: string;
+          prompt: Json;
+          choices: Json;
+          answer_index: number;
+          explanation?: Json | null;
+          source: string;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          category?: string;
+          difficulty?: string;
+          prompt?: Json;
+          choices?: Json;
+          answer_index?: number;
+          explanation?: Json | null;
+          source?: string;
+          status?: string;
           created_at?: string;
           updated_at?: string;
         };

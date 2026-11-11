@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { clubName } from '@/lib/clubs';
 
 /**
@@ -44,11 +45,16 @@ async function fromGraphApi(pageId: string, token: string): Promise<FacebookPost
 
 const unescape = (s: string) => JSON.parse(`"${s}"`) as string;
 
-/** Latest post exposed by the public page (one post, no token) */
-async function fromPublicPage(): Promise<FacebookPost[]> {
+/**
+ * Latest post exposed by the public page (one post, no token). The page weighs ~4.5 MB, over the
+ * 2 MB limit of Next's fetch cache, so the request itself isn't cached: the extracted post is.
+ */
+const fromPublicPage = unstable_cache(readPublicPage, ['facebook-public-page'], { revalidate: REVALIDATE, tags: [FACEBOOK_TAG] });
+
+async function readPublicPage(): Promise<FacebookPost[]> {
   const res = await fetch(FACEBOOK_URL, {
     headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)', 'Accept-Language': 'fr' },
-    next: { revalidate: REVALIDATE, tags: [FACEBOOK_TAG] },
+    cache: 'no-store',
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const html = await res.text();
