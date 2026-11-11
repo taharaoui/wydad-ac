@@ -97,7 +97,8 @@ export async function getHomeSections(locale: string): Promise<HomeSection[]> {
     const rows = unwrap(await db.from('home_sections').select('*').order('sort')) ?? [];
     if (rows.length === 0) return null;
     return rows
-      .filter((r) => r.visible)
+      // A key added by a newer migration than this build knows is skipped, not rendered as a crash
+      .filter((r) => r.visible && (HOME_SECTION_KEYS as readonly string[]).includes(r.key))
       .map((r) => ({ key: r.key as HomeSectionKey, title: r.title ? pick(r.title as L10n, locale) || undefined : undefined }));
   });
 }
