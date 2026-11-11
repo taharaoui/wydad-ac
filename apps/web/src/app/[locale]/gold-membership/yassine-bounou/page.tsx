@@ -37,7 +37,7 @@ export default async function BounouPage({ params }: { params: Promise<{ locale:
       <section className="relative isolate overflow-hidden bg-[#0b0a0d]">
         <div className="relative aspect-[4/5] w-full sm:aspect-[16/9] lg:aspect-[21/9]">
           {hasTifo ? (
-            <Image src={TIFO} alt={t('tifo_alt')} fill priority sizes="100vw" className="object-cover" />
+            <Image src={TIFO} alt={t('tifo_alt')} fill priority sizes="100vw" className="object-cover object-[20%_50%] sm:object-center" />
           ) : (
             // Placeholder until the tifo photo is added
             <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,#8a1016_0%,#3a0709_55%,#0b0a0d_100%)]" role="img" aria-label={t('tifo_alt')}>

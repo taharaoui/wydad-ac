@@ -16,6 +16,7 @@ export default async function BasketballStandingsPage({ params }: { params: Prom
   const t = await getTranslations({ locale, namespace: 'basketball' });
   const rows = [...BASKETBALL_STANDINGS].sort((a, b) => a.position - b.position);
   const num = 'px-2 py-3 text-center tabular-nums';
+  const showDiff = rows.every((r) => r.points_for != null && r.points_against != null);
 
   return (
     <SectionPage active="standings" title={t('standings')} season={`${DISLOG_LEAGUE.name} · ${t('season')}`}>
@@ -31,7 +32,7 @@ export default async function BasketballStandingsPage({ params }: { params: Prom
                 <th className={num}>{t('played_short')}</th>
                 <th className={num}>{t('won_short')}</th>
                 <th className={num}>{t('lost_short')}</th>
-                <th className={num}>+/-</th>
+                {showDiff && <th className={num}>+/-</th>}
                 <th className={num}>{t('points_short')}</th>
               </tr>
             </thead>
@@ -48,7 +49,7 @@ export default async function BasketballStandingsPage({ params }: { params: Prom
                   <td className={num}>{r.played}</td>
                   <td className={num}>{r.won}</td>
                   <td className={num}>{r.lost}</td>
-                  <td className={num} dir="ltr">{r.points_for - r.points_against}</td>
+                  {showDiff && <td className={num} dir="ltr">{r.points_for! - r.points_against!}</td>}
                   <td className={`${num} font-bold`}>{r.points}</td>
                 </tr>
               ))}

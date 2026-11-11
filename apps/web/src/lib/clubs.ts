@@ -32,6 +32,9 @@ const PNG_CRESTS = new Set([
   'tm_4629780', // Union Sportive Amal Tiznit
   'tm_773955', // Moghreb Atlético Tetuán
   'tm_9816777', // Widad Temara
+  'bb-majd-tanja', // Majd Tanger (basketball)
+  'bb-alliance-casablanca', // Alliance Sportive Casablanca (basketball)
+  'bb-as-sale', // AS Salé (basketball)
 ]);
 
 /** Crests for clubs outside this season's API data, matched by name if they show up. */

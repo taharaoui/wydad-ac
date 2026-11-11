@@ -80,12 +80,38 @@ export interface BasketballStandingRow {
   played: number;
   won: number;
   lost: number;
-  points_for: number;
-  points_against: number;
+  /** Not in the federation's graphic; the +/- column shows once every row has them */
+  points_for?: number;
+  points_against?: number;
+  /** 2 for a win, 1 for a loss */
   points: number;
 }
 
-export const BASKETBALL_STANDINGS: BasketballStandingRow[] = [];
+// FRMBB graphic "Classement - DBL" after matchday 4 (Nov 2026). Clubs without a football id get a
+// bb- id and show their initials.
+const standing = (position: number, id: string, name: string, short_name: string, won: number, lost: number): BasketballStandingRow => ({
+  position,
+  team: { id, name, short_name },
+  played: won + lost,
+  won,
+  lost,
+  points: 2 * won + lost,
+});
+
+export const BASKETBALL_STANDINGS: BasketballStandingRow[] = [
+  standing(1, 'tm_446779', 'MAS Fès', 'MAS', 4, 0),
+  standing(2, 'tm_805667', 'Wydad AC', 'WAC', 4, 0),
+  standing(3, 'tm_337870', 'FUS Rabat', 'FUS', 3, 1),
+  standing(4, 'bb-as-sale', 'AS Salé', 'ASS', 3, 1),
+  standing(5, 'tm_1309697', 'Ittihad Tanger', 'IRT', 3, 1),
+  standing(6, 'tm_602409', 'Kawkab Marrakech', 'KACM', 2, 2),
+  standing(7, 'tm_029484', 'AS FAR', 'ASFAR', 1, 3),
+  standing(8, 'tm_446704', 'CODM Meknès', 'CODM', 1, 3),
+  standing(9, 'tm_4560072', 'RS Berkane', 'RSB', 1, 3),
+  standing(10, 'bb-ase', 'ASE', 'ASE', 1, 3),
+  standing(11, 'bb-alliance-casablanca', 'Alliance Sportive Casablanca', 'ASC', 1, 3),
+  standing(12, 'bb-majd-tanja', 'Majd Tanger', 'MTB', 0, 4),
+];
 
 export interface BasketballTrophy {
   name: { ar: string; fr: string; en: string };
